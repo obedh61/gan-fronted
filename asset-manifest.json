@@ -1,28 +1,28 @@
 {
   "files": {
-    "main.css": "/gan-fronted/static/css/main.4b61d6b4.css",
-    "main.js": "/gan-fronted/static/js/main.5d5f7506.js",
-    "static/js/453.258b012d.chunk.js": "/gan-fronted/static/js/453.258b012d.chunk.js",
-    "static/media/montessori.jpg": "/gan-fronted/static/media/montessori.a34327c4e6a9d7d9c9e0.jpg",
-    "static/media/juguetes-montessori-2.jpg": "/gan-fronted/static/media/juguetes-montessori-2.6d2730311f5d4458fd17.jpg",
-    "static/media/Carpetas Padres Kids 1-2CENTRO.pdf": "/gan-fronted/static/media/Carpetas Padres Kids 1-2CENTRO.bc331fc8e81c1986ba69.pdf",
-    "static/media/THE MONTESSORI.pdf": "/gan-fronted/static/media/THE MONTESSORI.d186c8e325da53375e6f.pdf",
-    "static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.pdf": "/gan-fronted/static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.aa357396eb06e26a1588.pdf",
-    "static/media/Tulip.svg": "/gan-fronted/static/media/Tulip.e1d5df8a7a908744c890eebbe9e8d4be.svg",
-    "static/media/expl.jpg": "/gan-fronted/static/media/expl.3aa47cb99025ddfc493d.jpg",
-    "static/media/services.jpg": "/gan-fronted/static/media/services.25e23f04ec0237ca2606.jpg",
-    "static/media/Prepared-Environment-2.jpg": "/gan-fronted/static/media/Prepared-Environment-2.e0788216e938ca47cfc7.jpg",
-    "static/media/mate.jpg": "/gan-fronted/static/media/mate.c1b3aadccb8fecfa9cf6.jpg",
-    "static/media/env.jpg": "/gan-fronted/static/media/env.40f44215c191244bd684.jpg",
-    "static/media/FB_IMG_1701110493696.jpg": "/gan-fronted/static/media/FB_IMG_1701110493696.2e4d60a084eef5ab93c3.jpg",
-    "static/media/img.svg": "/gan-fronted/static/media/img.b5384d77055007bdbd8fdff24899acec.svg",
-    "index.html": "/gan-fronted/index.html",
-    "main.4b61d6b4.css.map": "/gan-fronted/static/css/main.4b61d6b4.css.map",
-    "main.5d5f7506.js.map": "/gan-fronted/static/js/main.5d5f7506.js.map",
-    "453.258b012d.chunk.js.map": "/gan-fronted/static/js/453.258b012d.chunk.js.map"
+    "main.css": "/obedh61/gan-fronted/static/css/main.4b61d6b4.css",
+    "main.js": "/obedh61/gan-fronted/static/js/main.b4a8eddb.js",
+    "static/js/453.258b012d.chunk.js": "/obedh61/gan-fronted/static/js/453.258b012d.chunk.js",
+    "static/media/montessori.jpg": "/obedh61/gan-fronted/static/media/montessori.a34327c4e6a9d7d9c9e0.jpg",
+    "static/media/juguetes-montessori-2.jpg": "/obedh61/gan-fronted/static/media/juguetes-montessori-2.6d2730311f5d4458fd17.jpg",
+    "static/media/Carpetas Padres Kids 1-2CENTRO.pdf": "/obedh61/gan-fronted/static/media/Carpetas Padres Kids 1-2CENTRO.bc331fc8e81c1986ba69.pdf",
+    "static/media/THE MONTESSORI.pdf": "/obedh61/gan-fronted/static/media/THE MONTESSORI.d186c8e325da53375e6f.pdf",
+    "static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.pdf": "/obedh61/gan-fronted/static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.aa357396eb06e26a1588.pdf",
+    "static/media/Tulip.svg": "/obedh61/gan-fronted/static/media/Tulip.e1d5df8a7a908744c890eebbe9e8d4be.svg",
+    "static/media/expl.jpg": "/obedh61/gan-fronted/static/media/expl.3aa47cb99025ddfc493d.jpg",
+    "static/media/services.jpg": "/obedh61/gan-fronted/static/media/services.25e23f04ec0237ca2606.jpg",
+    "static/media/Prepared-Environment-2.jpg": "/obedh61/gan-fronted/static/media/Prepared-Environment-2.e0788216e938ca47cfc7.jpg",
+    "static/media/mate.jpg": "/obedh61/gan-fronted/static/media/mate.c1b3aadccb8fecfa9cf6.jpg",
+    "static/media/env.jpg": "/obedh61/gan-fronted/static/media/env.40f44215c191244bd684.jpg",
+    "static/media/FB_IMG_1701110493696.jpg": "/obedh61/gan-fronted/static/media/FB_IMG_1701110493696.2e4d60a084eef5ab93c3.jpg",
+    "static/media/img.svg": "/obedh61/gan-fronted/static/media/img.b5384d77055007bdbd8fdff24899acec.svg",
+    "index.html": "/obedh61/gan-fronted/index.html",
+    "main.4b61d6b4.css.map": "/obedh61/gan-fronted/static/css/main.4b61d6b4.css.map",
+    "main.b4a8eddb.js.map": "/obedh61/gan-fronted/static/js/main.b4a8eddb.js.map",
+    "453.258b012d.chunk.js.map": "/obedh61/gan-fronted/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4b61d6b4.css",
-    "static/js/main.5d5f7506.js"
+    "static/js/main.b4a8eddb.js"
   ]
 }
