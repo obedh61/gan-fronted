@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/gan-fronted/static/css/main.4b61d6b4.css",
-    "main.js": "/gan-fronted/static/js/main.e3258750.js",
+    "main.js": "/gan-fronted/static/js/main.aba12851.js",
     "static/js/453.258b012d.chunk.js": "/gan-fronted/static/js/453.258b012d.chunk.js",
     "static/media/montessori.jpg": "/gan-fronted/static/media/montessori.a34327c4e6a9d7d9c9e0.jpg",
     "static/media/juguetes-montessori-2.jpg": "/gan-fronted/static/media/juguetes-montessori-2.6d2730311f5d4458fd17.jpg",
@@ -21,11 +21,11 @@
     "static/media/img.svg": "/gan-fronted/static/media/img.b5384d77055007bdbd8fdff24899acec.svg",
     "index.html": "/gan-fronted/index.html",
     "main.4b61d6b4.css.map": "/gan-fronted/static/css/main.4b61d6b4.css.map",
-    "main.e3258750.js.map": "/gan-fronted/static/js/main.e3258750.js.map",
+    "main.aba12851.js.map": "/gan-fronted/static/js/main.aba12851.js.map",
     "453.258b012d.chunk.js.map": "/gan-fronted/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4b61d6b4.css",
-    "static/js/main.e3258750.js"
+    "static/js/main.aba12851.js"
   ]
 }
