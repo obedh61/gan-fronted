@@ -7,6 +7,7 @@ import { isAuth } from './helpers';
 import Footer from '../components/Footer';
 import MontessoriComponent from '../components/Carucel';
 import ScheduleComponent from '../components/ScheduleComponent';
+import ContactMain from '../components/ContactMain';
 
 
 
@@ -34,6 +35,7 @@ function Home() {
               <MenuApp />
             </Grid>
           )}
+          <ContactMain/>
           <MontessoriComponent/>
           <ScheduleComponent/>
           <Grid container spacing={2} marginTop={3}>

@@ -5,6 +5,7 @@ import Tulip from '../assets/Tulip.svg';
 import Env from '../assets/env.jpg';
 import Expl from '../assets/expl.jpg';
 import Mate from '../assets/mate.jpg';
+import leaf from "../assets/leaf.svg";
 
 const MontessoriComponent = () => {
   const images = [
@@ -23,15 +24,40 @@ const MontessoriComponent = () => {
   ];
 
   return (
-    <Box sx={{ padding: 4, fontFamily: 'Arial, sans-serif', position: 'relative' }}>
-      <Typography 
-        variant="h4" 
-        align="center" 
-        gutterBottom color='#4A7B59'
-        sx={{ position: 'relative', zIndex: 2 }}
+    <Box sx={{ padding: 2, fontFamily: 'Arial, sans-serif', position: 'relative' }}>
+      <Box
+        position="relative"
+        textAlign="center"
+        padding={3}
+        sx={{ overflow: "hidden" }} // evita que la imagen se salga
       >
-        Montessori: An Innovative Approach
-      </Typography>
+        {/* Texto principal */}
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          // color="#4A7B59"
+          sx={{ position: "relative", zIndex: 2 }}
+        >
+          Montessori: An Innovative Approach
+        </Typography>
+
+        {/* Imagen decorativa detrás */}
+        <Box
+          component="img"
+          src={leaf}
+          alt="decorative leaf"
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            width: 95,
+            opacity: 0.15,
+            zIndex: 1,
+            pointerEvents: "none", // evita interferir con clics
+          }}
+        />
+      </Box>
       <Grid container spacing={4} alignItems="stretch">
         <Grid item xs={12} md={6}>
           <Card sx={{ height: '100%', position: 'relative' }}>

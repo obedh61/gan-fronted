@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Grid, Typography } from "@mui/material";
+import logo from '../assets/logo.svg'
 
 const ScheduleComponent = () => {
   const winterSchedule = "08:00 - 11:30";
@@ -31,9 +32,42 @@ const ScheduleComponent = () => {
 
   return (
     <Box sx={{ padding: 4 }}>
-      <Typography color='#4A7B59' variant="h4" align="center" gutterBottom>
+      {/* <Typography color='#4A7B59' variant="h4" align="center" gutterBottom>
         Weekly Schedule
-      </Typography>
+      </Typography> */}
+      <Box
+        position="relative"
+        // textAlign="center"
+        padding={1}
+        // display="flex"
+        // justifyContent="center"
+        // alignItems="center"
+      >
+        {/* Texto encima */}
+        <Typography
+          variant="h4"
+          sx={{ position: "relative", zIndex: 2 }}
+          align="center" gutterBottom
+        >
+          Weekly Schedule
+        </Typography>
+
+        {/* Imagen detrás */}
+        <Box
+          component="img"
+          src={logo}
+          alt="login icon"
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 250,
+            opacity: 0.2, // hace que se vea como fondo
+            zIndex: 1,
+          }}
+        />
+      </Box>
       
       <Box sx={{ marginY: 4 }}>
         <Typography variant="h5" gutterBottom>

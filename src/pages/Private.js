@@ -16,7 +16,7 @@ export const Private = () => {
           alignItems={"center"}
           justifyContent={"center"}
           margin={"auto"}
-          marginTop={13}
+          // marginTop={13}
           padding={3}
           borderRadius={5}
           boxShadow={"5px 5px 10px #ccc"}

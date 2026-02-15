@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script type="text/javascript">
+    // Detectamos la URL y redirigimos a la ruta Hash de React
+    (function() {
+      var pathname = window.location.pathname;
+      
+      // Evitar bucles infinitos si ya estamos en /#/home
+      if (!window.location.hash) {
+        // Redirigir a tu página principal
+        window.location.replace('/#/home');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirigiendo a la aplicación...</p>
+</body>
+</html>

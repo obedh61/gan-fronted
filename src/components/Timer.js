@@ -10,6 +10,9 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import CircularProgress from '@mui/material/CircularProgress';
 import Map from './Map';
+import Tulip from '../assets/Tulip.svg';
+import People from '../assets/bg4-1.svg'
+import logo from '../assets/logo.svg'
 
 const Timer = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -182,6 +185,7 @@ const Timer = () => {
     <div>
       <DrawerAppBar />
       <Box
+        position="relative"
         display="flex"
         flexDirection={"column"}
         maxWidth={400}
@@ -200,9 +204,38 @@ const Timer = () => {
       >
         {!loggedIn ? (
           <Box display="flex" flexDirection={"column"}>
-            <Typography variant="h2" padding={3} textAlign={"center"}>
-              Login
-            </Typography>
+            <Box
+              position="relative"
+              textAlign="center"
+              padding={3}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {/* Texto encima */}
+              <Typography
+                variant="h4"
+                sx={{ position: "relative", zIndex: 2 }}
+              >
+                Login
+              </Typography>
+
+              {/* Imagen detrás */}
+              <Box
+                component="img"
+                src={logo}
+                alt="login icon"
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: 120,
+                  opacity: 0.2, // hace que se vea como fondo
+                  zIndex: 1,
+                }}
+              />
+            </Box>
             <TextField
               onChange={(e) => setIdNumber(e.target.value)}
               value={idNumber}
@@ -220,6 +253,7 @@ const Timer = () => {
             >
               Login
             </Button>
+
           </Box>
         ) : (
           <Box display="flex" flexDirection={"column"}>
@@ -296,7 +330,24 @@ const Timer = () => {
 
           </Box>
         )}
+        
       </Box>
+      <Box
+          sx={{
+            position: 'absolute',
+            top: 70,
+            right: 16,
+            width: 150, // Ajusta el tamaño del SVG
+            height: 'auto',
+            zIndex: -1, // Coloca el SVG detrás del texto
+          }}
+        >
+          <img
+            src={People} // Ruta del SVG
+            alt="Decorative People"
+            style={{ width: '100%', height: 'auto', opacity: 0.5 }}
+          />
+        </Box>
       <ToastContainer />
     </div>
   );
