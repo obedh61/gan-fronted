@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../components/Footer';
@@ -10,12 +11,32 @@ import { useNavigate } from "react-router-dom";
 
 const PrivateSession = () => {
   const [idNumber, setIdNumber] = useState('');
-  const [year, setYear] = useState('');
-  const [month, setMonth] = useState('');
+  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
+  const [workers, setWorkers] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null); // Para manejar la ubicación seleccionada
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingSession, setEditingSession] = useState(null);
+  const [editTimeIn, setEditTimeIn] = useState('');
+  const [editTimeOut, setEditTimeOut] = useState('');
 
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchWorkers = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API}/workers`);
+        if (response.ok) {
+          const data = await response.json();
+          setWorkers(data);
+        }
+      } catch (err) {
+        console.error('Error fetching workers:', err);
+      }
+    };
+    fetchWorkers();
+  }, []);
 
   const fetchSessions = async () => {
     try {
@@ -79,6 +100,64 @@ const PrivateSession = () => {
     return `${totalHours}h ${totalMinutes}m`;
   };
 
+  const handleEditClick = (session) => {
+    setEditingSession(session);
+    setEditTimeIn(session.timeIn);
+    setEditTimeOut(session.timeOut || '');
+    setEditDialogOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setEditDialogOpen(false);
+    setEditingSession(null);
+    setEditTimeIn('');
+    setEditTimeOut('');
+  };
+
+  const handleEditSubmit = async () => {
+    if (!editTimeIn || !editTimeOut) {
+      toast.error('Please fill in both Time In and Time Out.');
+      return;
+    }
+
+    if (!editingSession._id) {
+      toast.error('Session ID missing. Please re-fetch sessions and try again.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/sessions/${editingSession._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          timeIn: editTimeIn,
+          timeOut: editTimeOut,
+          day: editingSession.day,
+          month: editingSession.month,
+          year: editingSession.year,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Session updated successfully.');
+        handleEditClose();
+        fetchSessions();
+      } else {
+        const text = await response.text();
+        try {
+          const data = JSON.parse(text);
+          toast.error(data.message || 'Failed to update session.');
+        } catch {
+          toast.error('Failed to update session.');
+        }
+      }
+    } catch (err) {
+      console.error('Error updating session:', err);
+      toast.error('Error updating session.');
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -88,9 +167,43 @@ const PrivateSession = () => {
             Work Sessions Report
           </Typography>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <TextField label="ID Number" variant="outlined" margin="normal" onChange={(e) => setIdNumber(e.target.value)} value={idNumber} />
-            <TextField label="Year" variant="outlined" margin="normal" type="number" onChange={(e) => setYear(e.target.value)} value={year} />
-            <TextField label="Month" variant="outlined" margin="normal" type="number" onChange={(e) => setMonth(e.target.value)} value={month} />
+            <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
+              <InputLabel>Worker</InputLabel>
+              <Select value={idNumber} onChange={(e) => setIdNumber(e.target.value)} label="Worker">
+                {workers.map((w) => (
+                  <MenuItem key={w.idNumber} value={w.idNumber}>{w.username}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
+              <InputLabel>Year</InputLabel>
+              <Select value={year} onChange={(e) => setYear(e.target.value)} label="Year">
+                {Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                  <MenuItem key={y} value={y.toString()}>{y}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
+              <InputLabel>Month</InputLabel>
+              <Select value={month} onChange={(e) => setMonth(e.target.value)} label="Month">
+                {[
+                  { value: '1', label: 'January' },
+                  { value: '2', label: 'February' },
+                  { value: '3', label: 'March' },
+                  { value: '4', label: 'April' },
+                  { value: '5', label: 'May' },
+                  { value: '6', label: 'June' },
+                  { value: '7', label: 'July' },
+                  { value: '8', label: 'August' },
+                  { value: '9', label: 'September' },
+                  { value: '10', label: 'October' },
+                  { value: '11', label: 'November' },
+                  { value: '12', label: 'December' },
+                ].map((m) => (
+                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button variant="contained" color="success" sx={{ marginTop: 2 }} onClick={fetchSessions}>
               Get Sessions
             </Button>
@@ -121,6 +234,7 @@ const PrivateSession = () => {
                   <TableCell>Start Location</TableCell>
                   <TableCell>End Location</TableCell>
                   <TableCell>User Agent</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -159,11 +273,17 @@ const PrivateSession = () => {
                         ) : "N/A"}
                       </TableCell>
                       <TableCell>{session.userAgent || "N/A"}</TableCell>
+                      <TableCell>
+                        <IconButton color="primary" onClick={() => handleEditClick(session)}>
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
                 <TableRow>
                   <TableCell colSpan={5} align="right"><strong>Total Hours:</strong></TableCell>
+
                   <TableCell>{calculateTotalHours()}</TableCell>
                 </TableRow>
               </TableBody>
@@ -181,6 +301,41 @@ const PrivateSession = () => {
           )}
         </Box>
       </Box>
+      <Dialog open={editDialogOpen} onClose={handleEditClose}>
+        <DialogTitle>Edit Session</DialogTitle>
+        <DialogContent>
+          {editingSession && (
+            <Typography variant="body2" sx={{ mb: 2, mt: 1 }}>
+              Date: {editingSession.day}/{editingSession.month}/{editingSession.year}
+            </Typography>
+          )}
+          <TextField
+            label="Time In"
+            type="time"
+            value={editTimeIn}
+            onChange={(e) => setEditTimeIn(e.target.value)}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ step: 60 }}
+          />
+          <TextField
+            label="Time Out"
+            type="time"
+            value={editTimeOut}
+            onChange={(e) => setEditTimeOut(e.target.value)}
+            fullWidth
+            margin="normal"
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ step: 60 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose}>Cancel</Button>
+          <Button onClick={handleEditSubmit} variant="contained" color="success">Save</Button>
+        </DialogActions>
+      </Dialog>
+
       <Footer />
       <ToastContainer />
     </Box>

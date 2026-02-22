@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../components/Footer';
@@ -7,8 +7,8 @@ import DrawerAppBar from '../components/Bar';
 
 const WorkSessionsTable = () => {
   const [idNumber, setIdNumber] = useState('');
-  const [year, setYear] = useState('');
-  const [month, setMonth] = useState('');
+  const [year, setYear] = useState(new Date().getFullYear().toString());
+  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
   const [sessions, setSessions] = useState([]);
 
   // Function to fetch the session data based on the year, month, and idNumber
@@ -104,22 +104,35 @@ const WorkSessionsTable = () => {
               onChange={(e) => setIdNumber(e.target.value)}
               value={idNumber}
             />
-            <TextField
-              label="Year"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              onChange={(e) => setYear(e.target.value)}
-              value={year}
-            />
-            <TextField
-              label="Month"
-              variant="outlined"
-              margin="normal"
-              type="number"
-              onChange={(e) => setMonth(e.target.value)}
-              value={month}
-            />
+            <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
+              <InputLabel>Year</InputLabel>
+              <Select value={year} onChange={(e) => setYear(e.target.value)} label="Year">
+                {Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                  <MenuItem key={y} value={y.toString()}>{y}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
+              <InputLabel>Month</InputLabel>
+              <Select value={month} onChange={(e) => setMonth(e.target.value)} label="Month">
+                {[
+                  { value: '1', label: 'January' },
+                  { value: '2', label: 'February' },
+                  { value: '3', label: 'March' },
+                  { value: '4', label: 'April' },
+                  { value: '5', label: 'May' },
+                  { value: '6', label: 'June' },
+                  { value: '7', label: 'July' },
+                  { value: '8', label: 'August' },
+                  { value: '9', label: 'September' },
+                  { value: '10', label: 'October' },
+                  { value: '11', label: 'November' },
+                  { value: '12', label: 'December' },
+                ].map((m) => (
+                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Button
               variant="contained"
               color="success"
