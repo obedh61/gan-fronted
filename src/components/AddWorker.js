@@ -1,159 +1,187 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EngineeringIcon from "@mui/icons-material/Engineering";
 import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
+  Box, Button, TextField, Typography, Divider,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  IconButton, Card, CardContent, Grid, Chip,
+  Dialog, DialogTitle, DialogContent, DialogActions,
+  CircularProgress
 } from "@mui/material";
 
 export const AddWorker = () => {
   const [username, setUsername] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [workers, setWorkers] = useState([]);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  // Function to add a new worker
-  const addUser = () => {
-    if (!username || !idNumber) {
-      setMessage("Please provide both username and ID number");
-      return;
-    }
+  const API = process.env.REACT_APP_API;
 
-    if (!/^[0-9]{9}$/.test(idNumber)) {
-      setMessage("ID number must be 9 digits long");
-      toast.error("ID number must be 9 digits long");
-      return;
-    }
-
-    axios
-      .post(`${process.env.REACT_APP_API}/addworker`, { username, idNumber })
-      .then(() => {
-        setMessage("User added successfully");
-        setUsername("");
-        setIdNumber("");
-        toast.success("User added successfully");
-        fetchWorkers(); // Refresh the workers list
+  const fetchWorkers = () => {
+    setLoading(true);
+    axios.get(`${API}/workers`)
+      .then(res => {
+        setWorkers(res.data || []);
+        setLoading(false);
       })
-      .catch((error) => {
-        console.error("Error adding user:", error);
-        setMessage(
-          "Error adding user: " +
-            (error.response?.data?.message || "Unknown error")
-        );
-        toast.error(
-          "Error adding user: " +
-            (error.response?.data?.message || "Unknown error")
-        );
+      .catch(() => {
+        toast.error("Error fetching workers");
+        setLoading(false);
       });
   };
 
-  // Function to fetch all workers
-  const fetchWorkers = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/workers`);
-      setWorkers(response.data);
-      toast.success("Workers fetched successfully!");
-    } catch (error) {
-      // console.error("Error fetching workers:", error);
-      toast.error("Error fetching workers.");
+  useEffect(() => {
+    fetchWorkers();
+  }, []);
+
+  const addUser = () => {
+    if (!username.trim() || !idNumber.trim()) {
+      toast.error("Please provide both name and ID number");
+      return;
     }
+    if (!/^[0-9]{9}$/.test(idNumber)) {
+      toast.error("ID number must be exactly 9 digits");
+      return;
+    }
+
+    setAdding(true);
+    axios.post(`${API}/addworker`, { username: username.trim(), idNumber: idNumber.trim() })
+      .then(() => {
+        toast.success("Worker added successfully");
+        setUsername("");
+        setIdNumber("");
+        fetchWorkers();
+      })
+      .catch(error => {
+        toast.error(error.response?.data?.message || "Error adding worker");
+      })
+      .finally(() => setAdding(false));
   };
 
-  // Function to delete a worker
-  const deleteWorker = async (idNumber) => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_API}/workers/${idNumber}`);
-      toast.success("Worker deleted successfully!");
-      fetchWorkers(); // Refresh the workers list
-    } catch (error) {
-      // console.error("Error deleting worker:", error);
-      toast.error("Error deleting worker.");
-    }
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    axios.delete(`${API}/workers/${deleteTarget.idNumber}`)
+      .then(() => {
+        toast.success("Worker deleted");
+        setDeleteTarget(null);
+        fetchWorkers();
+      })
+      .catch(() => {
+        toast.error("Error deleting worker");
+      })
+      .finally(() => setDeleting(false));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') addUser();
   };
 
   return (
-    <Box
-      display="flex"
-      flexDirection={"column"}
-      alignItems="center"
-      padding={3}
-    >
-      <Typography variant="h2" padding={3} textAlign={"center"}>
-        New Worker
-      </Typography>
-      <TextField
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        margin="normal"
-        type="text"
-        variant="outlined"
-        placeholder="Username"
-        sx={{ width: "300px" }}
-      />
-      <TextField
-        value={idNumber}
-        onChange={(e) => setIdNumber(e.target.value)}
-        margin="normal"
-        type="text"
-        variant="outlined"
-        placeholder="ID Number (9 digits)"
-        sx={{ width: "300px" }}
-      />
-      <Button
-        onClick={addUser}
-        endIcon={<PersonAddIcon />}
-        sx={{ marginTop: 3, borderRadius: 3 }}
-        variant="contained"
-        color="success"
-      >
-        Add User
-      </Button>
-      <Button
-        onClick={fetchWorkers}
-        endIcon={<VisibilityIcon />}
-        sx={{ marginTop: 2, borderRadius: 3 }}
-        variant="outlined"
-        color="success"
-      >
-        Show All Workers
-      </Button>
+    <Box>
+      {/* Add Worker Form */}
+      <Card variant="outlined" sx={{ mb: 3, borderLeft: '4px solid #4A7B59' }}>
+        <CardContent>
+          <Typography variant="h6" color="#4A7B59" gutterBottom>
+            Add New Worker
+          </Typography>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="Worker Name"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                onKeyDown={handleKeyDown}
+                fullWidth
+                size="small"
+                variant="outlined"
+                color="success"
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <TextField
+                label="ID Number (9 digits)"
+                value={idNumber}
+                onChange={e => setIdNumber(e.target.value)}
+                onKeyDown={handleKeyDown}
+                fullWidth
+                size="small"
+                variant="outlined"
+                color="success"
+                inputProps={{ maxLength: 9 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Button
+                onClick={addUser}
+                variant="contained"
+                color="success"
+                startIcon={adding ? <CircularProgress size={18} color="inherit" /> : <PersonAddIcon />}
+                disabled={adding}
+                fullWidth
+                sx={{ height: 40 }}
+              >
+                {adding ? 'Adding...' : 'Add Worker'}
+              </Button>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
-      {/* Display workers in a table */}
-      {workers.length > 0 && (
-        <TableContainer component={Paper} sx={{ marginTop: 4, width: "80%" }}>
+      {/* Workers Table */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Box display="flex" alignItems="center" gap={1}>
+          <EngineeringIcon sx={{ color: '#4A7B59' }} />
+          <Typography variant="h6" color="#4A7B59">
+            Workers
+          </Typography>
+          <Chip label={workers.length} size="small" color="success" variant="outlined" />
+        </Box>
+      </Box>
+
+      {loading ? (
+        <Box display="flex" justifyContent="center" py={4}>
+          <CircularProgress color="success" />
+        </Box>
+      ) : workers.length === 0 ? (
+        <Card>
+          <CardContent sx={{ textAlign: 'center', py: 4 }}>
+            <EngineeringIcon sx={{ fontSize: 60, color: '#bdbdbd', mb: 1 }} />
+            <Typography color="text.secondary">
+              No workers registered yet. Add your first worker above.
+            </Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <TableContainer component={Paper} variant="outlined">
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell><strong>Username</strong></TableCell>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell><strong>#</strong></TableCell>
+                <TableCell><strong>Name</strong></TableCell>
                 <TableCell><strong>ID Number</strong></TableCell>
-                <TableCell><strong>Actions</strong></TableCell>
+                <TableCell align="center"><strong>Actions</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {workers.map((worker, index) => (
-                <TableRow key={index}>
+                <TableRow key={worker.idNumber || index} hover>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>{worker.username}</TableCell>
                   <TableCell>{worker.idNumber}</TableCell>
-                  <TableCell>
+                  <TableCell align="center">
                     <IconButton
                       color="error"
-                      onClick={() => deleteWorker(worker.idNumber)}
+                      size="small"
+                      onClick={() => setDeleteTarget(worker)}
                     >
-                      <DeleteIcon />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
                 </TableRow>
@@ -163,7 +191,29 @@ export const AddWorker = () => {
         </TableContainer>
       )}
 
-      <ToastContainer />
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} maxWidth="xs" fullWidth>
+        <DialogTitle>Delete Worker</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete <strong>{deleteTarget?.username}</strong> (ID: {deleteTarget?.idNumber})?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)} disabled={deleting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            variant="contained"
+            color="error"
+            disabled={deleting}
+            startIcon={deleting ? <CircularProgress size={18} color="inherit" /> : <DeleteIcon />}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

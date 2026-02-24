@@ -1,95 +1,115 @@
 import React from 'react'
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import {
-    Grid,
-    IconButton,
-    Typography,
-  } from "@mui/material";
-import Button from '@mui/material/Button';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import WebIcon from '@mui/icons-material/Web';
-import { Link } from 'react-router-dom';
-import EngineeringIcon from '@mui/icons-material/Engineering';
-import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import RecentActorsIcon from '@mui/icons-material/RecentActors';
+    Box, Grid, Typography, Card, CardContent, CardActionArea
+} from '@mui/material'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import PeopleIcon from '@mui/icons-material/People'
+import EngineeringIcon from '@mui/icons-material/Engineering'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import { useNavigate } from 'react-router-dom'
+
+const menuItems = [
+    {
+        title: 'Dashboard',
+        description: 'Overview of registrations, stats and activity',
+        icon: DashboardIcon,
+        path: '/admin/dashboard',
+        color: '#4A7B59'
+    },
+    {
+        title: 'Registrations',
+        description: 'Review, approve or reject child registrations',
+        icon: PeopleIcon,
+        path: '/admin/registrations',
+        color: '#ff9800'
+    },
+    {
+        title: 'School Years',
+        description: 'Create school years and upload contracts',
+        icon: CalendarTodayIcon,
+        path: '/admin/school-years',
+        color: '#2196f3'
+    },
+    {
+        title: 'Workers',
+        description: 'Add and manage worker accounts',
+        icon: EngineeringIcon,
+        path: '/workers',
+        color: '#9c27b0'
+    },
+    {
+        title: 'Work Sessions',
+        description: 'View worker time tracking and sessions',
+        icon: AssessmentIcon,
+        path: '/privatesession',
+        color: '#00897b'
+    }
+]
 
 function DashboardAdmin() {
-  return (
-    <Grid item xs={12}>
-      
-      <Paper elevation={3} style={{padding:5, position: "relative"}}>
-        <Typography variant='h6' component='h2' style={{textAlign:'center', margin:5}}>
-          Gan Montessori Second Home
-        </Typography>
-        <Box>
-            <Grid container spacing={1}   >
-              <Grid item xs={6} alignItems="center" style={{zIndex: 2}}>
-                <Paper elevation={1} style={{textAlign:'center', margin:8, padding:5}} >
-                  <Box>
-                    <IconButton>
-                      <EngineeringIcon />
-                    </IconButton>
-                  </Box>
-                  <Button variant="outlined" color='success' component={Link} to={'/workers'}>
-                    New worker
-                  </Button>
-                </Paper>
-              </Grid>
+    const navigate = useNavigate()
 
-              <Grid item xs={6} alignItems="center" style={{zIndex: 2}}>
-                <Paper elevation={1} style={{textAlign:'center', margin:8, padding:5}} >
-                  <Box>
-                    <IconButton>
-                      <FamilyRestroomIcon />
-                    </IconButton>
-                  </Box>
-                  <Button variant="outlined" color='success' component={Link} to={'/privatechild'}>
-                    New childs
-                  </Button>
-                </Paper>
-              </Grid>
+    return (
+        <Grid item xs={12}>
+            <Box sx={{ py: 2 }}>
+                <Typography variant="h4" color="#4A7B59" textAlign="center" gutterBottom>
+                    Admin Panel
+                </Typography>
+                <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
+                    Gan Montessori Second Home
+                </Typography>
 
-              <Grid item xs={6} alignItems="center" style={{zIndex: 2}}>
-                <Paper elevation={1} style={{textAlign:'center', margin:8, padding:5}} >
-                  <Box>
-                    <IconButton>
-                      <AssessmentIcon />
-                    </IconButton>
-                  </Box>
-                  <Button variant="outlined" color='success' component={Link} to={'/privatesession'}>
-                    Watch Sessions
-                  </Button>
-                </Paper>
-              </Grid>
-
-              <Grid item xs={6} alignItems="center" style={{zIndex: 2}}>
-                <Paper elevation={1} style={{textAlign:'center', margin:8, padding:5}} >
-                  <Box>
-                    <IconButton>
-                      <RecentActorsIcon />
-                    </IconButton>
-                  </Box>
-                  <Button variant="outlined" color='success' component={Link} to={'/viewchildpage'}>
-                    Wath childs list
-                  </Button>
-                </Paper>
-              </Grid>
-
-            </Grid>
-            
-            
-        </Box>
-          <svg style={{zIndex: 1, position: "absolute", bottom:0, right:0}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" >
-            <path  fill="#00cba9" fillOpacity="1" d="M0,192L60,197.3C120,203,240,213,360,197.3C480,181,600,139,720,128C840,117,960,139,1080,154.7C1200,171,1320,181,1380,186.7L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
-          </svg>
-        
-      </Paper>
-    </Grid>
-  )
+                <Grid container spacing={3} justifyContent="center">
+                    {menuItems.map((item) => (
+                        <Grid item xs={12} sm={6} md={4} key={item.title}>
+                            <Card
+                                variant="outlined"
+                                sx={{
+                                    height: '100%',
+                                    borderLeft: `4px solid ${item.color}`,
+                                    transition: 'box-shadow 0.2s, transform 0.2s',
+                                    '&:hover': {
+                                        boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+                                        transform: 'translateY(-2px)'
+                                    }
+                                }}
+                            >
+                                <CardActionArea
+                                    onClick={() => navigate(item.path)}
+                                    sx={{ height: '100%', p: 1 }}
+                                >
+                                    <CardContent sx={{ textAlign: 'center' }}>
+                                        <Box
+                                            sx={{
+                                                width: 56,
+                                                height: 56,
+                                                borderRadius: '50%',
+                                                backgroundColor: `${item.color}15`,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                mx: 'auto',
+                                                mb: 2
+                                            }}
+                                        >
+                                            <item.icon sx={{ fontSize: 28, color: item.color }} />
+                                        </Box>
+                                        <Typography variant="h6" gutterBottom>
+                                            {item.title}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {item.description}
+                                        </Typography>
+                                    </CardContent>
+                                </CardActionArea>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+        </Grid>
+    )
 }
 
 export default DashboardAdmin

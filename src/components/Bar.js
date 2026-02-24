@@ -1,4 +1,4 @@
-import * as React from 'react'; 
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,15 +10,23 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Badge from '@mui/material/Badge';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import gan from '../assets/FB_IMG_1701110493696.jpg';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import { Link, useNavigate } from 'react-router-dom';
-import { isAuth, signout } from '../pages/helpers';
-import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import PeopleIcon from '@mui/icons-material/People';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { isAuth, signout, getCookie } from '../pages/helpers';
+import axios from 'axios';
 
 const drawerWidth = 240;
 const navItems = ['Home', 'About', 'Contact'];
@@ -26,7 +34,46 @@ const navItems = ['Home', 'About', 'Contact'];
 function DrawerAppBar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [pendingCount, setPendingCount] = React.useState(0);
+  const [myPendingCount, setMyPendingCount] = React.useState(0);
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const auth = isAuth();
+  const isAdmin = auth && auth.role === 'admin';
+  const isLoggedIn = !!auth;
+  const isOnAdminPage = location.pathname === '/admin';
+  const token = getCookie('token');
+  const API = process.env.REACT_APP_API;
+
+  React.useEffect(() => {
+    if (!token || !API) return;
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const fetchBadgeCounts = () => {
+      if (isAdmin) {
+        axios.get(`${API}/registration/pending`, { headers })
+          .then(res => {
+            const data = res.data.data || [];
+            setPendingCount(data.length);
+          })
+          .catch(() => {});
+      }
+
+      if (isLoggedIn) {
+        axios.get(`${API}/registration/my-registrations`, { headers })
+          .then(res => {
+            const data = res.data.data || [];
+            setMyPendingCount(data.filter(r => r.status === 'pending').length);
+          })
+          .catch(() => {});
+      }
+    };
+
+    fetchBadgeCounts();
+    const interval = setInterval(fetchBadgeCounts, 60000);
+    return () => clearInterval(interval);
+  }, [token, API, isAdmin, isLoggedIn]);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
@@ -44,7 +91,69 @@ function DrawerAppBar(props) {
             </ListItemButton>
           </ListItem>
         ))}
-        {isAuth() && (
+
+        {/* Admin drawer items */}
+        {isAdmin && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            {!isOnAdminPage && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin">
+                  <ListItemIcon sx={{ minWidth: 36 }}><AdminPanelSettingsIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary="Admin Panel" />
+                </ListItemButton>
+              </ListItem>
+            )}
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/admin/school-years">
+                <ListItemIcon sx={{ minWidth: 36 }}><CalendarTodayIcon fontSize="small" /></ListItemIcon>
+                <ListItemText primary="School Years" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/admin/dashboard">
+                <ListItemIcon sx={{ minWidth: 36 }}><DashboardIcon fontSize="small" /></ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/admin/registrations">
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <Badge badgeContent={pendingCount} color="error" max={99}>
+                    <PeopleIcon fontSize="small" />
+                  </Badge>
+                </ListItemIcon>
+                <ListItemText primary="Registrations" />
+              </ListItemButton>
+            </ListItem>
+          </>
+        )}
+
+        {/* Regular user drawer items */}
+        {auth && !isAdmin && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/register-child">
+                <ListItemIcon sx={{ minWidth: 36 }}><PersonAddIcon fontSize="small" /></ListItemIcon>
+                <ListItemText primary="Register Child" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} to="/my-registrations">
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <Badge badgeContent={myPendingCount} color="warning" max={99}>
+                    <FamilyRestroomIcon fontSize="small" />
+                  </Badge>
+                </ListItemIcon>
+                <ListItemText primary="My Registrations" />
+              </ListItemButton>
+            </ListItem>
+          </>
+        )}
+
+        <Divider sx={{ my: 1 }} />
+        {auth && (
           <ListItem key="sign out" disablePadding>
             <ListItemButton
               sx={{ textAlign: 'center' }}
@@ -95,10 +204,81 @@ function DrawerAppBar(props) {
                 {item}
               </Button>
             ))}
-            {isAuth() && (
+
+            {/* Admin desktop items */}
+            {isAdmin && (
+              <>
+                {!isOnAdminPage && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/admin"
+                    startIcon={<AdminPanelSettingsIcon />}
+                  >
+                    Admin Panel
+                  </Button>
+                )}
+                <Button
+                  sx={{ color: '#fff' }}
+                  component={Link}
+                  to="/admin/school-years"
+                  startIcon={<CalendarTodayIcon />}
+                >
+                  School Years
+                </Button>
+                <Button
+                  sx={{ color: '#fff' }}
+                  component={Link}
+                  to="/admin/dashboard"
+                  startIcon={<DashboardIcon />}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  sx={{ color: '#fff' }}
+                  component={Link}
+                  to="/admin/registrations"
+                  startIcon={
+                    <Badge badgeContent={pendingCount} color="error" max={99}>
+                      <PeopleIcon />
+                    </Badge>
+                  }
+                >
+                  Registrations
+                </Button>
+              </>
+            )}
+
+            {/* Regular user desktop items */}
+            {auth && !isAdmin && (
+              <>
+                <Button
+                  sx={{ color: '#fff' }}
+                  component={Link}
+                  to="/register-child"
+                  startIcon={<PersonAddIcon />}
+                >
+                  Register Child
+                </Button>
+                <Button
+                  sx={{ color: '#fff' }}
+                  component={Link}
+                  to="/my-registrations"
+                  startIcon={
+                    <Badge badgeContent={myPendingCount} color="warning" max={99}>
+                      <FamilyRestroomIcon />
+                    </Badge>
+                  }
+                >
+                  My Registrations
+                </Button>
+              </>
+            )}
+
+            {auth && (
               <Button
                 key="sign out"
-                sx={{ color: '#fff' }}
+                sx={{ color: '#fff', ml: 1 }}
                 component={Button}
                 color="error"
                 variant="contained"
@@ -112,21 +292,6 @@ function DrawerAppBar(props) {
                 {"Sign out"}
               </Button>
             )}
-            {/* {isAuth().role == 'admin' && (
-              <Button
-                key="sign out"
-                sx={{ color: '#fff', margin: 2 }}
-                component={Button}
-                color="secondary"
-                variant="contained"
-                endIcon={<DashboardCustomizeIcon />}
-                onClick={() => {
-                  navigate('/admin');
-                }}
-              >
-                {"Dasboard"}
-              </Button>
-            )} */}
           </Box>
         </Toolbar>
       </AppBar>

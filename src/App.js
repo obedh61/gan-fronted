@@ -25,6 +25,11 @@ import PrivateChild from './components/PrivateChild';
 import Childs from './pages/Childs';
 import ViewChildPrivate from './components/ViewChildPrivate';
 import ViewChildPage from './pages/ViewChildPage';
+import SchoolYearManagement from './pages/admin/SchoolYearManagement';
+import PendingRegistrations from './pages/admin/PendingRegistrations';
+import SchoolYearDashboard from './pages/admin/SchoolYearDashboard';
+import ChildRegistration from './pages/parent/ChildRegistration';
+import MyRegistrations from './pages/parent/MyRegistrations';
 
 
 
@@ -45,9 +50,14 @@ function App() {
         <Route path='/worksession'  element={<WorkSessionsTable />} />
         <Route element={<PrivateRoutes />}>
           <Route path='/private' element={<Private />}/>
+          <Route path='/register-child' element={<ChildRegistration />} />
+          <Route path='/my-registrations' element={<MyRegistrations />} />
         </Route>
         <Route element={<AdminRoutes />}>
           <Route path='/admin' element={<Admin />} />
+          <Route path='/admin/school-years' element={<SchoolYearManagement />} />
+          <Route path='/admin/registrations' element={<PendingRegistrations />} />
+          <Route path='/admin/dashboard' element={<SchoolYearDashboard />} />
         </Route>
         <Route element={<NewWorker />}>
           <Route path='/workers' element={<Workers />} />

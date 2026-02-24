@@ -30,7 +30,7 @@ function Signin() {
   const informParent = response => {
       authenticate(response, () => {
           // toast.success(`Hey ${response.data.user.name}, Welcome back!`)
-          isAuth() && isAuth().role == 'admin' ? navigate('/admin') : navigate('/private')
+          isAuth() && isAuth().role == 'admin' ? navigate('/admin') : navigate('/my-registrations')
       })
   }
 
@@ -54,7 +54,7 @@ function Signin() {
                   buttonText: 'submited'
               })
               // toast.success(`Hey ${response.data.user.name}, Welcome back!`)
-              isAuth() && isAuth().role == 'admin' ? navigate('/admin') : navigate('/private')
+              isAuth() && isAuth().role == 'admin' ? navigate('/admin') : navigate('/my-registrations')
               
           })
 

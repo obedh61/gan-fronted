@@ -1,69 +1,39 @@
 import DrawerAppBar from '../components/Bar';
-import { Box, Container, Button } from '@mui/material';
+import { Box, Container, Button, Typography } from '@mui/material';
 import Footer from '../components/Footer';
 import { AddWorker } from '../components/AddWorker';
 import { useNavigate } from 'react-router-dom';
-import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
-
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Workers() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh', // Asegura que el contenedor ocupe al menos el 100% de la altura de la ventana
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Box sx={{ flexGrow: 1 }}>
-        <Box>
-          <DrawerAppBar />
-        </Box>
-        
-          
-        
-        <Container >
-          
-        <Box 
-          display="flex"
-          flexDirection={"column"}
-          maxWidth={600}
-          alignItems={"center"}
-          justifyContent={"center"}
-          margin={"auto"}
-          
-          padding={3}
-          borderRadius={5}
-          boxShadow={"5px 5px 10px #ccc"}
-          sx={{
-            ":hover": {
-              boxShadow: "10px 10px 20px #ccc"
-            }
-          }}
-        >
+        <DrawerAppBar />
+        <Container maxWidth="md" sx={{ py: 4 }}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+            <Typography variant="h4" color="#4A7B59">
+              Manage Workers
+            </Typography>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => navigate('/admin')}
+            >
+              Admin Panel
+            </Button>
+          </Box>
           <AddWorker />
-          <Button
-            key="sign out"
-            sx={{ color: '#fff', margin: 2 }}
-            component={Button}
-            color="secondary"
-            variant="contained"
-            endIcon={<DashboardCustomizeIcon />}
-            onClick={() => {
-              navigate('/admin');
-            }}
-          >
-            {"Dasboard"}
-          </Button>
-        </Box>
         </Container>
       </Box>
-      
-      <Footer/>
+      <Footer />
+      <ToastContainer />
     </Box>
-    
   );
 }
 
