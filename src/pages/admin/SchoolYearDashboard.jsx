@@ -9,7 +9,8 @@ import {
     Box, Container, Typography, Button, Grid,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     FormControl, InputLabel, Select, MenuItem,
-    Card, CardContent, Chip, CircularProgress, Divider
+    Card, CardContent, Chip, CircularProgress, Divider,
+    useMediaQuery, useTheme
 } from '@mui/material'
 import PeopleIcon from '@mui/icons-material/People'
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty'
@@ -27,19 +28,20 @@ const STATUS_COLORS = { pending: 'warning', approved: 'success', rejected: 'erro
 
 const StatCard = ({ title, count, icon, color, bgColor }) => (
     <Card sx={{ height: '100%', borderLeft: `4px solid ${color}` }}>
-        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 1.5, sm: 2 } }}>
             <Box>
                 <Typography variant="body2" color="text.secondary">{title}</Typography>
-                <Typography variant="h3" fontWeight="bold" color={color}>{count}</Typography>
+                <Typography variant="h3" fontWeight="bold" color={color} sx={{ fontSize: { xs: '2rem', sm: '3rem' } }}>{count}</Typography>
             </Box>
             <Box sx={{
                 backgroundColor: bgColor,
                 borderRadius: '50%',
-                width: 56,
-                height: 56,
+                width: { xs: 44, sm: 56 },
+                height: { xs: 44, sm: 56 },
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                flexShrink: 0
             }}>
                 {icon}
             </Box>
@@ -56,6 +58,8 @@ const SchoolYearDashboard = () => {
     const [dataLoading, setDataLoading] = useState(false)
 
     const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
     const headers = { Authorization: `Bearer ${token}` }
     const API = process.env.REACT_APP_API
@@ -165,17 +169,17 @@ const SchoolYearDashboard = () => {
                 <DrawerAppBar />
                 <Container sx={{ py: 4 }}>
                     {/* Header */}
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                        <Typography variant="h4" color="#4A7B59">
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={1}>
+                        <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                             School Year Dashboard
                         </Typography>
                         <Button
                             variant="contained"
                             color="secondary"
-                            endIcon={<DashboardCustomizeIcon />}
                             onClick={() => navigate('/admin')}
+                            sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                         >
-                            Dashboard
+                            {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                         </Button>
                     </Box>
 
@@ -199,7 +203,7 @@ const SchoolYearDashboard = () => {
                         </Card>
                     ) : (
                         <>
-                            <FormControl sx={{ minWidth: 350, mb: 3 }}>
+                            <FormControl sx={{ minWidth: { xs: '100%', sm: 350 }, mb: 3 }}>
                                 <InputLabel>School Year</InputLabel>
                                 <Select
                                     value={selectedYearId}
@@ -223,39 +227,39 @@ const SchoolYearDashboard = () => {
                                     {/* ============================================ */}
                                     {/* STATISTICS CARDS */}
                                     {/* ============================================ */}
-                                    <Grid container spacing={3} mb={4}>
-                                        <Grid item xs={12} sm={6} md={3}>
+                                    <Grid container spacing={{ xs: 1.5, sm: 3 }} mb={4}>
+                                        <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
                                                 title="Total Registrations"
                                                 count={stats.total}
-                                                icon={<PeopleIcon sx={{ color: '#1976d2', fontSize: 30 }} />}
+                                                icon={<PeopleIcon sx={{ color: '#1976d2', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#1976d2"
                                                 bgColor="#e3f2fd"
                                             />
                                         </Grid>
-                                        <Grid item xs={12} sm={6} md={3}>
+                                        <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
                                                 title="Pending"
                                                 count={stats.pending}
-                                                icon={<HourglassEmptyIcon sx={{ color: '#ed6c02', fontSize: 30 }} />}
+                                                icon={<HourglassEmptyIcon sx={{ color: '#ed6c02', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#ed6c02"
                                                 bgColor="#fff3e0"
                                             />
                                         </Grid>
-                                        <Grid item xs={12} sm={6} md={3}>
+                                        <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
                                                 title="Approved"
                                                 count={stats.approved}
-                                                icon={<CheckCircleIcon sx={{ color: '#2e7d32', fontSize: 30 }} />}
+                                                icon={<CheckCircleIcon sx={{ color: '#2e7d32', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#2e7d32"
                                                 bgColor="#e8f5e9"
                                             />
                                         </Grid>
-                                        <Grid item xs={12} sm={6} md={3}>
+                                        <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
                                                 title="Rejected"
                                                 count={stats.rejected}
-                                                icon={<CancelIcon sx={{ color: '#d32f2f', fontSize: 30 }} />}
+                                                icon={<CancelIcon sx={{ color: '#d32f2f', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#d32f2f"
                                                 bgColor="#ffebee"
                                             />
@@ -354,7 +358,7 @@ const SchoolYearDashboard = () => {
                                     {/* ============================================ */}
                                     {/* RECENT REGISTRATIONS */}
                                     {/* ============================================ */}
-                                    <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+                                    <Box mb={2} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
                                         <Typography variant="h6" color="#4A7B59">
                                             Recent Registrations
                                         </Typography>
@@ -364,7 +368,7 @@ const SchoolYearDashboard = () => {
                                             color="success"
                                             onClick={() => navigate('/admin/registrations')}
                                         >
-                                            View All Registrations
+                                            View All
                                         </Button>
                                     </Box>
 

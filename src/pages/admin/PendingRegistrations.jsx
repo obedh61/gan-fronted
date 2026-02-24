@@ -10,7 +10,8 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Chip, Tabs, Tab, Divider,
-    Card, CardContent, CircularProgress, InputAdornment
+    Card, CardContent, CircularProgress, InputAdornment,
+    useMediaQuery, useTheme
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -40,6 +41,8 @@ const PendingRegistrations = () => {
     const [deleteTarget, setDeleteTarget] = useState(null)
 
     const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
     const headers = { Authorization: `Bearer ${token}` }
     const API = process.env.REACT_APP_API
@@ -204,17 +207,17 @@ const PendingRegistrations = () => {
                 <DrawerAppBar />
                 <Container sx={{ py: 4 }}>
                     {/* Header */}
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                        <Typography variant="h4" color="#4A7B59">
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} gap={1}>
+                        <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                             Child Registrations
                         </Typography>
                         <Button
                             variant="contained"
                             color="secondary"
-                            endIcon={<DashboardCustomizeIcon />}
                             onClick={() => navigate('/admin')}
+                            sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                         >
-                            Dashboard
+                            {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                         </Button>
                     </Box>
 
@@ -323,102 +326,129 @@ const PendingRegistrations = () => {
                     {/* ============================================ */}
                     {/* DETAILS DIALOG */}
                     {/* ============================================ */}
-                    <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="sm" fullWidth>
-                        <DialogTitle>
+                    <Dialog
+                        open={detailsOpen}
+                        onClose={() => setDetailsOpen(false)}
+                        maxWidth="sm"
+                        fullWidth
+                        fullScreen={isMobile}
+                    >
+                        <DialogTitle sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
                             Registration Details
                             {selected && (
                                 <Chip
                                     label={selected.status}
                                     color={STATUS_COLORS[selected.status]}
                                     size="small"
-                                    sx={{ ml: 2, textTransform: 'capitalize' }}
+                                    sx={{ textTransform: 'capitalize' }}
                                 />
                             )}
                         </DialogTitle>
                         {selected && (
-                            <DialogContent>
+                            <DialogContent sx={{ px: { xs: 2, sm: 3 } }}>
                                 {/* Parent 1 */}
                                 <Typography variant="subtitle2" color="#4A7B59" mt={1}>Parent 1 Information</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={4} mb={2}>
+                                <Box
+                                    display="grid"
+                                    gridTemplateColumns={{ xs: '1fr 1fr', sm: '1fr 1fr 1fr' }}
+                                    gap={{ xs: 1.5, sm: 4 }}
+                                    mb={2}
+                                >
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">First Name</Typography>
-                                        <Typography>{selected.parent1FirstName}</Typography>
+                                        <Typography variant="body2">{selected.parent1FirstName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Last Name</Typography>
-                                        <Typography>{selected.parent1LastName}</Typography>
+                                        <Typography variant="body2">{selected.parent1LastName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">ID Number</Typography>
-                                        <Typography>{selected.parent1IdNumber}</Typography>
+                                        <Typography variant="body2">{selected.parent1IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Parent 2 */}
                                 <Typography variant="subtitle2" color="#4A7B59">Parent 2 Information</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={4} mb={2}>
+                                <Box
+                                    display="grid"
+                                    gridTemplateColumns={{ xs: '1fr 1fr', sm: '1fr 1fr 1fr' }}
+                                    gap={{ xs: 1.5, sm: 4 }}
+                                    mb={2}
+                                >
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">First Name</Typography>
-                                        <Typography>{selected.parent2FirstName}</Typography>
+                                        <Typography variant="body2">{selected.parent2FirstName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Last Name</Typography>
-                                        <Typography>{selected.parent2LastName}</Typography>
+                                        <Typography variant="body2">{selected.parent2LastName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">ID Number</Typography>
-                                        <Typography>{selected.parent2IdNumber}</Typography>
+                                        <Typography variant="body2">{selected.parent2IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Child Info */}
                                 <Typography variant="subtitle2" color="#4A7B59">Child Information</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={4} mb={2}>
+                                <Box
+                                    display="grid"
+                                    gridTemplateColumns={{ xs: '1fr 1fr', sm: '1fr 1fr 1fr' }}
+                                    gap={{ xs: 1.5, sm: 4 }}
+                                    mb={2}
+                                >
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Child Name</Typography>
-                                        <Typography>{selected.childName}</Typography>
+                                        <Typography variant="body2">{selected.childName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Branch</Typography>
-                                        <Typography>{BRANCH_LABELS[selected.branch]}</Typography>
+                                        <Typography variant="body2">{BRANCH_LABELS[selected.branch]}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Age Group</Typography>
-                                        <Typography>{AGE_LABELS[selected.ageGroup]}</Typography>
+                                        <Typography variant="body2">{AGE_LABELS[selected.ageGroup]}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Banking */}
                                 <Typography variant="subtitle2" color="#4A7B59">Banking Information</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={4} mb={2}>
+                                <Box
+                                    display="grid"
+                                    gridTemplateColumns={{ xs: '1fr 1fr', sm: '1fr 1fr 1fr' }}
+                                    gap={{ xs: 1.5, sm: 4 }}
+                                    mb={2}
+                                >
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Phone</Typography>
-                                        <Typography>{selected.phoneNumber}</Typography>
+                                        <Typography variant="body2">{selected.phoneNumber}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Bank</Typography>
-                                        <Typography>{selected.bankName}</Typography>
+                                        <Typography variant="body2">{selected.bankName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Account</Typography>
-                                        <Typography>{selected.bankAccountNumber}</Typography>
+                                        <Typography variant="body2">{selected.bankAccountNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Contracts */}
                                 <Typography variant="subtitle2" color="#4A7B59">Contracts</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={2} mb={2} flexWrap="wrap">
+                                <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={1} mb={2}>
                                     {selected.assignedContractUrl ? (
                                         <Button
                                             size="small"
                                             variant="outlined"
                                             startIcon={<VisibilityIcon />}
                                             onClick={() => viewPDF(selected.assignedContractUrl)}
+                                            fullWidth={isMobile}
                                         >
                                             View Assigned Contract
                                         </Button>
@@ -432,6 +462,7 @@ const PendingRegistrations = () => {
                                             color="success"
                                             startIcon={<CheckCircleIcon />}
                                             onClick={() => viewPDF(selected.uploadedContractUrl)}
+                                            fullWidth={isMobile}
                                         >
                                             View Signed Contract
                                         </Button>
@@ -443,18 +474,25 @@ const PendingRegistrations = () => {
                                 {/* Registration meta */}
                                 <Typography variant="subtitle2" color="#4A7B59">Registration Info</Typography>
                                 <Divider sx={{ mb: 1 }} />
-                                <Box display="flex" gap={4} mb={2}>
+                                <Box
+                                    display="grid"
+                                    gridTemplateColumns={{ xs: '1fr 1fr', sm: '1fr 1fr 1fr' }}
+                                    gap={{ xs: 1.5, sm: 4 }}
+                                    mb={2}
+                                >
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">School Year</Typography>
-                                        <Typography>{selected.schoolYear?.name || '-'}</Typography>
+                                        <Typography variant="body2">{selected.schoolYear?.name || '-'}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">Registered</Typography>
-                                        <Typography>{formatDate(selected.createdAt)}</Typography>
+                                        <Typography variant="body2">{formatDate(selected.createdAt)}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="caption" color="text.secondary">By</Typography>
-                                        <Typography>{selected.registeredBy?.name || selected.registeredBy?.email || '-'}</Typography>
+                                        <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                                            {selected.registeredBy?.name || selected.registeredBy?.email || '-'}
+                                        </Typography>
                                     </Box>
                                 </Box>
 
@@ -482,14 +520,20 @@ const PendingRegistrations = () => {
                                 )}
                             </DialogContent>
                         )}
-                        <DialogActions>
+                        <DialogActions sx={{
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            gap: 1,
+                            px: { xs: 2, sm: 3 },
+                            pb: { xs: 2, sm: 1 },
+                            '& > *': { xs: { width: '100%', m: '0 !important' } }
+                        }}>
                             <Button
                                 onClick={() => openDeleteDialog(selected)}
                                 color="error"
                                 variant="outlined"
                                 startIcon={<DeleteIcon />}
                                 disabled={actionLoading}
-                                sx={{ mr: 'auto' }}
+                                sx={{ mr: { sm: 'auto' } }}
                             >
                                 Delete
                             </Button>

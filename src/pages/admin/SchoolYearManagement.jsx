@@ -10,7 +10,8 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Switch, FormControl, InputLabel, Select, MenuItem,
-    Card, CardContent, Chip, CircularProgress, Tooltip
+    Card, CardContent, Chip, CircularProgress, Tooltip,
+    useMediaQuery, useTheme
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -52,6 +53,8 @@ const SchoolYearManagement = () => {
     })
 
     const navigate = useNavigate()
+    const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
     const headers = { Authorization: `Bearer ${token}` }
 
@@ -203,27 +206,26 @@ const SchoolYearManagement = () => {
                 <DrawerAppBar />
                 <Container sx={{ py: 4 }}>
                     {/* Header */}
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                        <Typography variant="h4" color="#4A7B59">
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={1} flexWrap="wrap">
+                        <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
                             School Year Management
                         </Typography>
-                        <Box>
+                        <Box display="flex" gap={1}>
                             <Button
                                 variant="contained"
                                 color="success"
-                                startIcon={<AddIcon />}
                                 onClick={() => setCreateOpen(true)}
-                                sx={{ mr: 1 }}
+                                sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                             >
-                                Create New Year
+                                {isMobile ? <AddIcon /> : <><AddIcon sx={{ mr: 0.5 }} /> Create New Year</>}
                             </Button>
                             <Button
                                 variant="contained"
                                 color="secondary"
-                                endIcon={<DashboardCustomizeIcon />}
                                 onClick={() => navigate('/admin')}
+                                sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                             >
-                                Dashboard
+                                {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                             </Button>
                         </Box>
                     </Box>
@@ -304,14 +306,14 @@ const SchoolYearManagement = () => {
                     {/* ============================================ */}
                     {/* CREATE DIALOG */}
                     {/* ============================================ */}
-                    <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
+                    <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth fullScreen={isMobile}>
                         <DialogTitle>Create New School Year</DialogTitle>
                         <DialogContent>
                             <Box sx={{ mt: 1 }}>
                                 <Typography variant="body2" color="text.secondary" mb={2}>
                                     Name: {formData.startMonth} {formData.startYear} - {formData.endMonth} {formData.endYear}
                                 </Typography>
-                                <Box display="flex" gap={2} mb={2}>
+                                <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={2}>
                                     <FormControl fullWidth>
                                         <InputLabel>Start Month</InputLabel>
                                         <Select
@@ -332,7 +334,7 @@ const SchoolYearManagement = () => {
                                         fullWidth
                                     />
                                 </Box>
-                                <Box display="flex" gap={2}>
+                                <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2}>
                                     <FormControl fullWidth>
                                         <InputLabel>End Month</InputLabel>
                                         <Select
@@ -366,55 +368,59 @@ const SchoolYearManagement = () => {
                     {/* ============================================ */}
                     {/* CONTRACT UPLOAD DIALOG */}
                     {/* ============================================ */}
-                    <Dialog open={contractOpen} onClose={() => setContractOpen(false)} maxWidth="sm" fullWidth>
-                        <DialogTitle>
+                    <Dialog open={contractOpen} onClose={() => setContractOpen(false)} maxWidth="sm" fullWidth fullScreen={isMobile}>
+                        <DialogTitle sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                             Manage Contracts — {selectedYear?.name}
                         </DialogTitle>
-                        <DialogContent>
+                        <DialogContent sx={{ px: { xs: 1.5, sm: 3 } }}>
                             {CONTRACT_TYPES.map(ct => {
                                 const url = selectedYear?.contracts?.[ct.key]
                                 const isUploading = uploading[ct.key]
                                 return (
                                     <Card key={ct.key} variant="outlined" sx={{ mb: 2, mt: 1 }}>
-                                        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                                            <Box display="flex" alignItems="center" gap={1}>
-                                                {url ? (
-                                                    <CheckCircleIcon color="success" fontSize="small" />
-                                                ) : (
-                                                    <CancelIcon color="error" fontSize="small" />
-                                                )}
-                                                <Typography variant="body2">
-                                                    {ct.label}
-                                                </Typography>
-                                                {url && (
-                                                    <Chip label="Uploaded" size="small" color="success" variant="outlined" />
-                                                )}
-                                            </Box>
-                                            <Box display="flex" gap={1}>
-                                                {url && (
+                                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, px: { xs: 1.5, sm: 2 } }}>
+                                            <Box display="flex" alignItems="center" gap={1} mb={{ xs: 1, sm: 0 }} flexWrap="wrap"
+                                                sx={{ justifyContent: { sm: 'space-between' } }}
+                                            >
+                                                <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                                                    {url ? (
+                                                        <CheckCircleIcon color="success" fontSize="small" />
+                                                    ) : (
+                                                        <CancelIcon color="error" fontSize="small" />
+                                                    )}
+                                                    <Typography variant="body2">
+                                                        {ct.label}
+                                                    </Typography>
+                                                    {url && (
+                                                        <Chip label="Uploaded" size="small" color="success" variant="outlined" />
+                                                    )}
+                                                </Box>
+                                                <Box display="flex" gap={1}>
+                                                    {url && (
+                                                        <Button
+                                                            size="small"
+                                                            startIcon={<VisibilityIcon />}
+                                                            onClick={() => viewContract(url)}
+                                                        >
+                                                            View
+                                                        </Button>
+                                                    )}
                                                     <Button
                                                         size="small"
-                                                        startIcon={<VisibilityIcon />}
-                                                        onClick={() => viewContract(url)}
+                                                        variant="outlined"
+                                                        component="label"
+                                                        startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
+                                                        disabled={isUploading}
                                                     >
-                                                        View
+                                                        {url ? 'Replace' : 'Upload'}
+                                                        <input
+                                                            type="file"
+                                                            accept="application/pdf"
+                                                            hidden
+                                                            onChange={(e) => handleFileChange(ct.key, e)}
+                                                        />
                                                     </Button>
-                                                )}
-                                                <Button
-                                                    size="small"
-                                                    variant="outlined"
-                                                    component="label"
-                                                    startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
-                                                    disabled={isUploading}
-                                                >
-                                                    {url ? 'Replace' : 'Upload'}
-                                                    <input
-                                                        type="file"
-                                                        accept="application/pdf"
-                                                        hidden
-                                                        onChange={(e) => handleFileChange(ct.key, e)}
-                                                    />
-                                                </Button>
+                                                </Box>
                                             </Box>
                                         </CardContent>
                                     </Card>
