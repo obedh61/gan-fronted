@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import { useFormik } from 'formik'
@@ -12,7 +12,8 @@ import {
     TextField, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel,
     Stepper, Step, StepLabel, InputAdornment, MobileStepper,
     Card, CardContent, Chip, Checkbox, Divider,
-    CircularProgress, Alert, useMediaQuery, useTheme
+    CircularProgress, Alert, useMediaQuery, useTheme,
+    Dialog, DialogTitle, DialogContent, DialogActions
 } from '@mui/material'
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
@@ -57,10 +58,11 @@ const ChildRegistration = () => {
     const [contractDownloaded, setContractDownloaded] = useState(false)
     const [signedFile, setSignedFile] = useState(null)
     const [fileError, setFileError] = useState('')
-    const [registrationId, setRegistrationId] = useState(null)
     const [loading, setLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [contractModalOpen, setContractModalOpen] = useState(false)
+    const [contractModalAcknowledged, setContractModalAcknowledged] = useState(false)
     const [formValues, setFormValues] = useState(() => {
         try {
             const saved = localStorage.getItem(STORAGE_KEY)
@@ -72,7 +74,7 @@ const ChildRegistration = () => {
 
     const navigate = useNavigate()
     const token = getCookie('token')
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -98,7 +100,7 @@ const ChildRegistration = () => {
     // API FUNCTIONS
     // ============================================
 
-    const fetchSchoolYears = () => {
+    const fetchSchoolYears = useCallback(() => {
         setLoading(true)
         axios.get(`${API}/schoolyear/active`, { headers })
             .then(response => {
@@ -110,9 +112,9 @@ const ChildRegistration = () => {
                 toast.error(error.response?.data?.error || 'Error loading school years')
                 setLoading(false)
             })
-    }
+    }, [API, headers])
 
-    const fetchContractUrl = (schoolYearId, branch, ageGroup) => {
+    const fetchContractUrl = useCallback((schoolYearId, branch, ageGroup) => {
         axios.get(`${API}/schoolyear/${schoolYearId}/contract`, {
             headers,
             params: { branch, ageGroup }
@@ -124,9 +126,14 @@ const ChildRegistration = () => {
                 console.error('Error fetching contract:', error)
                 setContractUrl('')
             })
-    }
+    }, [API, headers])
 
     const submitRegistration = () => {
+        if (!signedFile) {
+            toast.error('Please upload the signed contract before submitting')
+            return
+        }
+
         setSubmitting(true)
         axios.post(`${API}/registration/create`, {
             schoolYearId: selectedSchoolYearId,
@@ -134,13 +141,7 @@ const ChildRegistration = () => {
         }, { headers })
             .then(response => {
                 const reg = response.data.data
-                setRegistrationId(reg._id)
-
-                if (signedFile) {
-                    return uploadSignedContract(reg._id)
-                }
-                setActiveStep(4)
-                setSubmitting(false)
+                return uploadSignedContract(reg._id)
             })
             .catch(error => {
                 console.error('Error creating registration:', error)
@@ -164,8 +165,7 @@ const ChildRegistration = () => {
             })
             .catch(error => {
                 console.error('Error uploading contract:', error)
-                toast.error(error.response?.data?.error || 'Registration created but contract upload failed. You can upload later.')
-                setActiveStep(4)
+                toast.error(error.response?.data?.error || 'Contract upload failed. Please try again from My Registrations.')
                 setSubmitting(false)
                 setUploading(false)
             })
@@ -173,14 +173,20 @@ const ChildRegistration = () => {
 
     useEffect(() => {
         fetchSchoolYears()
-    }, [])
+    }, [fetchSchoolYears])
 
     useEffect(() => {
         if (activeStep === 2 && selectedSchoolYearId && formValues.branch && formValues.ageGroup) {
             fetchContractUrl(selectedSchoolYearId, formValues.branch, formValues.ageGroup)
             setContractDownloaded(false)
         }
-    }, [activeStep])
+    }, [activeStep, selectedSchoolYearId, formValues.branch, formValues.ageGroup, fetchContractUrl])
+
+    useEffect(() => {
+        if (activeStep === 3 && !contractModalAcknowledged) {
+            setContractModalOpen(true)
+        }
+    }, [activeStep, contractModalAcknowledged])
 
     // ============================================
     // HANDLERS
@@ -193,7 +199,6 @@ const ChildRegistration = () => {
         setContractDownloaded(false)
         setSignedFile(null)
         setFileError('')
-        setRegistrationId(null)
         setFormValues(initialFormValues)
         formik.resetForm({ values: initialFormValues })
         localStorage.removeItem(STORAGE_KEY)
@@ -555,6 +560,45 @@ const ChildRegistration = () => {
                     Upload the signed contract as a PDF (max 10MB).
                 </Typography>
 
+                <Dialog
+                    open={contractModalOpen}
+                    onClose={() => {}}
+                    disableEscapeKeyDown
+                    maxWidth="sm"
+                    fullWidth
+                    fullScreen={isMobile}
+                >
+                    <DialogTitle sx={{ color: '#4A7B59', fontWeight: 'bold' }}>
+                        Signed Contract Required
+                    </DialogTitle>
+                    <DialogContent>
+                        <Alert severity="warning" sx={{ mb: 2 }}>
+                            <Typography variant="body2" fontWeight="bold">
+                                The signed contract is required.
+                            </Typography>
+                        </Alert>
+                        <Typography variant="body1" gutterBottom>
+                            Please sign <strong>all pages</strong> of the contract before uploading it.
+                        </Typography>
+                        <Typography variant="body1">
+                            You cannot submit the registration without the signed contract.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
+                        <Button
+                            variant="contained"
+                            color="success"
+                            fullWidth={isMobile}
+                            onClick={() => {
+                                setContractModalAcknowledged(true)
+                                setContractModalOpen(false)
+                            }}
+                        >
+                            I understand
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
                 <Box sx={{ textAlign: 'center', py: { xs: 1, sm: 3 } }}>
                     <Box
                         sx={{
@@ -616,7 +660,7 @@ const ChildRegistration = () => {
 
                     <Alert severity="info" sx={{ textAlign: 'left' }}>
                         <Typography variant="body2">
-                            The signed contract is optional. You can upload it later from your registrations page.
+                            Make sure all pages of the contract are signed before uploading.
                         </Typography>
                     </Alert>
                 </Box>
@@ -629,7 +673,7 @@ const ChildRegistration = () => {
                         variant="contained"
                         color="success"
                         onClick={submitRegistration}
-                        disabled={submitting || uploading || !!fileError}
+                        disabled={submitting || uploading || !!fileError || !signedFile}
                         startIcon={(submitting || uploading) ? <CircularProgress size={18} /> : null}
                         sx={{ flex: isMobile ? 1 : 'unset' }}
                     >
@@ -663,7 +707,7 @@ const ChildRegistration = () => {
                             <Typography variant="body2"><strong>Parent 2:</strong> {formValues.parent2FirstName} {formValues.parent2LastName}</Typography>
                             <Typography variant="body2"><strong>Branch:</strong> {BRANCH_LABELS[formValues.branch]}</Typography>
                             <Typography variant="body2"><strong>Age:</strong> {AGE_LABELS[formValues.ageGroup]}</Typography>
-                            <Typography variant="body2"><strong>Contract:</strong> {signedFile ? 'Uploaded' : 'Not uploaded'}</Typography>
+                            <Typography variant="body2"><strong>Contract:</strong> Uploaded</Typography>
                         </Box>
                     </CardContent>
                 </Card>

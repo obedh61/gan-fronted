@@ -4,9 +4,9 @@ import { Navigate, Outlet } from 'react-router-dom'
 
 
 function AdminRoutes() {
-    
+
   return (
-    isAuth() && isAuth().role == 'admin' ? <Outlet /> : <Navigate to='/signin' />
+    isAuth() && isAuth().role === 'admin' ? <Outlet /> : <Navigate to='/signin' />
   )
 }
 

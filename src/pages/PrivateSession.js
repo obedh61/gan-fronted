@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../components/Footer';
@@ -8,6 +10,7 @@ import DrawerAppBar from '../components/Bar';
 import Map from '../components/Map'; // Importar el componente Map para mostrar ubicaciones
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 import { useNavigate } from "react-router-dom";
+import { getCookie } from "../pages/helpers";
 
 const PrivateSession = () => {
   const [idNumber, setIdNumber] = useState('');
@@ -22,27 +25,35 @@ const PrivateSession = () => {
   const [editTimeOut, setEditTimeOut] = useState('');
 
   const navigate = useNavigate()
+  const token = getCookie('token');
+  const authHeaders = useMemo(() => ({
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`
+  }), [token]);
+
+  const fetchWorkers = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/workers`, {
+        headers: authHeaders
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setWorkers(data);
+      }
+    } catch (err) {
+      console.error('Error fetching workers:', err);
+    }
+  }, [authHeaders]);
 
   useEffect(() => {
-    const fetchWorkers = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API}/workers`);
-        if (response.ok) {
-          const data = await response.json();
-          setWorkers(data);
-        }
-      } catch (err) {
-        console.error('Error fetching workers:', err);
-      }
-    };
     fetchWorkers();
-  }, []);
+  }, [fetchWorkers]);
 
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API}/sessions/private/${idNumber}/${year}/${month}`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         credentials: 'include',
       });
       if (response.ok) {
@@ -54,6 +65,62 @@ const PrivateSession = () => {
     } catch (err) {
       console.error('Error fetching sessions:', err);
       toast.error('Error fetching sessions.');
+    }
+  }, [idNumber, year, month, authHeaders]);
+
+  const exportSessions = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || 'Failed to export sessions.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sessions_${idNumber}_${year}_${month}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting sessions:', err);
+      toast.error('Error exporting sessions.');
+    }
+  };
+
+  const exportSessionsPDF = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}/pdf`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || 'Failed to export PDF.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sessions_${idNumber}_${year}_${month}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      toast.error('Error exporting PDF.');
     }
   };
 
@@ -128,7 +195,7 @@ const PrivateSession = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API}/sessions/${editingSession._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         credentials: 'include',
         body: JSON.stringify({
           timeIn: editTimeIn,
@@ -206,6 +273,26 @@ const PrivateSession = () => {
             </FormControl>
             <Button variant="contained" color="success" sx={{ marginTop: 2 }} onClick={fetchSessions}>
               Get Sessions
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{ marginTop: 2, marginLeft: 2 }}
+              startIcon={<DownloadIcon />}
+              onClick={exportSessions}
+              disabled={!idNumber || sessions.length === 0}
+            >
+              Export CSV
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ marginTop: 2, marginLeft: 2 }}
+              startIcon={<PictureAsPdfIcon />}
+              onClick={exportSessionsPDF}
+              disabled={!idNumber || sessions.length === 0}
+            >
+              Export PDF
             </Button>
             <Button
               key="sign out"

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Button, Container, Grid, Link, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { green } from '@mui/material/colors';
-import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = () => {
   return (

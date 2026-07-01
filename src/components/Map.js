@@ -1,13 +1,5 @@
-import L from 'leaflet';
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
-
-// Crear un ícono personalizado
-const customIcon = new L.Icon({
-    iconUrl: 'path/to/your/icon.png', // Reemplaza con la URL de tu ícono
-    iconSize: [25, 41], // Ancho y alto del ícono
-    iconAnchor: [12, 41], // Puntos de anclaje
-    });
+import { MapContainer, TileLayer, Circle } from 'react-leaflet';
 
     const Map = ({ latitude, longitude }) => {
     const position = [latitude, longitude];

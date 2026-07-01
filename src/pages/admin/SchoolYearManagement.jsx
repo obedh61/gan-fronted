@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
@@ -10,7 +10,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Switch, FormControl, InputLabel, Select, MenuItem,
-    Card, CardContent, Chip, CircularProgress, Tooltip,
+    Card, CardContent, Chip, CircularProgress, Tooltip, Pagination,
     useMediaQuery, useTheme
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
@@ -45,6 +45,10 @@ const SchoolYearManagement = () => {
     const [selectedYear, setSelectedYear] = useState(null)
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [uploading, setUploading] = useState({})
+    const [page, setPage] = useState(1)
+    const [limit] = useState(10)
+    const [total, setTotal] = useState(0)
+    const [pages, setPages] = useState(0)
     const [formData, setFormData] = useState({
         startMonth: 'September',
         startYear: new Date().getFullYear(),
@@ -56,17 +60,23 @@ const SchoolYearManagement = () => {
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
 
     // ============================================
     // API FUNCTIONS
     // ============================================
 
-    const fetchSchoolYears = () => {
+    const fetchSchoolYears = useCallback((currentPage = page) => {
         setLoading(true)
-        axios.get(`${process.env.REACT_APP_API}/schoolyear/list`, { headers })
+        axios.get(`${process.env.REACT_APP_API}/schoolyear/list`, {
+            headers,
+            params: { page: currentPage, limit }
+        })
             .then(response => {
                 setSchoolYears(response.data.data || [])
+                const pagination = response.data.pagination || {}
+                setTotal(pagination.total || 0)
+                setPages(pagination.pages || 0)
                 setLoading(false)
             })
             .catch(error => {
@@ -74,7 +84,7 @@ const SchoolYearManagement = () => {
                 toast.error(error.response?.data?.error || 'Error fetching school years')
                 setLoading(false)
             })
-    }
+    }, [headers, limit, page])
 
     const createSchoolYear = () => {
         const { startMonth, startYear, endMonth, endYear } = formData
@@ -165,7 +175,7 @@ const SchoolYearManagement = () => {
 
     useEffect(() => {
         fetchSchoolYears()
-    }, [])
+    }, [fetchSchoolYears])
 
     // ============================================
     // HANDLERS
@@ -208,7 +218,7 @@ const SchoolYearManagement = () => {
                     {/* Header */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={1} flexWrap="wrap">
                         <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-                            School Year Management
+                            School Year Management {total > 0 && <Typography component="span" variant="body2" color="text.secondary">({total} total)</Typography>}
                         </Typography>
                         <Box display="flex" gap={1}>
                             <Button
@@ -301,6 +311,22 @@ const SchoolYearManagement = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                    )}
+
+                    {pages > 1 && (
+                        <Box display="flex" justifyContent="center" mt={3}>
+                            <Pagination
+                                page={page}
+                                count={pages}
+                                onChange={(e, value) => {
+                                    setPage(value)
+                                    fetchSchoolYears(value)
+                                }}
+                                color="success"
+                                showFirstButton
+                                showLastButton
+                            />
+                        </Box>
                     )}
 
                     {/* ============================================ */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
@@ -10,7 +10,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     Dialog, DialogTitle, DialogContent, DialogActions,
     TextField, Chip, Tabs, Tab, Divider,
-    Card, CardContent, CircularProgress, InputAdornment,
+    Card, CardContent, CircularProgress, InputAdornment, Pagination,
     useMediaQuery, useTheme
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
@@ -39,40 +39,43 @@ const PendingRegistrations = () => {
     const [actionLoading, setActionLoading] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
     const [deleteTarget, setDeleteTarget] = useState(null)
+    const [page, setPage] = useState(1)
+    const [limit] = useState(10)
+    const [total, setTotal] = useState(0)
+    const [pages, setPages] = useState(0)
 
     const navigate = useNavigate()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
 
     // ============================================
     // API FUNCTIONS
     // ============================================
 
-    const fetchRegistrations = () => {
+    const statusFilter = TAB_STATUS[tabValue]
+
+    const fetchRegistrations = useCallback((currentPage = page) => {
         setLoading(true)
-        // Fetch all school years, then all registrations for each
-        axios.get(`${API}/schoolyear/list`, { headers })
-            .then(syResponse => {
-                const schoolYears = syResponse.data.data || []
-                if (schoolYears.length === 0) {
-                    setRegistrations([])
-                    setLoading(false)
-                    return
-                }
-                const promises = schoolYears.map(sy =>
-                    axios.get(`${API}/registration/by-school-year/${sy._id}`, { headers })
-                        .then(res => res.data.data || [])
-                        .catch(() => [])
-                )
-                return Promise.all(promises)
-            })
-            .then(results => {
-                if (results) {
-                    setRegistrations(results.flat())
-                }
+        const params = {
+            page: currentPage,
+            limit
+        }
+        if (statusFilter) {
+            params.status = statusFilter
+        }
+        if (searchQuery.trim()) {
+            params.search = searchQuery.trim()
+        }
+
+        axios.get(`${API}/registration/all`, { headers, params })
+            .then(response => {
+                setRegistrations(response.data.data || [])
+                const pagination = response.data.pagination || {}
+                setTotal(pagination.total || 0)
+                setPages(pagination.pages || 0)
                 setLoading(false)
             })
             .catch(error => {
@@ -80,7 +83,7 @@ const PendingRegistrations = () => {
                 toast.error(error.response?.data?.error || 'Error fetching registrations')
                 setLoading(false)
             })
-    }
+    }, [API, headers, limit, statusFilter, searchQuery, page])
 
     const approveRegistration = (id) => {
         setActionLoading(true)
@@ -153,32 +156,25 @@ const PendingRegistrations = () => {
 
     useEffect(() => {
         fetchRegistrations()
-    }, [])
-
-    // ============================================
-    // FILTERING & SORTING
-    // ============================================
-
-    const filtered = registrations
-        .filter(reg => {
-            // Tab filter
-            const statusFilter = TAB_STATUS[tabValue]
-            if (statusFilter && reg.status !== statusFilter) return false
-            // Search filter
-            if (searchQuery.trim()) {
-                const q = searchQuery.toLowerCase()
-                const childMatch = reg.childName?.toLowerCase().includes(q)
-                const p1Match = `${reg.parent1FirstName} ${reg.parent1LastName}`.toLowerCase().includes(q)
-                const p2Match = `${reg.parent2FirstName} ${reg.parent2LastName}`.toLowerCase().includes(q)
-                if (!childMatch && !p1Match && !p2Match) return false
-            }
-            return true
-        })
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }, [fetchRegistrations])
 
     // ============================================
     // HANDLERS
     // ============================================
+
+    const handleTabChange = (e, v) => {
+        setTabValue(v)
+        setPage(1)
+    }
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value)
+        setPage(1)
+    }
+
+    const handlePageChange = (e, value) => {
+        setPage(value)
+    }
 
     const openDetails = (reg) => {
         setSelected(reg)
@@ -225,20 +221,20 @@ const PendingRegistrations = () => {
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={2}>
                         <Tabs
                             value={tabValue}
-                            onChange={(e, v) => setTabValue(v)}
+                            onChange={handleTabChange}
                             textColor="inherit"
                             sx={{ '& .Mui-selected': { color: '#4A7B59' }, '& .MuiTabs-indicator': { backgroundColor: '#4A7B59' } }}
                         >
-                            <Tab label={`All (${registrations.length})`} />
-                            <Tab label={`Pending (${registrations.filter(r => r.status === 'pending').length})`} />
-                            <Tab label={`Approved (${registrations.filter(r => r.status === 'approved').length})`} />
-                            <Tab label={`Rejected (${registrations.filter(r => r.status === 'rejected').length})`} />
+                            <Tab label="All" />
+                            <Tab label="Pending" />
+                            <Tab label="Approved" />
+                            <Tab label="Rejected" />
                         </Tabs>
                         <TextField
                             size="small"
                             placeholder="Search by child or parent name..."
                             value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
+                            onChange={handleSearchChange}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
@@ -251,11 +247,16 @@ const PendingRegistrations = () => {
                     </Box>
 
                     {/* Table */}
+                    {!loading && total > 0 && (
+                        <Typography variant="body2" color="text.secondary" mb={1}>
+                            Showing {registrations.length} of {total} registration{total !== 1 ? 's' : ''}
+                        </Typography>
+                    )}
                     {loading ? (
                         <Box display="flex" justifyContent="center" py={6}>
                             <CircularProgress color="success" />
                         </Box>
-                    ) : filtered.length === 0 ? (
+                    ) : registrations.length === 0 ? (
                         <Card>
                             <CardContent>
                                 <Typography align="center" color="text.secondary">
@@ -280,7 +281,7 @@ const PendingRegistrations = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filtered.map(reg => (
+                                    {registrations.map(reg => (
                                         <TableRow key={reg._id} hover>
                                             <TableCell>{reg.childName}</TableCell>
                                             <TableCell>{reg.parent1FirstName} {reg.parent1LastName}</TableCell>
@@ -321,6 +322,20 @@ const PendingRegistrations = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                    )}
+
+                    {/* Pagination */}
+                    {pages > 1 && (
+                        <Box display="flex" justifyContent="center" mt={3}>
+                            <Pagination
+                                page={page}
+                                count={pages}
+                                onChange={handlePageChange}
+                                color="success"
+                                showFirstButton
+                                showLastButton
+                            />
+                        </Box>
                     )}
 
                     {/* ============================================ */}

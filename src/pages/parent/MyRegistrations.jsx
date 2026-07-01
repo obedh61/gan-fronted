@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
@@ -10,7 +10,7 @@ import {
     Card, CardContent, CardActions,
     Chip, Divider, CircularProgress, Alert,
     Dialog, DialogTitle, DialogContent, DialogActions,
-    FormControl, InputLabel, Select, MenuItem
+    FormControl, InputLabel, Select, MenuItem, Pagination
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import VisibilityIcon from '@mui/icons-material/Visibility'
@@ -31,21 +31,29 @@ const MyRegistrations = () => {
     const [schoolYearFilter, setSchoolYearFilter] = useState('all')
     const [detailsOpen, setDetailsOpen] = useState(false)
     const [selected, setSelected] = useState(null)
+    const [page, setPage] = useState(1)
+    const [limit] = useState(9)
+    const [pages, setPages] = useState(0)
 
     const navigate = useNavigate()
     const token = getCookie('token')
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
 
     // ============================================
     // API FUNCTIONS
     // ============================================
 
-    const fetchMyRegistrations = () => {
+    const fetchMyRegistrations = useCallback((currentPage = page) => {
         setLoading(true)
-        axios.get(`${API}/registration/my-registrations`, { headers })
+        axios.get(`${API}/registration/my-registrations`, {
+            headers,
+            params: { page: currentPage, limit }
+        })
             .then(response => {
                 setRegistrations(response.data.data || [])
+                const pagination = response.data.pagination || {}
+                setPages(pagination.pages || 0)
                 setLoading(false)
             })
             .catch(error => {
@@ -53,11 +61,11 @@ const MyRegistrations = () => {
                 toast.error(error.response?.data?.error || 'Error loading registrations')
                 setLoading(false)
             })
-    }
+    }, [API, headers, limit, page])
 
     useEffect(() => {
         fetchMyRegistrations()
-    }, [])
+    }, [fetchMyRegistrations])
 
     // ============================================
     // FILTERING & SORTING
@@ -96,6 +104,11 @@ const MyRegistrations = () => {
 
     const viewPDF = (url) => {
         window.open(url, '_blank')
+    }
+
+    const handlePageChange = (event, value) => {
+        setPage(value)
+        fetchMyRegistrations(value)
     }
 
     const formatDate = (dateStr) => {
@@ -276,6 +289,18 @@ const MyRegistrations = () => {
                                 </Grid>
                             ))}
                         </Grid>
+                    )}
+
+                    {pages > 1 && (
+                        <Box display="flex" justifyContent="center" mt={4}>
+                            <Pagination
+                                count={pages}
+                                page={page}
+                                onChange={handlePageChange}
+                                color="primary"
+                                shape="rounded"
+                            />
+                        </Box>
                     )}
 
                     {/* ============================================ */}

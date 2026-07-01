@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import {
-  Box, Button, TextField, Typography, Divider,
+  Box, Button, TextField, Typography,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   IconButton, Card, CardContent, Grid, Chip,
   Dialog, DialogTitle, DialogContent, DialogActions,
   CircularProgress
 } from "@mui/material";
+import { getCookie } from "../pages/helpers";
 
 export const AddWorker = () => {
   const [username, setUsername] = useState("");
@@ -22,10 +23,12 @@ export const AddWorker = () => {
   const [deleting, setDeleting] = useState(false);
 
   const API = process.env.REACT_APP_API;
+  const token = getCookie('token');
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
-  const fetchWorkers = () => {
+  const fetchWorkers = useCallback(() => {
     setLoading(true);
-    axios.get(`${API}/workers`)
+    axios.get(`${API}/workers`, { headers })
       .then(res => {
         setWorkers(res.data || []);
         setLoading(false);
@@ -34,11 +37,11 @@ export const AddWorker = () => {
         toast.error("Error fetching workers");
         setLoading(false);
       });
-  };
+  }, [API, headers]);
 
   useEffect(() => {
     fetchWorkers();
-  }, []);
+  }, [fetchWorkers]);
 
   const addUser = () => {
     if (!username.trim() || !idNumber.trim()) {
@@ -51,7 +54,7 @@ export const AddWorker = () => {
     }
 
     setAdding(true);
-    axios.post(`${API}/addworker`, { username: username.trim(), idNumber: idNumber.trim() })
+    axios.post(`${API}/addworker`, { username: username.trim(), idNumber: idNumber.trim() }, { headers })
       .then(() => {
         toast.success("Worker added successfully");
         setUsername("");
@@ -67,7 +70,7 @@ export const AddWorker = () => {
   const confirmDelete = () => {
     if (!deleteTarget) return;
     setDeleting(true);
-    axios.delete(`${API}/workers/${deleteTarget.idNumber}`)
+    axios.delete(`${API}/workers/${deleteTarget.idNumber}`, { headers })
       .then(() => {
         toast.success("Worker deleted");
         setDeleteTarget(null);

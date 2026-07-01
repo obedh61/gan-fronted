@@ -10,7 +10,6 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import CircularProgress from '@mui/material/CircularProgress';
 import Map from './Map';
-import Tulip from '../assets/Tulip.svg';
 import People from '../assets/bg4-1.svg'
 import logo from '../assets/logo.svg'
 
@@ -19,18 +18,10 @@ const Timer = () => {
   const [idNumber, setIdNumber] = useState('');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
-  const [sessions, setSessions] = useState([]);
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (loggedIn) {
-      // fetchSessions();
-      checkActiveSession(); // Check for any active session on load
-    }
-  }, [loggedIn]);
-
-  const checkActiveSession = async () => {
+  const checkActiveSession = React.useCallback(async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API}/sessions/active/${idNumber}`, {
         method: 'GET',
@@ -52,27 +43,22 @@ const Timer = () => {
     } catch (err) {
       console.error('Error fetching active session:', err);
     }
-  };
+  }, [idNumber]);
+
+  useEffect(() => {
+    if (loggedIn) {
+      checkActiveSession();
+    }
+  }, [loggedIn, checkActiveSession]);
 
   const handleLogin = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API}/addhours`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idNumber }),
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        setLoggedIn(true);
-        toast.success("Login successful");
-      } else {
-        const error = await response.json();
-        toast.error(error.message);
-      }
-    } catch (err) {
-      console.error('Error logging in:', err);
+    if (!idNumber || idNumber.trim() === '') {
+      toast.error('Please enter your ID number');
+      return;
     }
+
+    setLoggedIn(true);
+    toast.success('Login successful');
   };
 
   const getUserLocation = () => {
@@ -300,13 +286,6 @@ const Timer = () => {
               Your Work Sessions
             </Typography> */}
             <Button sx={{ marginTop: 3, borderRadius: 3 }} variant="outlined" color='success' component={Link} to={'/worksession'}> Your Work Sessions</Button>
-            <ul>
-              {sessions.map((session) => (
-                <li key={session._id}>
-                  {new Date(session.startTime).toLocaleString()} - {session.endTime ? new Date(session.endTime).toLocaleString() : "Ongoing"}
-                </li>
-              ))}
-            </ul>
             {
               location ? (
                 <Box

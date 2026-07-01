@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
@@ -9,7 +9,7 @@ import {
     Box, Container, Typography, Button, Grid,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
     FormControl, InputLabel, Select, MenuItem,
-    Card, CardContent, Chip, CircularProgress, Divider,
+    Card, CardContent, Chip, CircularProgress, Pagination,
     useMediaQuery, useTheme
 } from '@mui/material'
 import PeopleIcon from '@mui/icons-material/People'
@@ -56,19 +56,24 @@ const SchoolYearDashboard = () => {
     const [registrations, setRegistrations] = useState([])
     const [loading, setLoading] = useState(true)
     const [dataLoading, setDataLoading] = useState(false)
+    const [breakdowns, setBreakdowns] = useState({ branches: {}, ages: {} })
+    const [page, setPage] = useState(1)
+    const [limit] = useState(10)
+    const [total, setTotal] = useState(0)
+    const [pages, setPages] = useState(0)
 
     const navigate = useNavigate()
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
     const token = getCookie('token')
-    const headers = { Authorization: `Bearer ${token}` }
+    const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
 
     // ============================================
     // API FUNCTIONS
     // ============================================
 
-    const fetchSchoolYears = () => {
+    const fetchSchoolYears = useCallback(() => {
         setLoading(true)
         axios.get(`${API}/schoolyear/list`, { headers })
             .then(response => {
@@ -88,18 +93,24 @@ const SchoolYearDashboard = () => {
                 toast.error(error.response?.data?.error || 'Error fetching school years')
                 setLoading(false)
             })
-    }
+    }, [API, headers])
 
-    const fetchDashboardData = (schoolYearId) => {
+    const fetchDashboardData = useCallback((schoolYearId, currentPage = page) => {
         if (!schoolYearId) return
         setDataLoading(true)
         Promise.all([
             axios.get(`${API}/registration/stats/${schoolYearId}`, { headers }),
-            axios.get(`${API}/registration/by-school-year/${schoolYearId}`, { headers })
+            axios.get(`${API}/registration/by-school-year/${schoolYearId}`, {
+                headers,
+                params: { page: currentPage, limit }
+            })
         ])
             .then(([statsRes, regsRes]) => {
                 setStats(statsRes.data.data || null)
                 setRegistrations(regsRes.data.data || [])
+                const pagination = regsRes.data.pagination || {}
+                setTotal(pagination.total || 0)
+                setPages(pagination.pages || 0)
                 setDataLoading(false)
             })
             .catch(error => {
@@ -107,49 +118,36 @@ const SchoolYearDashboard = () => {
                 toast.error(error.response?.data?.error || 'Error fetching data')
                 setDataLoading(false)
             })
-    }
+    }, [API, headers, limit, page])
+
+    const fetchBreakdowns = useCallback((schoolYearId) => {
+        if (!schoolYearId) return
+        axios.get(`${API}/registration/by-school-year/${schoolYearId}/breakdown`, { headers })
+            .then(response => {
+                setBreakdowns(response.data.data || { branches: {}, ages: {} })
+            })
+            .catch(error => {
+                console.error('Error fetching breakdowns:', error)
+            })
+    }, [API, headers])
 
     useEffect(() => {
         fetchSchoolYears()
-    }, [])
+    }, [fetchSchoolYears])
 
     useEffect(() => {
         if (selectedYearId) {
             fetchDashboardData(selectedYearId)
+            fetchBreakdowns(selectedYearId)
         }
-    }, [selectedYearId])
+    }, [selectedYearId, fetchDashboardData, fetchBreakdowns])
 
     // ============================================
     // COMPUTED DATA
     // ============================================
 
-    const branchBreakdown = () => {
-        const branches = { cityCenter: { total: 0, pending: 0, approved: 0, rejected: 0 }, germanColony: { total: 0, pending: 0, approved: 0, rejected: 0 } }
-        registrations.forEach(reg => {
-            const b = reg.branch
-            if (branches[b]) {
-                branches[b].total++
-                branches[b][reg.status]++
-            }
-        })
-        return branches
-    }
-
-    const ageBreakdown = () => {
-        const ages = { under1: { total: 0, pending: 0, approved: 0, rejected: 0 }, over1: { total: 0, pending: 0, approved: 0, rejected: 0 } }
-        registrations.forEach(reg => {
-            const a = reg.ageGroup
-            if (ages[a]) {
-                ages[a].total++
-                ages[a][reg.status]++
-            }
-        })
-        return ages
-    }
-
-    const recentRegistrations = [...registrations]
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 10)
+    const branchBreakdown = () => breakdowns.branches || {}
+    const ageBreakdown = () => breakdowns.ages || {}
 
     const formatDate = (dateStr) => {
         if (!dateStr) return '-'
@@ -208,7 +206,10 @@ const SchoolYearDashboard = () => {
                                 <Select
                                     value={selectedYearId}
                                     label="School Year"
-                                    onChange={e => setSelectedYearId(e.target.value)}
+                                    onChange={e => {
+                                        setSelectedYearId(e.target.value)
+                                        setPage(1)
+                                    }}
                                 >
                                     {schoolYears.map(sy => (
                                         <MenuItem key={sy._id} value={sy._id}>
@@ -360,7 +361,7 @@ const SchoolYearDashboard = () => {
                                     {/* ============================================ */}
                                     <Box mb={2} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
                                         <Typography variant="h6" color="#4A7B59">
-                                            Recent Registrations
+                                            Registrations {total > 0 && <Typography component="span" variant="body2" color="text.secondary">({total} total)</Typography>}
                                         </Typography>
                                         <Button
                                             size="small"
@@ -372,7 +373,7 @@ const SchoolYearDashboard = () => {
                                         </Button>
                                     </Box>
 
-                                    {recentRegistrations.length === 0 ? (
+                                    {registrations.length === 0 ? (
                                         <Card>
                                             <CardContent>
                                                 <Typography align="center" color="text.secondary">
@@ -395,7 +396,7 @@ const SchoolYearDashboard = () => {
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
-                                                    {recentRegistrations.map(reg => (
+                                                    {registrations.map(reg => (
                                                         <TableRow key={reg._id} hover>
                                                             <TableCell>{reg.childName}</TableCell>
                                                             <TableCell>{reg.parent1FirstName} {reg.parent1LastName}</TableCell>
@@ -424,6 +425,22 @@ const SchoolYearDashboard = () => {
                                                 </TableBody>
                                             </Table>
                                         </TableContainer>
+                                    )}
+
+                                    {pages > 1 && (
+                                        <Box display="flex" justifyContent="center" mt={3}>
+                                            <Pagination
+                                                page={page}
+                                                count={pages}
+                                                onChange={(e, value) => {
+                                                    setPage(value)
+                                                    fetchDashboardData(selectedYearId, value)
+                                                }}
+                                                color="success"
+                                                showFirstButton
+                                                showLastButton
+                                            />
+                                        </Box>
                                     )}
                                 </>
                             )}

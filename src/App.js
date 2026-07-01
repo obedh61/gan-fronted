@@ -1,11 +1,10 @@
-import { Route, Routes, Navigate, Router } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import './App.css';
 
 import Home from './pages/Home';
 import { About } from './pages/About';
 import Access from './pages/Access';
 import Activate from './pages/Activate';
-import { Private } from './pages/Private';
 import { Admin } from './pages/Admin';
 import PrivateRoutes from './components/PrivateRoutes';
 import AdminRoutes from './components/AdminRoutes';
@@ -21,10 +20,6 @@ import NewWorker from './components/NewWorker';
 import Workers from './pages/Workers';
 import TablePrivate from './components/TablePrivate';
 import PrivateSession from './pages/PrivateSession';
-import PrivateChild from './components/PrivateChild';
-import Childs from './pages/Childs';
-import ViewChildPrivate from './components/ViewChildPrivate';
-import ViewChildPage from './pages/ViewChildPage';
 import SchoolYearManagement from './pages/admin/SchoolYearManagement';
 import PendingRegistrations from './pages/admin/PendingRegistrations';
 import SchoolYearDashboard from './pages/admin/SchoolYearDashboard';
@@ -49,7 +44,6 @@ function App() {
         <Route path='/services'  element={<Services />} />
         <Route path='/worksession'  element={<WorkSessionsTable />} />
         <Route element={<PrivateRoutes />}>
-          <Route path='/private' element={<Private />}/>
           <Route path='/register-child' element={<ChildRegistration />} />
           <Route path='/my-registrations' element={<MyRegistrations />} />
         </Route>
@@ -65,12 +59,15 @@ function App() {
         <Route element={<TablePrivate />}>
           <Route path='/privatesession' element={<PrivateSession />} />
         </Route>
+
+        {/* LEGACY routes disabled but files kept for reference
         <Route element={<PrivateChild />}>
           <Route path='/privatechild' element={<Childs/>} />
         </Route>
         <Route element={<ViewChildPrivate />}>
           <Route path='/viewchildpage' element={<ViewChildPage />} />
         </Route>
+        */}
 
         <Route path='/auth/activate/:tokenId' element={<Activate />} />
         <Route path='/auth/password/forgot' element={<Forgot />}/>

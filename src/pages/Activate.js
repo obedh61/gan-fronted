@@ -13,24 +13,22 @@ import { useNavigate } from 'react-router-dom';
 
 function Activate() {
     let { tokenId } = useParams();
-    const myDecodedToken = decodeToken(tokenId)
 
     const [values, setValues] = useState({
         name: '',
         token: '',
-        show: true,
-    }) 
+    })
 
     useEffect(() => {
-        let token = tokenId
-        let {name} = myDecodedToken
-        console.log(myDecodedToken, tokenId)
-        if (token) {
-            setValues({...values, name, token})
+        if (!tokenId) return
+        const decoded = decodeToken(tokenId)
+        console.log(decoded, tokenId)
+        if (decoded?.name) {
+            setValues(v => ({ ...v, name: decoded.name, token: tokenId }))
         }
-    }, [])
-    
-    const { name, token, show } = values
+    }, [tokenId])
+
+    const { name, token } = values
     const navigate = useNavigate()
 
     const clickSubmit = event => {

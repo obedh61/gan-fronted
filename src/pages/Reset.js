@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react'
 import { decodeToken } from "react-jwt";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import SendIcon from '@mui/icons-material/Send';
 
 import { Box, Button, TextField, Typography} from '@mui/material'
@@ -12,32 +12,27 @@ import { ToastContainer} from 'react-toastify';
 
 function Reset() {
     const [values, setValues] = useState({
-        name: '',
         token: '',
         newPassword: '',
         buttonText: 'Reset password'
-    }) 
+    })
 
     let {tokend} = useParams()
 
     useEffect(() =>{
-        let token = tokend
-        const myDecodedToken = decodeToken(token)
-        let {name} = myDecodedToken
-        if(token) {
-            setValues({...values, name, token})
+        if (!tokend) return
+        const decoded = decodeToken(tokend)
+        if (decoded && tokend) {
+            setValues(v => ({ ...v, token: tokend }))
         }
-    }, [])
-    
-    const { buttonText, name, token, newPassword } = values
-    
+    }, [tokend])
+
+    const { buttonText, token, newPassword } = values
+
     const handleChange = (event) => {
         console.log(event.target.value);
         setValues({ ...values, newPassword: event.target.value})
     }
-
-    const navigate = useNavigate()
-
 
     const clickSubmit = event => {
         event.preventDefault()

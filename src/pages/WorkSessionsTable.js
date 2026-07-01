@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Footer from '../components/Footer';
@@ -29,6 +31,64 @@ const WorkSessionsTable = () => {
     } catch (err) {
       console.error('Error fetching sessions:', err);
       toast.error('Error fetching sessions.');
+    }
+  };
+
+  // Download sessions as CSV
+  const exportSessions = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || 'Failed to export sessions.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sessions_${idNumber}_${year}_${month}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting sessions:', err);
+      toast.error('Error exporting sessions.');
+    }
+  };
+
+  // Download sessions as PDF
+  const exportSessionsPDF = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}/pdf`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || 'Failed to export PDF.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sessions_${idNumber}_${year}_${month}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      toast.error('Error exporting PDF.');
     }
   };
 
@@ -140,6 +200,26 @@ const WorkSessionsTable = () => {
               onClick={fetchSessions}
             >
               Get Sessions
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              sx={{ marginTop: 2, marginLeft: 2 }}
+              startIcon={<DownloadIcon />}
+              onClick={exportSessions}
+              disabled={!idNumber || sessions.length === 0}
+            >
+              Export CSV
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              sx={{ marginTop: 2, marginLeft: 2 }}
+              startIcon={<PictureAsPdfIcon />}
+              onClick={exportSessionsPDF}
+              disabled={!idNumber || sessions.length === 0}
+            >
+              Export PDF
             </Button>
 
           </Box>

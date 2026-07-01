@@ -3,10 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import StepContext from './StepContext';
-import { HashRouter } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 
 
