@@ -1,13 +1,10 @@
 {
   "files": {
-    "main.css": "/static/css/main.4b61d6b4.css",
-    "main.js": "/static/js/main.ba00d463.js",
+    "main.css": "/static/css/main.255c5778.css",
+    "main.js": "/static/js/main.7564fca9.js",
     "static/js/453.258b012d.chunk.js": "/static/js/453.258b012d.chunk.js",
     "static/media/montessori.jpg": "/static/media/montessori.a34327c4e6a9d7d9c9e0.jpg",
     "static/media/juguetes-montessori-2.jpg": "/static/media/juguetes-montessori-2.6d2730311f5d4458fd17.jpg",
-    "static/media/Carpetas Padres Kids 1-2CENTRO.pdf": "/static/media/Carpetas Padres Kids 1-2CENTRO.bc331fc8e81c1986ba69.pdf",
-    "static/media/THE MONTESSORI.pdf": "/static/media/THE MONTESSORI.d186c8e325da53375e6f.pdf",
-    "static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.pdf": "/static/media/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.aa357396eb06e26a1588.pdf",
     "static/media/Tulip.svg": "/static/media/Tulip.e1d5df8a7a908744c890eebbe9e8d4be.svg",
     "static/media/expl.jpg": "/static/media/expl.3aa47cb99025ddfc493d.jpg",
     "static/media/services.jpg": "/static/media/services.25e23f04ec0237ca2606.jpg",
@@ -20,12 +17,12 @@
     "static/media/logo.svg": "/static/media/logo.1807945fd9c4f0d813d4f3edc6d607dd.svg",
     "static/media/img.svg": "/static/media/img.b5384d77055007bdbd8fdff24899acec.svg",
     "index.html": "/index.html",
-    "main.4b61d6b4.css.map": "/static/css/main.4b61d6b4.css.map",
-    "main.ba00d463.js.map": "/static/js/main.ba00d463.js.map",
+    "main.255c5778.css.map": "/static/css/main.255c5778.css.map",
+    "main.7564fca9.js.map": "/static/js/main.7564fca9.js.map",
     "453.258b012d.chunk.js.map": "/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.4b61d6b4.css",
-    "static/js/main.ba00d463.js"
+    "static/css/main.255c5778.css",
+    "static/js/main.7564fca9.js"
   ]
 }
