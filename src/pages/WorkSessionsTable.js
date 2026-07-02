@@ -1,22 +1,42 @@
 import React, { useState } from "react";
+import { useTranslation } from 'react-i18next'
 import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import apiFetch from '../utils/apiFetch';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Footer from '../components/Footer';
 import DrawerAppBar from '../components/Bar';
 
 const WorkSessionsTable = () => {
+  const { t } = useTranslation()
   const [idNumber, setIdNumber] = useState('');
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
   const [sessions, setSessions] = useState([]);
 
+  const monthNames = t('months', { returnObjects: true })
+  const MONTHS = Array.isArray(monthNames)
+    ? monthNames.map((label, index) => ({ value: (index + 1).toString(), label }))
+    : [
+        { value: '1', label: 'January' },
+        { value: '2', label: 'February' },
+        { value: '3', label: 'March' },
+        { value: '4', label: 'April' },
+        { value: '5', label: 'May' },
+        { value: '6', label: 'June' },
+        { value: '7', label: 'July' },
+        { value: '8', label: 'August' },
+        { value: '9', label: 'September' },
+        { value: '10', label: 'October' },
+        { value: '11', label: 'November' },
+        { value: '12', label: 'December' },
+      ]
+
   // Function to fetch the session data based on the year, month, and idNumber
   const fetchSessions = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/${idNumber}/${year}/${month}`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/${idNumber}/${year}/${month}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -26,25 +46,25 @@ const WorkSessionsTable = () => {
         console.log(data);
         setSessions(data);
       } else {
-        toast.error('Failed to fetch sessions for the given month and year.');
+        toast.error(t('worker.sessions.fetchError'));
       }
     } catch (err) {
       console.error('Error fetching sessions:', err);
-      toast.error('Error fetching sessions.');
+      toast.error(t('worker.sessions.genericError'));
     }
   };
 
   // Download sessions as CSV
   const exportSessions = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}`, {
         method: 'GET',
         credentials: 'include',
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.message || 'Failed to export sessions.');
+        toast.error(errorData.message || t('worker.sessions.csvError'));
         return;
       }
 
@@ -59,21 +79,21 @@ const WorkSessionsTable = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error exporting sessions:', err);
-      toast.error('Error exporting sessions.');
+      toast.error(t('worker.sessions.csvGenericError'));
     }
   };
 
   // Download sessions as PDF
   const exportSessionsPDF = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}/pdf`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/export/${idNumber}/${year}/${month}/pdf`, {
         method: 'GET',
         credentials: 'include',
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        toast.error(errorData.message || 'Failed to export PDF.');
+        toast.error(errorData.message || t('worker.sessions.pdfError'));
         return;
       }
 
@@ -88,13 +108,13 @@ const WorkSessionsTable = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Error exporting PDF:', err);
-      toast.error('Error exporting PDF.');
+      toast.error(t('worker.sessions.pdfGenericError'));
     }
   };
 
-  // Helper function to calculate total time in a readable format (hours:minutes), excluding seconds and rounding up minutes
-  const calculateTotalTime = (timeIn, timeOut) => {
-    if (!timeOut) return "Ongoing";
+  // Helper function to calculate duration as an object; display is localized separately
+  const calculateDuration = (timeIn, timeOut) => {
+    if (!timeOut) return { type: 'ongoing' };
 
     // Convertimos timeIn y timeOut a objetos Date en la zona horaria Asia/Jerusalem
     const startDate = new Date(timeIn).toLocaleString("en-US", { timeZone: "Asia/Jerusalem" });
@@ -106,12 +126,18 @@ const WorkSessionsTable = () => {
 
     const durationMs = end - start; // in milliseconds
 
-    if (durationMs <= 0) return "Invalid time";
+    if (durationMs <= 0) return { type: 'invalid' };
 
     const hours = Math.floor(durationMs / (1000 * 60 * 60)); // Calculate exact hours (no rounding)
     const minutes = Math.ceil((durationMs % (1000 * 60 * 60)) / (1000 * 60)); // Round up minutes
 
-    return `${hours}h ${minutes}m`;
+    return { type: 'duration', hours, minutes };
+  };
+
+  const formatDuration = (result) => {
+    if (result.type === 'ongoing') return t('worker.sessions.ongoing');
+    if (result.type === 'invalid') return t('worker.sessions.invalidTime');
+    return t('worker.sessions.duration', { hours: result.hours, minutes: result.minutes });
   };
 
   // Function to calculate the total hours and minutes
@@ -120,16 +146,14 @@ const WorkSessionsTable = () => {
     let totalMinutes = 0;
 
     sessions.forEach((session) => {
-      const totalTime = calculateTotalTime(
+      const result = calculateDuration(
         new Date(`${session.year}-${String(session.month).padStart(2, '0')}-${String(session.day).padStart(2, '0')}T${session.timeIn}`),
         session.timeOut ? new Date(`${session.year}-${String(session.month).padStart(2, '0')}-${String(session.day).padStart(2, '0')}T${session.timeOut}`) : null
       );
 
-      // Extract hours and minutes if valid
-      const match = totalTime.match(/(\d+)h (\d+)m/);
-      if (match) {
-        totalHours += parseInt(match[1], 10);
-        totalMinutes += parseInt(match[2], 10);
+      if (result.type === 'duration') {
+        totalHours += result.hours;
+        totalMinutes += result.minutes;
       }
     });
 
@@ -137,7 +161,7 @@ const WorkSessionsTable = () => {
     totalHours += Math.floor(totalMinutes / 60);
     totalMinutes = totalMinutes % 60;
 
-    return `${totalHours}h ${totalMinutes}m`;
+    return t('worker.sessions.duration', { hours: totalHours, minutes: totalMinutes });
   };
 
   return (
@@ -152,43 +176,30 @@ const WorkSessionsTable = () => {
         <DrawerAppBar />
         <Box sx={{ padding: 4, fontFamily: 'Arial, sans-serif', position: 'relative' }}>
           <Typography variant="h4" align="center" gutterBottom color="#4A7B59">
-            Work Sessions Report
+            {t('worker.sessions.title')}
           </Typography>
 
           {/* Input Fields for ID, Year, and Month */}
           <Box display="flex" flexDirection="column" alignItems="center">
             <TextField
-              label="ID Number"
+              label={t('worker.sessions.idNumber')}
               variant="outlined"
               margin="normal"
               onChange={(e) => setIdNumber(e.target.value)}
               value={idNumber}
             />
             <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
-              <InputLabel>Year</InputLabel>
-              <Select value={year} onChange={(e) => setYear(e.target.value)} label="Year">
+              <InputLabel>{t('worker.sessions.year')}</InputLabel>
+              <Select value={year} onChange={(e) => setYear(e.target.value)} label={t('worker.sessions.year')}>
                 {Array.from({ length: 4 }, (_, i) => new Date().getFullYear() - i).map((y) => (
                   <MenuItem key={y} value={y.toString()}>{y}</MenuItem>
                 ))}
               </Select>
             </FormControl>
             <FormControl fullWidth margin="normal" sx={{ maxWidth: 300 }}>
-              <InputLabel>Month</InputLabel>
-              <Select value={month} onChange={(e) => setMonth(e.target.value)} label="Month">
-                {[
-                  { value: '1', label: 'January' },
-                  { value: '2', label: 'February' },
-                  { value: '3', label: 'March' },
-                  { value: '4', label: 'April' },
-                  { value: '5', label: 'May' },
-                  { value: '6', label: 'June' },
-                  { value: '7', label: 'July' },
-                  { value: '8', label: 'August' },
-                  { value: '9', label: 'September' },
-                  { value: '10', label: 'October' },
-                  { value: '11', label: 'November' },
-                  { value: '12', label: 'December' },
-                ].map((m) => (
+              <InputLabel>{t('worker.sessions.month')}</InputLabel>
+              <Select value={month} onChange={(e) => setMonth(e.target.value)} label={t('worker.sessions.month')}>
+                {MONTHS.map((m) => (
                   <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
                 ))}
               </Select>
@@ -199,7 +210,7 @@ const WorkSessionsTable = () => {
               sx={{ marginTop: 2 }}
               onClick={fetchSessions}
             >
-              Get Sessions
+              {t('worker.sessions.getSessions')}
             </Button>
             <Button
               variant="outlined"
@@ -209,7 +220,7 @@ const WorkSessionsTable = () => {
               onClick={exportSessions}
               disabled={!idNumber || sessions.length === 0}
             >
-              Export CSV
+              {t('worker.sessions.exportCsv')}
             </Button>
             <Button
               variant="outlined"
@@ -219,7 +230,7 @@ const WorkSessionsTable = () => {
               onClick={exportSessionsPDF}
               disabled={!idNumber || sessions.length === 0}
             >
-              Export PDF
+              {t('worker.sessions.exportPdf')}
             </Button>
 
           </Box>
@@ -229,12 +240,12 @@ const WorkSessionsTable = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Day</TableCell>
-                  <TableCell>Month</TableCell>
-                  <TableCell>Year</TableCell>
-                  <TableCell>Time In</TableCell>
-                  <TableCell>Time Out</TableCell>
-                  <TableCell>Total Hours</TableCell>
+                  <TableCell>{t('worker.sessions.day')}</TableCell>
+                  <TableCell>{t('worker.sessions.month')}</TableCell>
+                  <TableCell>{t('worker.sessions.year')}</TableCell>
+                  <TableCell>{t('worker.sessions.timeIn')}</TableCell>
+                  <TableCell>{t('worker.sessions.timeOut')}</TableCell>
+                  <TableCell>{t('worker.sessions.totalHours')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -248,7 +259,8 @@ const WorkSessionsTable = () => {
                       )
                     : null;
 
-                  const totalTime = calculateTotalTime(timeIn, timeOut);
+                  const durationResult = calculateDuration(timeIn, timeOut);
+                  const totalTime = formatDuration(durationResult);
 
                   return (
                     <TableRow key={index}>
@@ -256,14 +268,14 @@ const WorkSessionsTable = () => {
                       <TableCell>{session.month}</TableCell>
                       <TableCell>{session.year}</TableCell>
                       <TableCell>{session.timeIn}</TableCell>
-                      <TableCell>{session.timeOut || "Ongoing"}</TableCell>
+                      <TableCell>{session.timeOut || t('worker.sessions.ongoing')}</TableCell>
                       <TableCell>{totalTime}</TableCell>
                     </TableRow>
                   );
                 })}
                 {/* Row to display the total hours */}
                 <TableRow>
-                  <TableCell colSpan={5} align="right"><strong>Total Hours:</strong></TableCell>
+                  <TableCell colSpan={5} align="right"><strong>{t('worker.sessions.total')}</strong></TableCell>
                   <TableCell>{calculateTotalHours()}</TableCell>
                 </TableRow>
               </TableBody>
@@ -273,10 +285,7 @@ const WorkSessionsTable = () => {
           {/* Toast notifications */}
           <ToastContainer />
         </Box>
-      </Box>
-
-      <Footer />
-    </Box>
+      </Box></Box>
   );
 };
 

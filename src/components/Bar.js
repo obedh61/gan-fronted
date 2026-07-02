@@ -2,7 +2,6 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
@@ -27,9 +26,15 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { isAuth, signout, getCookie } from '../pages/helpers';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const drawerWidth = 240;
-const navItems = ['Home', 'About', 'Contact'];
+const navItems = [
+  { key: 'nav.home', path: '/home' },
+  { key: 'nav.about', path: '/about' },
+  { key: 'nav.contact', path: '/contact' },
+];
 
 function DrawerAppBar(props) {
   const { window } = props;
@@ -39,12 +44,14 @@ function DrawerAppBar(props) {
   const navigate = useNavigate();
 
   const location = useLocation();
+  const isActive = (path) => location.pathname === path;
   const auth = isAuth();
   const isAdmin = auth && auth.role === 'admin';
   const isLoggedIn = !!auth;
-  const isOnAdminPage = location.pathname === '/admin';
+  const isOnAdminPage = isActive('/admin');
   const token = getCookie('token');
   const API = process.env.REACT_APP_API;
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (!token || !API) return;
@@ -81,16 +88,18 @@ function DrawerAppBar(props) {
 
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
-      <img src={gan} alt="Logo" className="img" width={40} height={40} />
+      <img src={gan} alt={t('accessibility.logoAlt')} className="img" width={40} height={40} />
       <Divider />
       <List>
-        {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }} component={Link} to={`/${item.toLowerCase()}`}>
-              <ListItemText primary={item} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {navItems
+          .filter((item) => !isActive(item.path))
+          .map((item) => (
+            <ListItem key={item.key} disablePadding>
+              <ListItemButton sx={{ textAlign: 'center' }} component={Link} to={item.path}>
+                <ListItemText primary={t(item.key)} />
+              </ListItemButton>
+            </ListItem>
+          ))}
 
         {/* Admin drawer items */}
         {isAdmin && (
@@ -100,32 +109,38 @@ function DrawerAppBar(props) {
               <ListItem disablePadding>
                 <ListItemButton component={Link} to="/admin">
                   <ListItemIcon sx={{ minWidth: 36 }}><AdminPanelSettingsIcon fontSize="small" /></ListItemIcon>
-                  <ListItemText primary="Admin Panel" />
+                  <ListItemText primary={t('nav.adminPanel')} />
                 </ListItemButton>
               </ListItem>
             )}
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/admin/school-years">
-                <ListItemIcon sx={{ minWidth: 36 }}><CalendarTodayIcon fontSize="small" /></ListItemIcon>
-                <ListItemText primary="School Years" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/admin/dashboard">
-                <ListItemIcon sx={{ minWidth: 36 }}><DashboardIcon fontSize="small" /></ListItemIcon>
-                <ListItemText primary="Dashboard" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/admin/registrations">
-                <ListItemIcon sx={{ minWidth: 36 }}>
-                  <Badge badgeContent={pendingCount} color="error" max={99}>
-                    <PeopleIcon fontSize="small" />
-                  </Badge>
-                </ListItemIcon>
-                <ListItemText primary="Registrations" />
-              </ListItemButton>
-            </ListItem>
+            {!isActive('/admin/school-years') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin/school-years">
+                  <ListItemIcon sx={{ minWidth: 36 }}><CalendarTodayIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary={t('nav.schoolYears')} />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {!isActive('/admin/dashboard') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin/dashboard">
+                  <ListItemIcon sx={{ minWidth: 36 }}><DashboardIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary={t('nav.dashboard')} />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {!isActive('/admin/registrations') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin/registrations">
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <Badge badgeContent={pendingCount} color="error" max={99}>
+                      <PeopleIcon fontSize="small" />
+                    </Badge>
+                  </ListItemIcon>
+                  <ListItemText primary={t('nav.registrations')} />
+                </ListItemButton>
+              </ListItem>
+            )}
           </>
         )}
 
@@ -133,26 +148,36 @@ function DrawerAppBar(props) {
         {auth && !isAdmin && (
           <>
             <Divider sx={{ my: 1 }} />
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/register-child">
-                <ListItemIcon sx={{ minWidth: 36 }}><PersonAddIcon fontSize="small" /></ListItemIcon>
-                <ListItemText primary="Register Child" />
-              </ListItemButton>
-            </ListItem>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} to="/my-registrations">
-                <ListItemIcon sx={{ minWidth: 36 }}>
-                  <Badge badgeContent={myPendingCount} color="warning" max={99}>
-                    <FamilyRestroomIcon fontSize="small" />
-                  </Badge>
-                </ListItemIcon>
-                <ListItemText primary="My Registrations" />
-              </ListItemButton>
-            </ListItem>
+            {!isActive('/register-child') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/register-child">
+                  <ListItemIcon sx={{ minWidth: 36 }}><PersonAddIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary={t('nav.registerChild')} />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {!isActive('/my-registrations') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/my-registrations">
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <Badge badgeContent={myPendingCount} color="warning" max={99}>
+                      <FamilyRestroomIcon fontSize="small" />
+                    </Badge>
+                  </ListItemIcon>
+                  <ListItemText primary={t('nav.myRegistrations')} />
+                </ListItemButton>
+              </ListItem>
+            )}
           </>
         )}
 
         <Divider sx={{ my: 1 }} />
+        <ListItem component="div" onClick={(e) => e.stopPropagation()} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 1 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary', textAlign: 'center' }}>
+            {t('language')}
+          </Typography>
+          <LanguageSwitcher variant="light" fullWidth />
+        </ListItem>
         {auth && (
           <ListItem key="sign out" disablePadding>
             <ListItemButton
@@ -167,7 +192,7 @@ function DrawerAppBar(props) {
                 });
               }}
             >
-              <ListItemText primary="Sign Out" />
+              <ListItemText primary={t('common.signOut')} />
             </ListItemButton>
           </ListItem>
         )}
@@ -179,31 +204,35 @@ function DrawerAppBar(props) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
       <AppBar component="nav" color="success">
         <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="open drawer"
+            aria-label={t('common.openDrawer')}
             edge="start"
             onClick={handleDrawerToggle}
             sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
+          <Box sx={{ display: { xs: 'flex', sm: 'none' }, marginInlineStart: 'auto' }}>
+            <LanguageSwitcher />
+          </Box>
           <Typography
             variant="h6"
             component="div"
             sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
           >
-            Welcome to Our Kinder
+            {t('nav.welcome')}
           </Typography>
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-            {navItems.map((item) => (
-              <Button key={item} sx={{ color: '#fff' }} component={Link} to={`/${item.toLowerCase()}`}>
-                {item}
-              </Button>
-            ))}
+            {navItems
+              .filter((item) => !isActive(item.path))
+              .map((item) => (
+                <Button key={item.key} sx={{ color: '#fff' }} component={Link} to={item.path}>
+                  {t(item.key)}
+                </Button>
+              ))}
 
             {/* Admin desktop items */}
             {isAdmin && (
@@ -215,66 +244,77 @@ function DrawerAppBar(props) {
                     to="/admin"
                     startIcon={<AdminPanelSettingsIcon />}
                   >
-                    Admin Panel
+                    {t('nav.adminPanel')}
                   </Button>
                 )}
-                <Button
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to="/admin/school-years"
-                  startIcon={<CalendarTodayIcon />}
-                >
-                  School Years
-                </Button>
-                <Button
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to="/admin/dashboard"
-                  startIcon={<DashboardIcon />}
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to="/admin/registrations"
-                  startIcon={
-                    <Badge badgeContent={pendingCount} color="error" max={99}>
-                      <PeopleIcon />
-                    </Badge>
-                  }
-                >
-                  Registrations
-                </Button>
+                {!isActive('/admin/school-years') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/admin/school-years"
+                    startIcon={<CalendarTodayIcon />}
+                  >
+                    {t('nav.schoolYears')}
+                  </Button>
+                )}
+                {!isActive('/admin/dashboard') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/admin/dashboard"
+                    startIcon={<DashboardIcon />}
+                  >
+                    {t('nav.dashboard')}
+                  </Button>
+                )}
+                {!isActive('/admin/registrations') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/admin/registrations"
+                    startIcon={
+                      <Badge badgeContent={pendingCount} color="error" max={99}>
+                        <PeopleIcon />
+                      </Badge>
+                    }
+                  >
+                    {t('nav.registrations')}
+                  </Button>
+                )}
               </>
             )}
 
             {/* Regular user desktop items */}
             {auth && !isAdmin && (
               <>
-                <Button
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to="/register-child"
-                  startIcon={<PersonAddIcon />}
-                >
-                  Register Child
-                </Button>
-                <Button
-                  sx={{ color: '#fff' }}
-                  component={Link}
-                  to="/my-registrations"
-                  startIcon={
-                    <Badge badgeContent={myPendingCount} color="warning" max={99}>
-                      <FamilyRestroomIcon />
-                    </Badge>
-                  }
-                >
-                  My Registrations
-                </Button>
+                {!isActive('/register-child') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/register-child"
+                    startIcon={<PersonAddIcon />}
+                  >
+                    {t('nav.registerChild')}
+                  </Button>
+                )}
+                {!isActive('/my-registrations') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/my-registrations"
+                    startIcon={
+                      <Badge badgeContent={myPendingCount} color="warning" max={99}>
+                        <FamilyRestroomIcon />
+                      </Badge>
+                    }
+                  >
+                    {t('nav.myRegistrations')}
+                  </Button>
+                )}
               </>
             )}
 
+            <LanguageSwitcher />
             {auth && (
               <Button
                 key="sign out"
@@ -289,7 +329,7 @@ function DrawerAppBar(props) {
                   });
                 }}
               >
-                {"Sign out"}
+                {t('common.signOut')}
               </Button>
             )}
           </Box>

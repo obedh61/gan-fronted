@@ -1,6 +1,5 @@
 import DrawerAppBar from '../components/Bar';
 import { Box, Container } from '@mui/material';
-import Footer from '../components/Footer';
 import ScheduleComponent from '../components/ScheduleComponent';
 
 function Services() {
@@ -22,10 +21,7 @@ function Services() {
           <ScheduleComponent/>
           
         </Container>
-      </Box>
-      
-      <Footer/>
-    </Box>
+      </Box></Box>
     
   );
 }

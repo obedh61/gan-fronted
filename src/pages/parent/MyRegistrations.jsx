@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
-import { getCookie } from '../helpers'
+import { getCookie, formatDate } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import Footer from '../../components/Footer'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useTranslation } from 'react-i18next'
 import {
     Box, Container, Typography, Button, Grid,
     Card, CardContent, CardActions,
@@ -19,12 +19,21 @@ import ChildCareIcon from '@mui/icons-material/ChildCare'
 import DescriptionIcon from '@mui/icons-material/Description'
 import { useNavigate } from 'react-router-dom'
 
-const BRANCH_LABELS = { cityCenter: 'City Center', germanColony: 'German Colony' }
-const AGE_LABELS = { under1: 'Under 1 Year', over1: 'Over 1 Year' }
 const STATUS_COLORS = { pending: 'warning', approved: 'success', rejected: 'error' }
-const STATUS_FILTERS = ['all', 'pending', 'approved', 'rejected']
 
 const MyRegistrations = () => {
+    const { t, i18n } = useTranslation()
+
+    const BRANCH_LABELS = useMemo(() => ({
+        cityCenter: t('parent.myRegistrations.cityCenter'),
+        germanColony: t('parent.myRegistrations.germanColony')
+    }), [t])
+    const AGE_LABELS = useMemo(() => ({
+        under1: t('parent.myRegistrations.under1'),
+        over1: t('parent.myRegistrations.over1')
+    }), [t])
+    const STATUS_FILTERS = useMemo(() => ['all', 'pending', 'approved', 'rejected'], [])
+
     const [registrations, setRegistrations] = useState([])
     const [loading, setLoading] = useState(true)
     const [statusFilter, setStatusFilter] = useState('all')
@@ -58,10 +67,10 @@ const MyRegistrations = () => {
             })
             .catch(error => {
                 console.error('Error fetching registrations:', error)
-                toast.error(error.response?.data?.error || 'Error loading registrations')
+                toast.error(error.response?.data?.error || t('parent.myRegistrations.loadError'))
                 setLoading(false)
             })
-    }, [API, headers, limit, page])
+    }, [API, headers, limit, page, t])
 
     useEffect(() => {
         fetchMyRegistrations()
@@ -111,11 +120,7 @@ const MyRegistrations = () => {
         fetchMyRegistrations(value)
     }
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '-'
-        const d = new Date(dateStr)
-        return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    }
+    const formatDateLocal = (dateStr) => formatDate(dateStr, i18n.language)
 
     // ============================================
     // RENDER
@@ -129,7 +134,7 @@ const MyRegistrations = () => {
                     {/* Header */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                         <Typography variant="h4" color="#4A7B59">
-                            My Child Registrations
+                            {t('parent.myRegistrations.title')}
                         </Typography>
                         <Button
                             variant="contained"
@@ -137,7 +142,7 @@ const MyRegistrations = () => {
                             startIcon={<AddIcon />}
                             onClick={() => navigate('/register-child')}
                         >
-                            Register New Child
+                            {t('parent.myRegistrations.registerNew')}
                         </Button>
                     </Box>
 
@@ -149,8 +154,8 @@ const MyRegistrations = () => {
                                 <Chip
                                     key={s}
                                     label={s === 'all'
-                                        ? `All (${registrations.length})`
-                                        : `${s.charAt(0).toUpperCase() + s.slice(1)} (${registrations.filter(r => r.status === s).length})`
+                                        ? `${t('common.all')} (${registrations.length})`
+                                        : `${t(`common.${s}`)} (${registrations.filter(r => r.status === s).length})`
                                     }
                                     color={statusFilter === s ? (STATUS_COLORS[s] || 'default') : 'default'}
                                     variant={statusFilter === s ? 'filled' : 'outlined'}
@@ -163,13 +168,13 @@ const MyRegistrations = () => {
                         {/* School year dropdown filter */}
                         {schoolYears.length > 1 && (
                             <FormControl size="small" sx={{ minWidth: 200 }}>
-                                <InputLabel>School Year</InputLabel>
+                                <InputLabel>{t('parent.myRegistrations.schoolYearFilter')}</InputLabel>
                                 <Select
                                     value={schoolYearFilter}
-                                    label="School Year"
+                                    label={t('parent.myRegistrations.schoolYearFilter')}
                                     onChange={e => setSchoolYearFilter(e.target.value)}
                                 >
-                                    <MenuItem value="all">All School Years</MenuItem>
+                                    <MenuItem value="all">{t('parent.myRegistrations.allSchoolYears')}</MenuItem>
                                     {schoolYears.map(sy => (
                                         <MenuItem key={sy._id} value={sy._id}>{sy.name}</MenuItem>
                                     ))}
@@ -189,10 +194,10 @@ const MyRegistrations = () => {
                             <CardContent>
                                 <ChildCareIcon sx={{ fontSize: 80, color: '#bdbdbd', mb: 2 }} />
                                 <Typography variant="h5" color="text.secondary" gutterBottom>
-                                    No registrations yet
+                                    {t('parent.myRegistrations.emptyTitle')}
                                 </Typography>
                                 <Typography variant="body1" color="text.secondary" mb={3}>
-                                    You haven't registered any children. Start by registering your first child for a school year.
+                                    {t('parent.myRegistrations.emptyText')}
                                 </Typography>
                                 <Button
                                     variant="contained"
@@ -201,7 +206,7 @@ const MyRegistrations = () => {
                                     startIcon={<AddIcon />}
                                     onClick={() => navigate('/register-child')}
                                 >
-                                    Register Your First Child
+                                    {t('parent.myRegistrations.registerFirst')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -209,7 +214,7 @@ const MyRegistrations = () => {
                         <Card>
                             <CardContent sx={{ textAlign: 'center', py: 4 }}>
                                 <Typography color="text.secondary">
-                                    No registrations match the selected filters.
+                                    {t('parent.myRegistrations.filteredEmpty')}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -236,11 +241,11 @@ const MyRegistrations = () => {
                                                 {reg.childName}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" gutterBottom>
-                                                {reg.schoolYear?.name || 'School Year'}
+                                                {reg.schoolYear?.name || t('parent.myRegistrations.schoolYear')}
                                             </Typography>
                                             <Box display="flex" gap={1} mb={1.5} flexWrap="wrap">
                                                 <Chip
-                                                    label={reg.status}
+                                                    label={t(`common.${reg.status}`)}
                                                     color={STATUS_COLORS[reg.status] || 'default'}
                                                     size="small"
                                                     sx={{ textTransform: 'capitalize' }}
@@ -249,13 +254,13 @@ const MyRegistrations = () => {
                                             <Divider sx={{ my: 1 }} />
                                             <Box display="flex" flexDirection="column" gap={0.5}>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    <strong>Date:</strong> {formatDate(reg.createdAt)}
+                                                    <strong>{t('parent.myRegistrations.date')}</strong> {formatDateLocal(reg.createdAt)}
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    <strong>Branch:</strong> {BRANCH_LABELS[reg.branch] || reg.branch}
+                                                    <strong>{t('parent.myRegistrations.branch')}</strong> {BRANCH_LABELS[reg.branch] || reg.branch}
                                                 </Typography>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    <strong>Age Group:</strong> {AGE_LABELS[reg.ageGroup] || reg.ageGroup}
+                                                    <strong>{t('parent.myRegistrations.ageGroup')}</strong> {AGE_LABELS[reg.ageGroup] || reg.ageGroup}
                                                 </Typography>
                                             </Box>
 
@@ -272,7 +277,7 @@ const MyRegistrations = () => {
                                                 onClick={() => viewDetails(reg)}
                                                 sx={{ color: '#4A7B59' }}
                                             >
-                                                View Details
+                                                {t('parent.myRegistrations.viewDetails')}
                                             </Button>
                                             {reg.status === 'rejected' && (
                                                 <Button
@@ -281,7 +286,7 @@ const MyRegistrations = () => {
                                                     color="primary"
                                                     onClick={registerAgain}
                                                 >
-                                                    Register Again
+                                                    {t('parent.myRegistrations.registerAgain')}
                                                 </Button>
                                             )}
                                         </CardActions>
@@ -308,10 +313,10 @@ const MyRegistrations = () => {
                     {/* ============================================ */}
                     <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} maxWidth="sm" fullWidth>
                         <DialogTitle>
-                            Registration Details
+                            {t('parent.myRegistrations.detailsTitle')}
                             {selected && (
                                 <Chip
-                                    label={selected.status}
+                                    label={t(`common.${selected.status}`)}
                                     color={STATUS_COLORS[selected.status]}
                                     size="small"
                                     sx={{ ml: 2, textTransform: 'capitalize' }}
@@ -321,103 +326,103 @@ const MyRegistrations = () => {
                         {selected && (
                             <DialogContent>
                                 {/* Parent 1 */}
-                                <Typography variant="subtitle2" color="#4A7B59" mt={1}>Parent 1 Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59" mt={1}>{t('parent.myRegistrations.parent1Info')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={4} mb={2} flexWrap="wrap">
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">First Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.firstName')}</Typography>
                                         <Typography>{selected.parent1FirstName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Last Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.lastName')}</Typography>
                                         <Typography>{selected.parent1LastName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">ID Number</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.idNumber')}</Typography>
                                         <Typography>{selected.parent1IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Parent 2 */}
-                                <Typography variant="subtitle2" color="#4A7B59">Parent 2 Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('parent.myRegistrations.parent2Info')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={4} mb={2} flexWrap="wrap">
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">First Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.firstName')}</Typography>
                                         <Typography>{selected.parent2FirstName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Last Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.lastName')}</Typography>
                                         <Typography>{selected.parent2LastName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">ID Number</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.idNumber')}</Typography>
                                         <Typography>{selected.parent2IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Child Info */}
-                                <Typography variant="subtitle2" color="#4A7B59">Child Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('parent.myRegistrations.childInfo')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={4} mb={2} flexWrap="wrap">
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Child Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.childName')}</Typography>
                                         <Typography>{selected.childName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Branch</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.branchLabel')}</Typography>
                                         <Typography>{BRANCH_LABELS[selected.branch]}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Age Group</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.ageGroupLabel')}</Typography>
                                         <Typography>{AGE_LABELS[selected.ageGroup]}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Banking */}
-                                <Typography variant="subtitle2" color="#4A7B59">Banking Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('parent.myRegistrations.bankingInfo')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={4} mb={2} flexWrap="wrap">
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Phone</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.phone')}</Typography>
                                         <Typography>{selected.phoneNumber}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Bank</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.bank')}</Typography>
                                         <Typography>{selected.bankName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Account</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.account')}</Typography>
                                         <Typography>{selected.bankAccountNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Status & Dates */}
-                                <Typography variant="subtitle2" color="#4A7B59">Status</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('parent.myRegistrations.status')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={4} mb={2} flexWrap="wrap">
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">School Year</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.schoolYear')}</Typography>
                                         <Typography>{selected.schoolYear?.name || '-'}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Submitted</Typography>
-                                        <Typography>{formatDate(selected.createdAt)}</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.submitted')}</Typography>
+                                        <Typography>{formatDateLocal(selected.createdAt)}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Status</Typography>
-                                        <Typography sx={{ textTransform: 'capitalize' }}>{selected.status}</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('parent.myRegistrations.status')}</Typography>
+                                        <Typography sx={{ textTransform: 'capitalize' }}>{t(`common.${selected.status}`)}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Rejection reason */}
                                 {selected.status === 'rejected' && selected.rejectionReason && (
                                     <Alert severity="error" sx={{ mb: 2 }}>
-                                        <Typography variant="subtitle2" gutterBottom>Rejection Reason</Typography>
+                                        <Typography variant="subtitle2" gutterBottom>{t('parent.myRegistrations.rejectionReason')}</Typography>
                                         <Typography variant="body2">{selected.rejectionReason}</Typography>
                                         {selected.reviewedAt && (
                                             <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-                                                Reviewed on {formatDate(selected.reviewedAt)}
+                                                {t('parent.myRegistrations.reviewedOn', { date: formatDateLocal(selected.reviewedAt) })}
                                             </Typography>
                                         )}
                                     </Alert>
@@ -427,13 +432,13 @@ const MyRegistrations = () => {
                                 {selected.status === 'approved' && selected.reviewedAt && (
                                     <Alert severity="success" sx={{ mb: 2 }}>
                                         <Typography variant="body2">
-                                            Approved on {formatDate(selected.reviewedAt)}
+                                            {t('parent.myRegistrations.approvedOn', { date: formatDateLocal(selected.reviewedAt) })}
                                         </Typography>
                                     </Alert>
                                 )}
 
                                 {/* Contracts */}
-                                <Typography variant="subtitle2" color="#4A7B59">Contracts</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('parent.myRegistrations.contracts')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" gap={2} flexWrap="wrap">
                                     {selected.assignedContractUrl ? (
@@ -443,10 +448,10 @@ const MyRegistrations = () => {
                                             startIcon={<DescriptionIcon />}
                                             onClick={() => viewPDF(selected.assignedContractUrl)}
                                         >
-                                            View Assigned Contract
+                                            {t('parent.myRegistrations.viewAssignedContract')}
                                         </Button>
                                     ) : (
-                                        <Chip label="No assigned contract" size="small" variant="outlined" />
+                                        <Chip label={t('parent.myRegistrations.noAssignedContract')} size="small" variant="outlined" />
                                     )}
                                     {selected.uploadedContractUrl ? (
                                         <Button
@@ -456,10 +461,10 @@ const MyRegistrations = () => {
                                             startIcon={<DescriptionIcon />}
                                             onClick={() => viewPDF(selected.uploadedContractUrl)}
                                         >
-                                            View Uploaded Contract
+                                            {t('parent.myRegistrations.viewUploadedContract')}
                                         </Button>
                                     ) : (
-                                        <Chip label="No signed contract uploaded" size="small" variant="outlined" color="warning" />
+                                        <Chip label={t('parent.myRegistrations.noSignedContract')} size="small" variant="outlined" color="warning" />
                                     )}
                                 </Box>
                             </DialogContent>
@@ -471,16 +476,14 @@ const MyRegistrations = () => {
                                     color="primary"
                                     startIcon={<ReplayIcon />}
                                 >
-                                    Register Again
+                                    {t('parent.myRegistrations.registerAgain')}
                                 </Button>
                             )}
-                            <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+                            <Button onClick={() => setDetailsOpen(false)}>{t('common.close')}</Button>
                         </DialogActions>
                     </Dialog>
                 </Container>
-            </Box>
-            <Footer />
-            <ToastContainer />
+            </Box><ToastContainer />
         </Box>
     )
 }

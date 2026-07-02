@@ -4,8 +4,10 @@ import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, T
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from 'react-i18next';
 
 export const ViewChildren = () => {
+  const { t } = useTranslation()
   const [children, setChildren] = useState([]);
   const [message, setMessage] = useState('');
 
@@ -18,9 +20,9 @@ export const ViewChildren = () => {
       })
       .catch((error) => {
         console.error('Error fetching children:', error);
-        toast.error('Error fetching children');
+        toast.error(t('legacy.viewChildren.fetchError'));
       });
-  }, []);
+  }, [t]);
 
   // Eliminar un niño por su ID
   const deleteChild = (id) => {
@@ -28,31 +30,31 @@ export const ViewChildren = () => {
       .delete(`${process.env.REACT_APP_API}/deletechild/${id}`)
       .then(() => {
         setChildren(children.filter(child => child._id !== id));
-        toast.success('Child deleted successfully');
+        toast.success(t('legacy.viewChildren.deleteSuccess'));
       })
       .catch((error) => {
         console.error('Error deleting child:', error);
-        toast.error('Error deleting child');
+        toast.error(t('legacy.viewChildren.deleteError'));
       });
   };
 
   return (
     <Box display="flex" flexDirection="column" padding={3}>
       <Typography color='success' variant="h2" textAlign="center" gutterBottom>
-        View Children
+        {t('legacy.viewChildren.title')}
       </Typography>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>First Name</TableCell>
-              <TableCell>Last Name</TableCell>
-              <TableCell>Child's Name</TableCell>
-              <TableCell>Teudat Zeut</TableCell>
-              <TableCell>Phone Number</TableCell>
-              <TableCell>Bank</TableCell>
-              <TableCell>Bank Account</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>{t('legacy.viewChildren.firstName')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.lastName')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.childName')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.teudatZeut')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.phoneNumber')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.bank')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.bankAccount')}</TableCell>
+              <TableCell>{t('legacy.viewChildren.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -72,7 +74,7 @@ export const ViewChildren = () => {
                     variant="outlined"
                     color="error"
                   >
-                    Delete
+                    {t('legacy.viewChildren.delete')}
                   </Button>
                 </TableCell>
               </TableRow>

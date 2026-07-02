@@ -3,8 +3,11 @@ import { Box, IconButton, Typography } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import EmailIcon from '@mui/icons-material/Email';
+import { useTranslation } from 'react-i18next';
 
 const ContactComponent = () => {
+  const { t } = useTranslation();
+
   const handleFacebookClick = () => {
     window.open('https://www.facebook.com/sarahpicovsky?mibextid=ZbWKwL', '_blank');
   };
@@ -20,7 +23,7 @@ const ContactComponent = () => {
   return (
     <Box sx={{ padding: 4, textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
       <Typography variant="h4" gutterBottom>
-        Contact Us
+        {t('home.contactTitle')}
       </Typography>
 
       <Box

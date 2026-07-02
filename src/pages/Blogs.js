@@ -1,10 +1,10 @@
 import DrawerAppBar from '../components/Bar';
 import ImgMediaCard from '../components/Card';
 import { Box, Container, Grid } from '@mui/material';
-import infos from '../components/data'
-import Footer from '../components/Footer';
-
+import useInfos from '../components/data'
 function Blogs() {
+  const infos = useInfos();
+
   return (
     <Box
       sx={{
@@ -27,17 +27,14 @@ function Blogs() {
             {
               infos.map((info) => (
                 
-                  <ImgMediaCard key={info.title} title={info.title} image={info.image} description={info.description} link={info.link} />
+                  <ImgMediaCard key={info.link} title={info.title} image={info.image} description={info.description} link={info.link} />
                 
               ))
             }
           </Grid>
 
         </Container>
-      </Box>
-      
-      <Footer/>
-    </Box>
+      </Box></Box>
     
   );
 }

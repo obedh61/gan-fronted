@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
-import { getCookie } from '../helpers'
+import { getCookie, formatDate } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import Footer from '../../components/Footer'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {
@@ -21,12 +21,11 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
 import { useNavigate } from 'react-router-dom'
 
-const BRANCH_LABELS = { cityCenter: 'City Center', germanColony: 'German Colony' }
-const AGE_LABELS = { under1: 'Under 1 Year', over1: 'Over 1 Year' }
 const STATUS_COLORS = { pending: 'warning', approved: 'success', rejected: 'error' }
 const TAB_STATUS = [null, 'pending', 'approved', 'rejected']
 
 const PendingRegistrations = () => {
+    const { t, i18n } = useTranslation()
     const [registrations, setRegistrations] = useState([])
     const [loading, setLoading] = useState(true)
     const [tabValue, setTabValue] = useState(0)
@@ -50,6 +49,9 @@ const PendingRegistrations = () => {
     const token = getCookie('token')
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
+
+    const BRANCH_LABELS = useMemo(() => t('common.branchLabels', { returnObjects: true }), [t])
+    const AGE_LABELS = useMemo(() => t('common.ageLabels', { returnObjects: true }), [t])
 
     // ============================================
     // API FUNCTIONS
@@ -80,30 +82,30 @@ const PendingRegistrations = () => {
             })
             .catch(error => {
                 console.error('Error fetching registrations:', error)
-                toast.error(error.response?.data?.error || 'Error fetching registrations')
+                toast.error(error.response?.data?.error || t('admin.registrations.fetchError'))
                 setLoading(false)
             })
-    }, [API, headers, limit, statusFilter, searchQuery, page])
+    }, [API, headers, limit, statusFilter, searchQuery, page, t])
 
     const approveRegistration = (id) => {
         setActionLoading(true)
         axios.patch(`${API}/registration/${id}/approve`, {}, { headers })
             .then(response => {
-                toast.success('Registration approved successfully')
+                toast.success(t('admin.registrations.approveSuccess'))
                 setDetailsOpen(false)
                 setSelected(null)
                 fetchRegistrations()
             })
             .catch(error => {
                 console.error('Error approving registration:', error)
-                toast.error(error.response?.data?.error || 'Error approving registration')
+                toast.error(error.response?.data?.error || t('admin.registrations.approveError'))
             })
             .finally(() => setActionLoading(false))
     }
 
     const rejectRegistration = () => {
         if (!rejectionReason.trim()) {
-            toast.error('Please provide a rejection reason')
+            toast.error(t('admin.registrations.rejectReasonRequired'))
             return
         }
         setActionLoading(true)
@@ -111,7 +113,7 @@ const PendingRegistrations = () => {
             rejectionReason: rejectionReason.trim()
         }, { headers })
             .then(response => {
-                toast.success('Registration rejected')
+                toast.success(t('admin.registrations.rejectSuccess'))
                 setRejectOpen(false)
                 setRejectTarget(null)
                 setRejectionReason('')
@@ -121,7 +123,7 @@ const PendingRegistrations = () => {
             })
             .catch(error => {
                 console.error('Error rejecting registration:', error)
-                toast.error(error.response?.data?.error || 'Error rejecting registration')
+                toast.error(error.response?.data?.error || t('admin.registrations.rejectError'))
             })
             .finally(() => setActionLoading(false))
     }
@@ -131,7 +133,7 @@ const PendingRegistrations = () => {
         setActionLoading(true)
         axios.delete(`${API}/registration/${deleteTarget._id}`, { headers })
             .then(() => {
-                toast.success('Registration deleted successfully')
+                toast.success(t('admin.registrations.deleteSuccess'))
                 setDeleteOpen(false)
                 setDeleteTarget(null)
                 setDetailsOpen(false)
@@ -140,7 +142,7 @@ const PendingRegistrations = () => {
             })
             .catch(error => {
                 console.error('Error deleting registration:', error)
-                toast.error(error.response?.data?.error || 'Error deleting registration')
+                toast.error(error.response?.data?.error || t('admin.registrations.deleteError'))
             })
             .finally(() => setActionLoading(false))
     }
@@ -187,11 +189,7 @@ const PendingRegistrations = () => {
         setRejectOpen(true)
     }
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '-'
-        const d = new Date(dateStr)
-        return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    }
+    const formatDateLocal = (dateStr) => formatDate(dateStr, i18n.language)
 
     // ============================================
     // RENDER
@@ -205,7 +203,7 @@ const PendingRegistrations = () => {
                     {/* Header */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} gap={1}>
                         <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-                            Child Registrations
+                            {t('admin.registrations.title')}
                         </Typography>
                         <Button
                             variant="contained"
@@ -213,7 +211,7 @@ const PendingRegistrations = () => {
                             onClick={() => navigate('/admin')}
                             sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                         >
-                            {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
+                            {isMobile ? <DashboardCustomizeIcon /> : <>{t('common.dashboard')} <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                         </Button>
                     </Box>
 
@@ -225,14 +223,14 @@ const PendingRegistrations = () => {
                             textColor="inherit"
                             sx={{ '& .Mui-selected': { color: '#4A7B59' }, '& .MuiTabs-indicator': { backgroundColor: '#4A7B59' } }}
                         >
-                            <Tab label="All" />
-                            <Tab label="Pending" />
-                            <Tab label="Approved" />
-                            <Tab label="Rejected" />
+                            <Tab label={t('admin.registrations.tabs.all')} />
+                            <Tab label={t('admin.registrations.tabs.pending')} />
+                            <Tab label={t('admin.registrations.tabs.approved')} />
+                            <Tab label={t('admin.registrations.tabs.rejected')} />
                         </Tabs>
                         <TextField
                             size="small"
-                            placeholder="Search by child or parent name..."
+                            placeholder={t('admin.registrations.searchPlaceholder')}
                             value={searchQuery}
                             onChange={handleSearchChange}
                             InputProps={{
@@ -249,7 +247,11 @@ const PendingRegistrations = () => {
                     {/* Table */}
                     {!loading && total > 0 && (
                         <Typography variant="body2" color="text.secondary" mb={1}>
-                            Showing {registrations.length} of {total} registration{total !== 1 ? 's' : ''}
+                            {t('admin.registrations.resultsText', {
+                                shown: registrations.length,
+                                total,
+                                plural: total !== 1 ? 's' : ''
+                            })}
                         </Typography>
                     )}
                     {loading ? (
@@ -260,7 +262,7 @@ const PendingRegistrations = () => {
                         <Card>
                             <CardContent>
                                 <Typography align="center" color="text.secondary">
-                                    No registrations found.
+                                    {t('admin.registrations.empty')}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -269,15 +271,15 @@ const PendingRegistrations = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                        <TableCell><strong>Child Name</strong></TableCell>
-                                        <TableCell><strong>Parent 1</strong></TableCell>
-                                        <TableCell><strong>Parent 2</strong></TableCell>
-                                        <TableCell><strong>School Year</strong></TableCell>
-                                        <TableCell><strong>Branch</strong></TableCell>
-                                        <TableCell><strong>Age Group</strong></TableCell>
-                                        <TableCell><strong>Date</strong></TableCell>
-                                        <TableCell align="center"><strong>Status</strong></TableCell>
-                                        <TableCell align="center"><strong>Actions</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.childName')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.parent1')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.parent2')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.schoolYear')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.branch')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.ageGroup')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.registrations.date')}</strong></TableCell>
+                                        <TableCell align="center"><strong>{t('common.status')}</strong></TableCell>
+                                        <TableCell align="center"><strong>{t('common.actions')}</strong></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -289,10 +291,10 @@ const PendingRegistrations = () => {
                                             <TableCell>{reg.schoolYear?.name || '-'}</TableCell>
                                             <TableCell>{BRANCH_LABELS[reg.branch] || reg.branch}</TableCell>
                                             <TableCell>{AGE_LABELS[reg.ageGroup] || reg.ageGroup}</TableCell>
-                                            <TableCell>{formatDate(reg.createdAt)}</TableCell>
+                                            <TableCell>{formatDateLocal(reg.createdAt)}</TableCell>
                                             <TableCell align="center">
                                                 <Chip
-                                                    label={reg.status}
+                                                    label={t(`common.${reg.status}`)}
                                                     color={STATUS_COLORS[reg.status] || 'default'}
                                                     size="small"
                                                     sx={{ textTransform: 'capitalize' }}
@@ -305,7 +307,7 @@ const PendingRegistrations = () => {
                                                         startIcon={<VisibilityIcon />}
                                                         onClick={() => openDetails(reg)}
                                                     >
-                                                        Details
+                                                        {t('common.details')}
                                                     </Button>
                                                     <Button
                                                         size="small"
@@ -313,7 +315,7 @@ const PendingRegistrations = () => {
                                                         startIcon={<DeleteIcon />}
                                                         onClick={() => openDeleteDialog(reg)}
                                                     >
-                                                        Delete
+                                                        {t('common.delete')}
                                                     </Button>
                                                 </Box>
                                             </TableCell>
@@ -349,10 +351,10 @@ const PendingRegistrations = () => {
                         fullScreen={isMobile}
                     >
                         <DialogTitle sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                            Registration Details
+                            {t('admin.registrations.detailsTitle')}
                             {selected && (
                                 <Chip
-                                    label={selected.status}
+                                    label={t(`common.${selected.status}`)}
                                     color={STATUS_COLORS[selected.status]}
                                     size="small"
                                     sx={{ textTransform: 'capitalize' }}
@@ -362,7 +364,7 @@ const PendingRegistrations = () => {
                         {selected && (
                             <DialogContent sx={{ px: { xs: 2, sm: 3 } }}>
                                 {/* Parent 1 */}
-                                <Typography variant="subtitle2" color="#4A7B59" mt={1}>Parent 1 Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59" mt={1}>{t('admin.registrations.parent1Info')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box
                                     display="grid"
@@ -371,21 +373,21 @@ const PendingRegistrations = () => {
                                     mb={2}
                                 >
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">First Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.firstName')}</Typography>
                                         <Typography variant="body2">{selected.parent1FirstName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Last Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.lastName')}</Typography>
                                         <Typography variant="body2">{selected.parent1LastName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">ID Number</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.idNumber')}</Typography>
                                         <Typography variant="body2">{selected.parent1IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Parent 2 */}
-                                <Typography variant="subtitle2" color="#4A7B59">Parent 2 Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('admin.registrations.parent2Info')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box
                                     display="grid"
@@ -394,21 +396,21 @@ const PendingRegistrations = () => {
                                     mb={2}
                                 >
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">First Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.firstName')}</Typography>
                                         <Typography variant="body2">{selected.parent2FirstName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Last Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.lastName')}</Typography>
                                         <Typography variant="body2">{selected.parent2LastName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">ID Number</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.idNumber')}</Typography>
                                         <Typography variant="body2">{selected.parent2IdNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Child Info */}
-                                <Typography variant="subtitle2" color="#4A7B59">Child Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('admin.registrations.childInfo')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box
                                     display="grid"
@@ -417,21 +419,21 @@ const PendingRegistrations = () => {
                                     mb={2}
                                 >
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Child Name</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.childNameLabel')}</Typography>
                                         <Typography variant="body2">{selected.childName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Branch</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.branchLabel')}</Typography>
                                         <Typography variant="body2">{BRANCH_LABELS[selected.branch]}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Age Group</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.ageGroupLabel')}</Typography>
                                         <Typography variant="body2">{AGE_LABELS[selected.ageGroup]}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Banking */}
-                                <Typography variant="subtitle2" color="#4A7B59">Banking Information</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('admin.registrations.bankingInfo')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box
                                     display="grid"
@@ -440,21 +442,21 @@ const PendingRegistrations = () => {
                                     mb={2}
                                 >
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Phone</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.phone')}</Typography>
                                         <Typography variant="body2">{selected.phoneNumber}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Bank</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.bank')}</Typography>
                                         <Typography variant="body2">{selected.bankName}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Account</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.account')}</Typography>
                                         <Typography variant="body2">{selected.bankAccountNumber}</Typography>
                                     </Box>
                                 </Box>
 
                                 {/* Contracts */}
-                                <Typography variant="subtitle2" color="#4A7B59">Contracts</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('admin.registrations.contracts')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={1} mb={2}>
                                     {selected.assignedContractUrl ? (
@@ -465,10 +467,10 @@ const PendingRegistrations = () => {
                                             onClick={() => viewPDF(selected.assignedContractUrl)}
                                             fullWidth={isMobile}
                                         >
-                                            View Assigned Contract
+                                            {t('admin.registrations.viewAssignedContract')}
                                         </Button>
                                     ) : (
-                                        <Chip label="No assigned contract" size="small" variant="outlined" />
+                                        <Chip label={t('admin.registrations.noAssignedContract')} size="small" variant="outlined" />
                                     )}
                                     {selected.uploadedContractUrl ? (
                                         <Button
@@ -479,15 +481,15 @@ const PendingRegistrations = () => {
                                             onClick={() => viewPDF(selected.uploadedContractUrl)}
                                             fullWidth={isMobile}
                                         >
-                                            View Signed Contract
+                                            {t('admin.registrations.viewSignedContract')}
                                         </Button>
                                     ) : (
-                                        <Chip label="No signed contract uploaded" size="small" variant="outlined" color="warning" />
+                                        <Chip label={t('admin.registrations.noSignedContract')} size="small" variant="outlined" color="warning" />
                                     )}
                                 </Box>
 
                                 {/* Registration meta */}
-                                <Typography variant="subtitle2" color="#4A7B59">Registration Info</Typography>
+                                <Typography variant="subtitle2" color="#4A7B59">{t('admin.registrations.registrationInfo')}</Typography>
                                 <Divider sx={{ mb: 1 }} />
                                 <Box
                                     display="grid"
@@ -496,15 +498,15 @@ const PendingRegistrations = () => {
                                     mb={2}
                                 >
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">School Year</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.schoolYearLabel')}</Typography>
                                         <Typography variant="body2">{selected.schoolYear?.name || '-'}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">Registered</Typography>
-                                        <Typography variant="body2">{formatDate(selected.createdAt)}</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.registered')}</Typography>
+                                        <Typography variant="body2">{formatDateLocal(selected.createdAt)}</Typography>
                                     </Box>
                                     <Box>
-                                        <Typography variant="caption" color="text.secondary">By</Typography>
+                                        <Typography variant="caption" color="text.secondary">{t('admin.registrations.by')}</Typography>
                                         <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                                             {selected.registeredBy?.name || selected.registeredBy?.email || '-'}
                                         </Typography>
@@ -514,12 +516,15 @@ const PendingRegistrations = () => {
                                 {/* Rejection reason */}
                                 {selected.status === 'rejected' && selected.rejectionReason && (
                                     <Box mb={2}>
-                                        <Typography variant="subtitle2" color="error.main">Rejection Reason</Typography>
+                                        <Typography variant="subtitle2" color="error.main">{t('admin.registrations.rejectionReason')}</Typography>
                                         <Divider sx={{ mb: 1 }} />
                                         <Typography variant="body2">{selected.rejectionReason}</Typography>
                                         {selected.reviewedBy && (
                                             <Typography variant="caption" color="text.secondary">
-                                                Reviewed by {selected.reviewedBy.name} on {formatDate(selected.reviewedAt)}
+                                                {t('admin.registrations.reviewedBy', {
+                                                    name: selected.reviewedBy.name,
+                                                    date: formatDateLocal(selected.reviewedAt)
+                                                })}
                                             </Typography>
                                         )}
                                     </Box>
@@ -529,7 +534,10 @@ const PendingRegistrations = () => {
                                 {selected.status === 'approved' && selected.reviewedBy && (
                                     <Box mb={2}>
                                         <Typography variant="caption" color="text.secondary">
-                                            Approved by {selected.reviewedBy.name} on {formatDate(selected.reviewedAt)}
+                                            {t('admin.registrations.approvedBy', {
+                                                name: selected.reviewedBy.name,
+                                                date: formatDateLocal(selected.reviewedAt)
+                                            })}
                                         </Typography>
                                     </Box>
                                 )}
@@ -550,7 +558,7 @@ const PendingRegistrations = () => {
                                 disabled={actionLoading}
                                 sx={{ mr: { sm: 'auto' } }}
                             >
-                                Delete
+                                {t('common.delete')}
                             </Button>
                             {selected?.status === 'pending' && (
                                 <>
@@ -561,7 +569,7 @@ const PendingRegistrations = () => {
                                         startIcon={<CancelIcon />}
                                         disabled={actionLoading}
                                     >
-                                        Reject
+                                        {t('admin.registrations.reject')}
                                     </Button>
                                     <Button
                                         onClick={() => approveRegistration(selected._id)}
@@ -570,11 +578,11 @@ const PendingRegistrations = () => {
                                         startIcon={<CheckCircleIcon />}
                                         disabled={actionLoading}
                                     >
-                                        {actionLoading ? <CircularProgress size={20} /> : 'Approve'}
+                                        {actionLoading ? <CircularProgress size={20} /> : t('admin.registrations.approve')}
                                     </Button>
                                 </>
                             )}
-                            <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+                            <Button onClick={() => setDetailsOpen(false)}>{t('common.close')}</Button>
                         </DialogActions>
                     </Dialog>
 
@@ -582,14 +590,13 @@ const PendingRegistrations = () => {
                     {/* REJECT DIALOG */}
                     {/* ============================================ */}
                     <Dialog open={rejectOpen} onClose={() => setRejectOpen(false)} maxWidth="sm" fullWidth>
-                        <DialogTitle>Reject Registration</DialogTitle>
+                        <DialogTitle>{t('admin.registrations.rejectTitle')}</DialogTitle>
                         <DialogContent>
                             <Typography variant="body2" color="text.secondary" mb={2} mt={1}>
-                                Rejecting registration for <strong>{rejectTarget?.childName}</strong>.
-                                Please provide a reason.
+                                {t('admin.registrations.rejectText', { childName: rejectTarget?.childName })}
                             </Typography>
                             <TextField
-                                label="Rejection Reason"
+                                label={t('admin.registrations.rejectReasonLabel')}
                                 multiline
                                 rows={3}
                                 value={rejectionReason}
@@ -600,7 +607,7 @@ const PendingRegistrations = () => {
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setRejectOpen(false)} disabled={actionLoading}>
-                                Cancel
+                                {t('common.cancel')}
                             </Button>
                             <Button
                                 onClick={rejectRegistration}
@@ -608,7 +615,7 @@ const PendingRegistrations = () => {
                                 color="error"
                                 disabled={actionLoading || !rejectionReason.trim()}
                             >
-                                {actionLoading ? <CircularProgress size={20} /> : 'Confirm Reject'}
+                                {actionLoading ? <CircularProgress size={20} /> : t('admin.registrations.confirmReject')}
                             </Button>
                         </DialogActions>
                     </Dialog>
@@ -617,18 +624,18 @@ const PendingRegistrations = () => {
                     {/* DELETE CONFIRMATION DIALOG */}
                     {/* ============================================ */}
                     <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)} maxWidth="xs" fullWidth>
-                        <DialogTitle>Delete Registration</DialogTitle>
+                        <DialogTitle>{t('admin.registrations.deleteTitle')}</DialogTitle>
                         <DialogContent>
                             <Typography mt={1}>
-                                Are you sure you want to permanently delete the registration for <strong>{deleteTarget?.childName}</strong>?
+                                {t('admin.registrations.deleteText', { childName: deleteTarget?.childName })}
                             </Typography>
                             <Typography variant="body2" color="error.main" mt={1}>
-                                This action cannot be undone.
+                                {t('admin.registrations.deleteWarning')}
                             </Typography>
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setDeleteOpen(false)} disabled={actionLoading}>
-                                Cancel
+                                {t('common.cancel')}
                             </Button>
                             <Button
                                 onClick={deleteRegistration}
@@ -637,14 +644,12 @@ const PendingRegistrations = () => {
                                 startIcon={actionLoading ? <CircularProgress size={18} color="inherit" /> : <DeleteIcon />}
                                 disabled={actionLoading}
                             >
-                                {actionLoading ? 'Deleting...' : 'Delete'}
+                                {actionLoading ? t('admin.registrations.deleting') : t('common.delete')}
                             </Button>
                         </DialogActions>
                     </Dialog>
                 </Container>
-            </Box>
-            <Footer />
-            <ToastContainer />
+            </Box><ToastContainer />
         </Box>
     )
 }

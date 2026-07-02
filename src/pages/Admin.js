@@ -2,8 +2,6 @@ import React from 'react'
 import DrawerAppBar from '../components/Bar'
 import DashboardAdmin from '../components/Dashboard'
 import { Box, Container, Grid } from '@mui/material'
-import Footer from '../components/Footer'
-
 export const Admin = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -14,8 +12,6 @@ export const Admin = () => {
             <DashboardAdmin />
           </Grid>
         </Container>
-      </Box>
-      <Footer />
-    </Box>
+      </Box></Box>
   )
 }

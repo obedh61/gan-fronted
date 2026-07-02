@@ -3,32 +3,34 @@ import React, { useContext } from 'react'
 import { multiStepContext } from '../StepContext'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
+import { useTranslation } from 'react-i18next'
 
-const validationSchema = yup.object({
-    firstname: yup
-      .string('Enter your Name')
-      .required('Name is required'),
-    lastname: yup
-      .string('Enter your lastname')
-      .required('Lastname is required'),
-    contact: yup
+export default function FirstStep() {
+    const { t } = useTranslation()
+    const {setStep, userData, setUserData} = useContext(multiStepContext)
+
+    const validationSchema = yup.object({
+        firstname: yup
+          .string(t('legacy.firstStep.enterName'))
+          .required(t('legacy.firstStep.nameRequired')),
+        lastname: yup
+          .string(t('legacy.firstStep.enterLastname'))
+          .required(t('legacy.firstStep.lastnameRequired')),
+        contact: yup
+            .number()
+            .min(10, t('legacy.firstStep.minLength'))
+            .required()
+            .positive()
+            .integer()
+            ,
+        teudatZeut: yup
         .number()
-        .min(10, 'Number should be of minimum 8 characters length')
+        .min(10, t('legacy.firstStep.minLength'))
         .required()
         .positive()
         .integer()
         ,
-    teudatZeut: yup
-    .number()
-    .min(10, 'Number should be of minimum 8 characters length')
-    .required()
-    .positive()
-    .integer()
-    ,
-  })
-
-export default function FirstStep() {
-    const {setStep, userData, setUserData} = useContext(multiStepContext)
+      })
 
     const formik = useFormik({
         initialValues: {
@@ -50,7 +52,7 @@ export default function FirstStep() {
         <form onSubmit={formik.handleSubmit} style={{padding:"5px"}}>
             <div>
                 <TextField 
-                    label="First name"
+                    label={t('legacy.firstStep.firstName')}
                     id='firstname'
                     name='firstname' 
                     value={formik.values.firstname || ''} 
@@ -65,7 +67,7 @@ export default function FirstStep() {
             </div>
             <div>
                 <TextField 
-                    label="Last name"
+                    label={t('legacy.firstStep.lastName')}
                     id='lastname'
                     name='lastname' 
                     value={formik.values.lastname || ''} 
@@ -80,7 +82,7 @@ export default function FirstStep() {
             </div>
             <div>
                 <TextField 
-                    label="Phone Number"
+                    label={t('legacy.firstStep.phoneNumber')}
                     id='contact'
                     name='contact' 
                     value={formik.values.contact || ''} 
@@ -95,7 +97,7 @@ export default function FirstStep() {
             </div>
             <div>
                 <TextField 
-                    label="Teudat Zeut"
+                    label={t('legacy.firstStep.teudatZeut')}
                     id='teudatZeut'
                     name='teudatZeut' 
                     value={formik.values.teudatZeut || ''} 
@@ -109,7 +111,7 @@ export default function FirstStep() {
                 />
             </div>
             <div>
-                <Button type="submit" variant='contained' color='primary'>Next</Button>
+                <Button type="submit" variant='contained' color='primary'>{t('legacy.firstStep.next')}</Button>
             </div>
         </form>
     </div>

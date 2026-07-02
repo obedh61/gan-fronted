@@ -1,9 +1,12 @@
 import React from 'react'
 import { Box } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import DrawerAppBar from '../components/Bar'
 import StepForm from '../components/StepForm'
 
 export const Private = () => {
+  const { t } = useTranslation()
+
   return (
     <div>
         <DrawerAppBar/>
@@ -26,7 +29,7 @@ export const Private = () => {
             }
           }}
         >
-          <h1 style={{margin:10}}>REGISTER</h1>
+          <h1 style={{margin:10}}>{t('legacy.privateTitle')}</h1>
           <StepForm/>
         </Box>
         

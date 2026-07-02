@@ -1,12 +1,13 @@
 import DrawerAppBar from '../components/Bar';
 import { Box, Container, Button } from '@mui/material';
-import Footer from '../components/Footer';
 import { ViewChildren } from '../components/ViewChildren';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 
 function ViewChildPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   return (
     <Box
       sx={{
@@ -35,12 +36,9 @@ function ViewChildPage() {
             navigate('/admin');
           }}
         >
-          {"Dasboard"}
+          {t('common.dashboard')}
         </Button>
-      </Box>
-      
-      <Footer/>
-    </Box>
+      </Box></Box>
     
   );
 }

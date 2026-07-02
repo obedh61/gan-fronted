@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     Box, Grid, Typography, Card, CardContent, CardActionArea
 } from '@mui/material'
@@ -9,55 +10,56 @@ import EngineeringIcon from '@mui/icons-material/Engineering'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import { useNavigate } from 'react-router-dom'
 
-const menuItems = [
-    {
-        title: 'Dashboard',
-        description: 'Overview of registrations, stats and activity',
-        icon: DashboardIcon,
-        path: '/admin/dashboard',
-        color: '#4A7B59'
-    },
-    {
-        title: 'Registrations',
-        description: 'Review, approve or reject child registrations',
-        icon: PeopleIcon,
-        path: '/admin/registrations',
-        color: '#ff9800'
-    },
-    {
-        title: 'School Years',
-        description: 'Create school years and upload contracts',
-        icon: CalendarTodayIcon,
-        path: '/admin/school-years',
-        color: '#2196f3'
-    },
-    {
-        title: 'Workers',
-        description: 'Add and manage worker accounts',
-        icon: EngineeringIcon,
-        path: '/workers',
-        color: '#9c27b0'
-    },
-    {
-        title: 'Work Sessions',
-        description: 'View worker time tracking and sessions',
-        icon: AssessmentIcon,
-        path: '/privatesession',
-        color: '#00897b'
-    }
-]
-
 function DashboardAdmin() {
+    const { t } = useTranslation()
     const navigate = useNavigate()
+
+    const menuItems = [
+        {
+            title: t('admin.overviewCardTitle'),
+            description: t('admin.overviewCardDesc'),
+            icon: DashboardIcon,
+            path: '/admin/dashboard',
+            color: '#4A7B59'
+        },
+        {
+            title: t('admin.registrationsCardTitle'),
+            description: t('admin.registrationsCardDesc'),
+            icon: PeopleIcon,
+            path: '/admin/registrations',
+            color: '#ff9800'
+        },
+        {
+            title: t('admin.schoolYearsCardTitle'),
+            description: t('admin.schoolYearsCardDesc'),
+            icon: CalendarTodayIcon,
+            path: '/admin/school-years',
+            color: '#2196f3'
+        },
+        {
+            title: t('admin.workersCardTitle'),
+            description: t('admin.workersCardDesc'),
+            icon: EngineeringIcon,
+            path: '/workers',
+            color: '#9c27b0'
+        },
+        {
+            title: t('admin.workSessionsCardTitle'),
+            description: t('admin.workSessionsCardDesc'),
+            icon: AssessmentIcon,
+            path: '/privatesession',
+            color: '#00897b'
+        }
+    ]
 
     return (
         <Grid item xs={12}>
             <Box sx={{ py: 2 }}>
                 <Typography variant="h4" color="#4A7B59" textAlign="center" gutterBottom>
-                    Admin Panel
+                    {t('admin.panelTitle')}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" textAlign="center" mb={4}>
-                    Gan Montessori Second Home
+                    {t('admin.panelSubtitle')}
                 </Typography>
 
                 <Grid container spacing={3} justifyContent="center">

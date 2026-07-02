@@ -5,10 +5,12 @@ import Step from '@mui/material/Step';
 import StepButton from '@mui/material/StepButton';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-
-const steps = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+import { useTranslation } from 'react-i18next';
 
 export default function StepperClient() {
+  const { t } = useTranslation()
+  const steps = t('legacy.stepper.steps', { returnObjects: true })
+
   const [activeStep, setActiveStep] = React.useState(0);
   const [completed, setCompleted] = React.useState({});
 
@@ -73,17 +75,17 @@ export default function StepperClient() {
         {allStepsCompleted() ? (
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1 }}>
-              All steps completed - you&apos;re finished
+              {t('legacy.stepper.finished')}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
-              <Button onClick={handleReset}>Reset</Button>
+              <Button onClick={handleReset}>{t('legacy.stepper.reset')}</Button>
             </Box>
           </React.Fragment>
         ) : (
           <React.Fragment>
             <Typography sx={{ mt: 2, mb: 1, py: 1 }}>
-              Step {activeStep + 1}
+              {t('legacy.stepper.step', { step: activeStep + 1 })}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Button
@@ -92,22 +94,22 @@ export default function StepperClient() {
                 onClick={handleBack}
                 sx={{ mr: 1 }}
               >
-                Back
+                {t('legacy.stepper.back')}
               </Button>
               <Box sx={{ flex: '1 1 auto' }} />
               <Button onClick={handleNext} sx={{ mr: 1 }}>
-                Next
+                {t('legacy.stepper.next')}
               </Button>
               {activeStep !== steps.length &&
                 (completed[activeStep] ? (
                   <Typography variant="caption" sx={{ display: 'inline-block' }}>
-                    Step {activeStep + 1} already completed
+                    {t('legacy.stepper.alreadyCompleted', { step: activeStep + 1 })}
                   </Typography>
                 ) : (
                   <Button onClick={handleComplete}>
                     {completedSteps() === totalSteps() - 1
-                      ? 'Finish'
-                      : 'Complete Step'}
+                      ? t('legacy.stepper.finish')
+                      : t('legacy.stepper.completeStep')}
                   </Button>
                 ))}
             </Box>

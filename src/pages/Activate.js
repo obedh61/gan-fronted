@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, {useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { decodeToken } from "react-jwt";
@@ -12,6 +13,7 @@ import DrawerAppBar from '../components/Bar'
 import { useNavigate } from 'react-router-dom';
 
 function Activate() {
+    const { t } = useTranslation()
     let { tokenId } = useParams();
 
     const [values, setValues] = useState({
@@ -76,10 +78,10 @@ function Activate() {
         }}
       >
         <Typography variant='p' component="h1" padding={3} textAlign={"center"}>
-            Hey {name}, Ready to activate your account?
+            {t('auth.activateTitle', { name })}
         </Typography>
             
-        <Button onClick={clickSubmit} endIcon={<LoginIcon/>} sx={{marginTop: 3, borderRadius: 3}} variant='contained' color='success'>Activate account</Button>
+        <Button onClick={clickSubmit} endIcon={<LoginIcon/>} sx={{marginTop: 3, borderRadius: 3}} variant='contained' color='success'>{t('auth.activateButton')}</Button>
         
       </Box>
     

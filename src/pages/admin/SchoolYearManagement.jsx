@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import Footer from '../../components/Footer'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {
@@ -23,20 +23,14 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
 import { useNavigate } from 'react-router-dom'
 
-const MONTHS = [
+const MONTH_VALUES = [
     'September', 'October', 'November', 'December',
     'January', 'February', 'March', 'April',
     'May', 'June', 'July', 'August'
 ]
 
-const CONTRACT_TYPES = [
-    { key: 'cityCenterUnderOne', label: 'City Center - Under 1 Year' },
-    { key: 'cityCenterOverOne', label: 'City Center - Over 1 Year' },
-    { key: 'germanColonyUnderOne', label: 'German Colony - Under 1 Year' },
-    { key: 'germanColonyOverOne', label: 'German Colony - Over 1 Year' }
-]
-
 const SchoolYearManagement = () => {
+    const { t } = useTranslation()
     const [schoolYears, setSchoolYears] = useState([])
     const [loading, setLoading] = useState(true)
     const [createOpen, setCreateOpen] = useState(false)
@@ -62,6 +56,21 @@ const SchoolYearManagement = () => {
     const token = getCookie('token')
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
 
+    const CONTRACT_TYPES = useMemo(() => [
+        { key: 'cityCenterUnderOne', label: t('admin.schoolYear.contractCityCenterUnder1') },
+        { key: 'cityCenterOverOne', label: t('admin.schoolYear.contractCityCenterOver1') },
+        { key: 'germanColonyUnderOne', label: t('admin.schoolYear.contractGermanColonyUnder1') },
+        { key: 'germanColonyOverOne', label: t('admin.schoolYear.contractGermanColonyOver1') }
+    ], [t])
+
+    const MONTHS = useMemo(() => {
+        const labels = t('schoolYearMonths', { returnObjects: true })
+        if (Array.isArray(labels) && labels.length === MONTH_VALUES.length) {
+            return MONTH_VALUES.map((value, index) => ({ value, label: labels[index] }))
+        }
+        return MONTH_VALUES.map(value => ({ value, label: value }))
+    }, [t])
+
     // ============================================
     // API FUNCTIONS
     // ============================================
@@ -81,10 +90,10 @@ const SchoolYearManagement = () => {
             })
             .catch(error => {
                 console.error('Error fetching school years:', error)
-                toast.error(error.response?.data?.error || 'Error fetching school years')
+                toast.error(error.response?.data?.error || t('admin.schoolYear.fetchError'))
                 setLoading(false)
             })
-    }, [headers, limit, page])
+    }, [headers, limit, page, t])
 
     const createSchoolYear = () => {
         const { startMonth, startYear, endMonth, endYear } = formData
@@ -94,7 +103,7 @@ const SchoolYearManagement = () => {
             name, startMonth, startYear, endMonth, endYear
         }, { headers })
             .then(response => {
-                toast.success('School year created successfully')
+                toast.success(t('admin.schoolYear.createSuccess'))
                 setCreateOpen(false)
                 setFormData({
                     startMonth: 'September',
@@ -106,7 +115,7 @@ const SchoolYearManagement = () => {
             })
             .catch(error => {
                 console.error('Error creating school year:', error)
-                toast.error(error.response?.data?.error || 'Error creating school year')
+                toast.error(error.response?.data?.error || t('admin.schoolYear.createError'))
             })
     }
 
@@ -121,7 +130,7 @@ const SchoolYearManagement = () => {
             })
             .catch(error => {
                 console.error('Error toggling active status:', error)
-                toast.error(error.response?.data?.error || 'Error updating status')
+                toast.error(error.response?.data?.error || t('admin.schoolYear.statusError'))
             })
     }
 
@@ -129,14 +138,14 @@ const SchoolYearManagement = () => {
         if (!deleteTarget) return
         axios.delete(`${process.env.REACT_APP_API}/schoolyear/${deleteTarget._id}`, { headers })
             .then(() => {
-                toast.success('School year deleted successfully')
+                toast.success(t('admin.schoolYear.deleteSuccess'))
                 setDeleteOpen(false)
                 setDeleteTarget(null)
                 fetchSchoolYears()
             })
             .catch(error => {
                 console.error('Error deleting school year:', error)
-                toast.error(error.response?.data?.error || 'Error deleting school year')
+                toast.error(error.response?.data?.error || t('admin.schoolYear.deleteError'))
                 setDeleteOpen(false)
             })
     }
@@ -154,7 +163,7 @@ const SchoolYearManagement = () => {
             { headers: { ...headers, 'Content-Type': 'multipart/form-data' } }
         )
             .then(response => {
-                toast.success('Contract uploaded successfully')
+                toast.success(t('admin.schoolYear.uploadSuccess'))
                 const updated = response.data.data.schoolYear
                 setSelectedYear(updated)
                 setSchoolYears(prev => prev.map(sy =>
@@ -164,7 +173,7 @@ const SchoolYearManagement = () => {
             })
             .catch(error => {
                 console.error('Error uploading contract:', error)
-                toast.error(error.response?.data?.error || 'Error uploading contract')
+                toast.error(error.response?.data?.error || t('admin.schoolYear.uploadError'))
                 setUploading(prev => ({ ...prev, [contractType]: false }))
             })
     }
@@ -185,11 +194,11 @@ const SchoolYearManagement = () => {
         const file = e.target.files[0]
         if (!file) return
         if (file.type !== 'application/pdf') {
-            toast.error('Only PDF files are allowed')
+            toast.error(t('admin.schoolYear.pdfOnly'))
             return
         }
         if (file.size > 10 * 1024 * 1024) {
-            toast.error('File size must be less than 10MB')
+            toast.error(t('admin.schoolYear.maxFileSize'))
             return
         }
         uploadContract(selectedYear._id, contractType, file)
@@ -218,7 +227,7 @@ const SchoolYearManagement = () => {
                     {/* Header */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={1} flexWrap="wrap">
                         <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-                            School Year Management {total > 0 && <Typography component="span" variant="body2" color="text.secondary">({total} total)</Typography>}
+                            {t('admin.schoolYear.title')} {total > 0 && <Typography component="span" variant="body2" color="text.secondary">{t('admin.schoolYear.totalSuffix', { total })}</Typography>}
                         </Typography>
                         <Box display="flex" gap={1}>
                             <Button
@@ -227,7 +236,7 @@ const SchoolYearManagement = () => {
                                 onClick={() => setCreateOpen(true)}
                                 sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                             >
-                                {isMobile ? <AddIcon /> : <><AddIcon sx={{ mr: 0.5 }} /> Create New Year</>}
+                                {isMobile ? <AddIcon /> : <><AddIcon sx={{ mr: 0.5 }} /> {t('admin.schoolYear.createNew')}</>}
                             </Button>
                             <Button
                                 variant="contained"
@@ -235,7 +244,7 @@ const SchoolYearManagement = () => {
                                 onClick={() => navigate('/admin')}
                                 sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                             >
-                                {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
+                                {isMobile ? <DashboardCustomizeIcon /> : <>{t('common.dashboard')} <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                             </Button>
                         </Box>
                     </Box>
@@ -249,7 +258,7 @@ const SchoolYearManagement = () => {
                         <Card>
                             <CardContent>
                                 <Typography align="center" color="text.secondary">
-                                    No school years found. Create one to get started.
+                                    {t('admin.schoolYear.noSchoolYears')}
                                 </Typography>
                             </CardContent>
                         </Card>
@@ -258,12 +267,12 @@ const SchoolYearManagement = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                        <TableCell><strong>Name</strong></TableCell>
-                                        <TableCell><strong>Start</strong></TableCell>
-                                        <TableCell><strong>End</strong></TableCell>
-                                        <TableCell align="center"><strong>Active</strong></TableCell>
-                                        <TableCell align="center"><strong>Contracts</strong></TableCell>
-                                        <TableCell align="center"><strong>Actions</strong></TableCell>
+                                        <TableCell><strong>{t('admin.schoolYear.name')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.schoolYear.start')}</strong></TableCell>
+                                        <TableCell><strong>{t('admin.schoolYear.end')}</strong></TableCell>
+                                        <TableCell align="center"><strong>{t('admin.schoolYear.active')}</strong></TableCell>
+                                        <TableCell align="center"><strong>{t('admin.schoolYear.contracts')}</strong></TableCell>
+                                        <TableCell align="center"><strong>{t('common.actions')}</strong></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -284,19 +293,19 @@ const SchoolYearManagement = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <Tooltip title="Manage Contracts">
+                                                    <Tooltip title={t('admin.schoolYear.manageContracts')}>
                                                         <Button
                                                             size="small"
                                                             variant="outlined"
                                                             startIcon={<UploadFileIcon />}
                                                             onClick={() => openContractDialog(sy)}
                                                         >
-                                                            {contractCount}/4
+                                                            {t('admin.schoolYear.contractCount', { count: contractCount })}
                                                         </Button>
                                                     </Tooltip>
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <Tooltip title="Delete">
+                                                    <Tooltip title={t('common.delete')}>
                                                         <IconButton
                                                             color="error"
                                                             onClick={() => openDeleteDialog(sy)}
@@ -333,27 +342,32 @@ const SchoolYearManagement = () => {
                     {/* CREATE DIALOG */}
                     {/* ============================================ */}
                     <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth fullScreen={isMobile}>
-                        <DialogTitle>Create New School Year</DialogTitle>
+                        <DialogTitle>{t('admin.schoolYear.createDialogTitle')}</DialogTitle>
                         <DialogContent>
                             <Box sx={{ mt: 1 }}>
                                 <Typography variant="body2" color="text.secondary" mb={2}>
-                                    Name: {formData.startMonth} {formData.startYear} - {formData.endMonth} {formData.endYear}
+                                    {t('admin.schoolYear.generatedName', {
+                                        startMonth: formData.startMonth,
+                                        startYear: formData.startYear,
+                                        endMonth: formData.endMonth,
+                                        endYear: formData.endYear
+                                    })}
                                 </Typography>
                                 <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2} mb={2}>
                                     <FormControl fullWidth>
-                                        <InputLabel>Start Month</InputLabel>
+                                        <InputLabel>{t('admin.schoolYear.startMonth')}</InputLabel>
                                         <Select
                                             value={formData.startMonth}
-                                            label="Start Month"
+                                            label={t('admin.schoolYear.startMonth')}
                                             onChange={e => setFormData({ ...formData, startMonth: e.target.value })}
                                         >
                                             {MONTHS.map(m => (
-                                                <MenuItem key={m} value={m}>{m}</MenuItem>
+                                                <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
                                     <TextField
-                                        label="Start Year"
+                                        label={t('admin.schoolYear.startYear')}
                                         type="number"
                                         value={formData.startYear}
                                         onChange={e => setFormData({ ...formData, startYear: Number(e.target.value) })}
@@ -362,19 +376,19 @@ const SchoolYearManagement = () => {
                                 </Box>
                                 <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={2}>
                                     <FormControl fullWidth>
-                                        <InputLabel>End Month</InputLabel>
+                                        <InputLabel>{t('admin.schoolYear.endMonth')}</InputLabel>
                                         <Select
                                             value={formData.endMonth}
-                                            label="End Month"
+                                            label={t('admin.schoolYear.endMonth')}
                                             onChange={e => setFormData({ ...formData, endMonth: e.target.value })}
                                         >
                                             {MONTHS.map(m => (
-                                                <MenuItem key={m} value={m}>{m}</MenuItem>
+                                                <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
                                     <TextField
-                                        label="End Year"
+                                        label={t('admin.schoolYear.endYear')}
                                         type="number"
                                         value={formData.endYear}
                                         onChange={e => setFormData({ ...formData, endYear: Number(e.target.value) })}
@@ -384,9 +398,9 @@ const SchoolYearManagement = () => {
                             </Box>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
+                            <Button onClick={() => setCreateOpen(false)}>{t('common.cancel')}</Button>
                             <Button onClick={createSchoolYear} variant="contained" color="success">
-                                Create
+                                {t('admin.schoolYear.create')}
                             </Button>
                         </DialogActions>
                     </Dialog>
@@ -396,7 +410,7 @@ const SchoolYearManagement = () => {
                     {/* ============================================ */}
                     <Dialog open={contractOpen} onClose={() => setContractOpen(false)} maxWidth="sm" fullWidth fullScreen={isMobile}>
                         <DialogTitle sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
-                            Manage Contracts — {selectedYear?.name}
+                            {t('admin.schoolYear.contractsTitle', { name: selectedYear?.name })}
                         </DialogTitle>
                         <DialogContent sx={{ px: { xs: 1.5, sm: 3 } }}>
                             {CONTRACT_TYPES.map(ct => {
@@ -418,7 +432,7 @@ const SchoolYearManagement = () => {
                                                         {ct.label}
                                                     </Typography>
                                                     {url && (
-                                                        <Chip label="Uploaded" size="small" color="success" variant="outlined" />
+                                                        <Chip label={t('admin.schoolYear.uploaded')} size="small" color="success" variant="outlined" />
                                                     )}
                                                 </Box>
                                                 <Box display="flex" gap={1}>
@@ -428,7 +442,7 @@ const SchoolYearManagement = () => {
                                                             startIcon={<VisibilityIcon />}
                                                             onClick={() => viewContract(url)}
                                                         >
-                                                            View
+                                                            {t('admin.schoolYear.view')}
                                                         </Button>
                                                     )}
                                                     <Button
@@ -438,7 +452,7 @@ const SchoolYearManagement = () => {
                                                         startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
                                                         disabled={isUploading}
                                                     >
-                                                        {url ? 'Replace' : 'Upload'}
+                                                        {url ? t('admin.schoolYear.replace') : t('admin.schoolYear.upload')}
                                                         <input
                                                             type="file"
                                                             accept="application/pdf"
@@ -455,7 +469,7 @@ const SchoolYearManagement = () => {
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setContractOpen(false)} variant="contained">
-                                Close
+                                {t('common.close')}
                             </Button>
                         </DialogActions>
                     </Dialog>
@@ -464,24 +478,21 @@ const SchoolYearManagement = () => {
                     {/* DELETE CONFIRMATION DIALOG */}
                     {/* ============================================ */}
                     <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
-                        <DialogTitle>Confirm Delete</DialogTitle>
+                        <DialogTitle>{t('admin.schoolYear.confirmDeleteTitle')}</DialogTitle>
                         <DialogContent>
                             <Typography>
-                                Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?
-                                This action cannot be undone.
+                                {t('admin.schoolYear.confirmDeleteText', { name: deleteTarget?.name })}
                             </Typography>
                         </DialogContent>
                         <DialogActions>
-                            <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+                            <Button onClick={() => setDeleteOpen(false)}>{t('common.cancel')}</Button>
                             <Button onClick={deleteSchoolYear} variant="contained" color="error">
-                                Delete
+                                {t('common.delete')}
                             </Button>
                         </DialogActions>
                     </Dialog>
                 </Container>
-            </Box>
-            <Footer />
-            <ToastContainer />
+            </Box><ToastContainer />
         </Box>
     )
 }

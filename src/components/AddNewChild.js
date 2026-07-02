@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from 'react-i18next';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { Box, Button, TextField, Typography } from '@mui/material';
 
 export const AddNewChild = () => {
+  const { t } = useTranslation()
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [childName, setChildName] = useState('');
@@ -18,14 +20,14 @@ export const AddNewChild = () => {
   const addChild = () => {
     // Validation
     if (!firstName || !lastName || !childName || !teudatZeut || !phoneNumber || !bank || !bankAccount) {
-      setMessage('Please provide all the fields');
-      toast.error('Please provide all the fields');
+      setMessage(t('legacy.addNewChild.allFieldsRequired'));
+      toast.error(t('legacy.addNewChild.allFieldsRequired'));
       return;
     }
 
     if (!/^[0-9]{9}$/.test(teudatZeut)) {
-      setMessage('Teudat Zeut must be 9 digits');
-      toast.error('Teudat Zeut must be 9 digits');
+      setMessage(t('legacy.addNewChild.teudatZeutDigits'));
+      toast.error(t('legacy.addNewChild.teudatZeutDigits'));
       return;
     }
 
@@ -44,7 +46,7 @@ export const AddNewChild = () => {
     axios
       .post(`${process.env.REACT_APP_API}/addchild`, childData)
       .then(() => {
-        setMessage('Child added successfully');
+        setMessage(t('legacy.addNewChild.addSuccess'));
         setFirstName('');
         setLastName('');
         setChildName('');
@@ -52,19 +54,19 @@ export const AddNewChild = () => {
         setPhoneNumber('');
         setBank('');
         setBankAccount('');
-        toast.success('Child added successfully');
+        toast.success(t('legacy.addNewChild.addSuccess'));
       })
       .catch((error) => {
         // console.error('Error adding child:', error);
-        setMessage('Error adding child: ' + (error.response?.data?.message || 'Unknown error'));
-        toast.error('Error adding child: ' + (error.response?.data?.message || 'Unknown error'));
+        setMessage(t('legacy.addNewChild.addError', { message: error.response?.data?.message || t('common.error') }));
+        toast.error(t('legacy.addNewChild.addError', { message: error.response?.data?.message || t('common.error') }));
       });
   };
 
   return (
     <Box display="flex" flexDirection={"column"}>
       <Typography variant='h2' padding={3} textAlign={"center"}>
-        Add New Child
+        {t('legacy.addNewChild.title')}
       </Typography>
       <TextField
         value={firstName}
@@ -72,7 +74,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='First Name'
+        placeholder={t('legacy.addNewChild.firstName')}
       />
       <TextField
         value={lastName}
@@ -80,7 +82,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Last Name'
+        placeholder={t('legacy.addNewChild.lastName')}
       />
       <TextField
         value={childName}
@@ -88,7 +90,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Childs Name'
+        placeholder={t('legacy.addNewChild.childName')}
       />
       <TextField
         value={teudatZeut}
@@ -96,7 +98,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Teudat Zeut (9 digits)'
+        placeholder={t('legacy.addNewChild.teudatZeut')}
       />
       <TextField
         value={phoneNumber}
@@ -104,7 +106,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Phone Number'
+        placeholder={t('legacy.addNewChild.phoneNumber')}
       />
       <TextField
         value={bank}
@@ -112,7 +114,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Bank'
+        placeholder={t('legacy.addNewChild.bank')}
       />
       <TextField
         value={bankAccount}
@@ -120,7 +122,7 @@ export const AddNewChild = () => {
         margin='normal'
         type='text'
         variant='outlined'
-        placeholder='Bank Account'
+        placeholder={t('legacy.addNewChild.bankAccount')}
       />
       <Button
         onClick={addChild}
@@ -129,7 +131,7 @@ export const AddNewChild = () => {
         variant='contained'
         color='success'
       >
-        Add Child
+        {t('legacy.addNewChild.addChild')}
       </Button>
       <ToastContainer />
     </Box>

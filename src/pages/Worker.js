@@ -1,9 +1,11 @@
 // App.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import Timer from './Timer';
 
 const App = () => {
+  const { t } = useTranslation()
   const [sessions, setSessions] = useState([]);
   const [idNumber, setIdNumber] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -23,7 +25,7 @@ const App = () => {
 
   const authenticateUser = () => {
     if (!idNumber) {
-      alert('Please enter your ID number');
+      alert(t('worker.simpleTracker.idRequired'));
       return;
     }
     axios
@@ -31,7 +33,7 @@ const App = () => {
       .then(() => setAuthenticated(true))
       .catch((error) => {
         console.error('Error authenticating user:', error);
-        alert('Authentication failed: User not found');
+        alert(t('worker.simpleTracker.userNotFound'));
       });
   };
 
@@ -44,25 +46,28 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1>Work Hours Tracker</h1>
+      <h1>{t('worker.simpleTracker.title')}</h1>
       {!authenticated ? (
         <div>
           <input
             type="text"
-            placeholder="Enter your ID number"
+            placeholder={t('worker.simpleTracker.idPlaceholder')}
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
           />
-          <button onClick={authenticateUser}>Log In</button>
+          <button onClick={authenticateUser}>{t('worker.simpleTracker.logIn')}</button>
         </div>
       ) : (
         <>
           <Timer onSave={addSession} />
-          <h2>Work Sessions</h2>
+          <h2>{t('worker.simpleTracker.sessionsTitle')}</h2>
           <ul>
             {sessions.map((session) => (
               <li key={session._id}>
-                Start: {new Date(session.startTime).toLocaleString()} - End: {new Date(session.endTime).toLocaleString()}
+                {t('worker.simpleTracker.sessionRange', {
+                  start: new Date(session.startTime).toLocaleString(),
+                  end: new Date(session.endTime).toLocaleString()
+                })}
               </li>
             ))}
           </ul>

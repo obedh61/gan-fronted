@@ -1,20 +1,23 @@
 import axios from 'axios';
 import React, {useEffect, useState} from 'react'
+import { useTranslation } from 'react-i18next'
 import { decodeToken } from "react-jwt";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams } from 'react-router-dom';
 import SendIcon from '@mui/icons-material/Send';
 
-import { Box, Button, TextField, Typography} from '@mui/material'
+import { Box, Button, Typography} from '@mui/material'
+import PasswordField from '../components/PasswordField'
 import DrawerAppBar from '../components/Bar'
 import { ToastContainer} from 'react-toastify';
 
 function Reset() {
+    const { t } = useTranslation()
     const [values, setValues] = useState({
         token: '',
         newPassword: '',
-        buttonText: 'Reset password'
+        buttonText: t('auth.resetPassword')
     })
 
     let {tokend} = useParams()
@@ -36,7 +39,7 @@ function Reset() {
 
     const clickSubmit = event => {
         event.preventDefault()
-        setValues({...values, buttonText: 'Submitting'})
+        setValues({...values, buttonText: t('auth.submitting')})
         axios({
             method: 'PUT',
             url: `${process.env.REACT_APP_API}/reset-password`,
@@ -45,13 +48,13 @@ function Reset() {
         .then(response => {
             console.log('RESET PASSWORD SUCCESS', response)
             toast.success(response.data.message)
-            setValues({...values, buttonText: 'Done'})
+            setValues({...values, buttonText: t('auth.submitted')})
         })
         .catch(error => {
             console.log('RESET PASSWORD ERROR', error.response.data);
             setValues({
                 ...values,
-                buttonText: 'Reset password'
+                buttonText: t('auth.resetPassword')
             })
             toast.error(error.response.data.error)
         })
@@ -84,10 +87,10 @@ function Reset() {
                     flexDirection={"column"}
                 >
                     <Typography variant='h4' padding={3} textAlign={"center"}>
-                        New password
+                        {t('auth.newPasswordPlaceholder')}
                     </Typography>
                     
-                    <TextField onChange={handleChange} value={newPassword} type='password' margin='normal'  variant='outlined' placeholder='New password' />
+                    <PasswordField onChange={handleChange} value={newPassword} margin='normal' variant='outlined' placeholder={t('auth.newPasswordPlaceholder')} />
                     <Button 
                         onClick={clickSubmit} 
                         endIcon={<SendIcon />} 

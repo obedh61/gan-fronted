@@ -41,3 +41,41 @@
     transform: rotate(360deg);
   }
 }
+
+/* Accessibility widget classes */
+.a11y-font-large {
+  font-size: 112.5% !important;
+}
+
+.a11y-font-larger {
+  font-size: 125% !important;
+}
+
+.a11y-high-contrast {
+  filter: contrast(1.35) !important;
+}
+
+.a11y-grayscale {
+  filter: grayscale(100%) !important;
+}
+
+.a11y-high-contrast.a11y-grayscale {
+  filter: grayscale(100%) contrast(1.35) !important;
+}
+
+.a11y-line-spacing {
+  line-height: 1.8 !important;
+}
+
+.a11y-highlight-links a,
+.a11y-highlight-links button,
+.a11y-highlight-links [role="button"] {
+  outline: 3px solid #ffeb3b !important;
+  outline-offset: 2px !important;
+}
+
+.a11y-highlight-links a:hover,
+.a11y-highlight-links button:hover,
+.a11y-highlight-links [role="button"]:hover {
+  outline-color: #ff9800 !important;
+}

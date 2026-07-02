@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import { useFormik } from 'formik'
-import { registrationSchema, validatePDFFile } from '../../validation/registrationSchema'
+import { createRegistrationSchema, validatePDFFile } from '../../validation/registrationSchema'
 import DrawerAppBar from '../../components/Bar'
-import Footer from '../../components/Footer'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useTranslation } from 'react-i18next'
 import {
     Box, Container, Typography, Button, Grid,
     TextField, FormControl, FormLabel, RadioGroup, Radio, FormControlLabel,
@@ -22,11 +22,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import DescriptionIcon from '@mui/icons-material/Description'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { useNavigate } from 'react-router-dom'
-
-const STEPS = ['School Year', 'Information', 'Contract', 'Upload', 'Done']
-
-const BRANCH_LABELS = { cityCenter: 'City Center', germanColony: 'German Colony' }
-const AGE_LABELS = { under1: 'Under 1 Year', over1: 'Over 1 Year' }
 
 const STORAGE_KEY = 'childRegistrationForm'
 
@@ -51,6 +46,18 @@ const fieldEndAdornment = (touched, error, value) => {
 }
 
 const ChildRegistration = () => {
+    const { t } = useTranslation()
+
+    const STEPS = useMemo(() => t('parent.registration.steps', { returnObjects: true }), [t])
+    const BRANCH_LABELS = useMemo(() => ({
+        cityCenter: t('parent.registration.cityCenter'),
+        germanColony: t('parent.registration.germanColony')
+    }), [t])
+    const AGE_LABELS = useMemo(() => ({
+        under1: t('parent.registration.under1'),
+        over1: t('parent.registration.over1')
+    }), [t])
+
     const [activeStep, setActiveStep] = useState(0)
     const [schoolYears, setSchoolYears] = useState([])
     const [selectedSchoolYearId, setSelectedSchoolYearId] = useState('')
@@ -86,7 +93,7 @@ const ChildRegistration = () => {
     const formik = useFormik({
         initialValues: formValues,
         enableReinitialize: true,
-        validationSchema: registrationSchema,
+        validationSchema: createRegistrationSchema(t),
         validateOnBlur: true,
         validateOnChange: true,
         onSubmit: (values) => {
@@ -109,10 +116,10 @@ const ChildRegistration = () => {
             })
             .catch(error => {
                 console.error('Error fetching school years:', error)
-                toast.error(error.response?.data?.error || 'Error loading school years')
+                toast.error(error.response?.data?.error || t('parent.registration.loadYearsError'))
                 setLoading(false)
             })
-    }, [API, headers])
+    }, [API, headers, t])
 
     const fetchContractUrl = useCallback((schoolYearId, branch, ageGroup) => {
         axios.get(`${API}/schoolyear/${schoolYearId}/contract`, {
@@ -130,7 +137,7 @@ const ChildRegistration = () => {
 
     const submitRegistration = () => {
         if (!signedFile) {
-            toast.error('Please upload the signed contract before submitting')
+            toast.error(t('parent.registration.uploadRequired'))
             return
         }
 
@@ -145,7 +152,7 @@ const ChildRegistration = () => {
             })
             .catch(error => {
                 console.error('Error creating registration:', error)
-                toast.error(error.response?.data?.error || 'Error submitting registration')
+                toast.error(error.response?.data?.error || t('parent.registration.submitError'))
                 setSubmitting(false)
             })
     }
@@ -165,7 +172,7 @@ const ChildRegistration = () => {
             })
             .catch(error => {
                 console.error('Error uploading contract:', error)
-                toast.error(error.response?.data?.error || 'Contract upload failed. Please try again from My Registrations.')
+                toast.error(error.response?.data?.error || t('parent.registration.uploadFailed'))
                 setSubmitting(false)
                 setUploading(false)
             })
@@ -208,7 +215,7 @@ const ChildRegistration = () => {
         const file = e.target.files[0]
         if (!file) return
 
-        const { valid, error } = validatePDFFile(file)
+        const { valid, error } = validatePDFFile(file, t)
         if (!valid) {
             setFileError(error)
             setSignedFile(null)
@@ -254,10 +261,10 @@ const ChildRegistration = () => {
         <Card>
             <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
                 <Typography variant={isMobile ? 'subtitle1' : 'h6'} color="#4A7B59" fontWeight="bold" gutterBottom>
-                    Select School Year
+                    {t('parent.registration.selectYearTitle')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                    Choose the school year you would like to register your child for.
+                    {t('parent.registration.selectYearText')}
                 </Typography>
 
                 {loading ? (
@@ -266,7 +273,7 @@ const ChildRegistration = () => {
                     </Box>
                 ) : schoolYears.length === 0 ? (
                     <Alert severity="info">
-                        No school years are currently accepting registrations. Please check back later.
+                        {t('parent.registration.noSchoolYears')}
                     </Alert>
                 ) : (
                     <Grid container spacing={2}>
@@ -302,7 +309,7 @@ const ChildRegistration = () => {
                         onClick={() => setActiveStep(1)}
                         fullWidth={isMobile}
                     >
-                        Next
+                        {t('common.next')}
                     </Button>
                 </Box>
             </CardContent>
@@ -320,10 +327,10 @@ const ChildRegistration = () => {
                 <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} flexWrap="wrap" gap={1}>
                         <Typography variant={isMobile ? 'subtitle1' : 'h6'} color="#4A7B59" fontWeight="bold">
-                            Child & Parent Information
+                            {t('parent.registration.infoTitle')}
                         </Typography>
                         <Chip
-                            label={`${filledFields}/${totalFields}`}
+                            label={t('parent.registration.progress', { filled: filledFields, total: totalFields })}
                             size="small"
                             color={filledFields === totalFields ? 'success' : 'default'}
                             variant="outlined"
@@ -343,56 +350,56 @@ const ChildRegistration = () => {
 
                     <form onSubmit={formik.handleSubmit}>
                         {/* Parent 1 */}
-                        <Typography variant="subtitle2" color="#4A7B59" mt={1}>Parent 1</Typography>
+                        <Typography variant="subtitle2" color="#4A7B59" mt={1}>{t('parent.registration.parent1')}</Typography>
                         <Divider sx={{ mb: 0.5 }} />
                         <Grid container spacing={isMobile ? 1 : 2}>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent1FirstName', 'First Name')} />
+                                <TextField {...textFieldProps('parent1FirstName', t('parent.registration.firstName'))} />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent1LastName', 'Last Name')} />
+                                <TextField {...textFieldProps('parent1LastName', t('parent.registration.lastName'))} />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent1IdNumber', 'ID Number')} />
+                                <TextField {...textFieldProps('parent1IdNumber', t('parent.registration.idNumber'))} />
                             </Grid>
                         </Grid>
 
                         {/* Parent 2 */}
-                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>Parent 2</Typography>
+                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>{t('parent.registration.parent2')}</Typography>
                         <Divider sx={{ mb: 0.5 }} />
                         <Grid container spacing={isMobile ? 1 : 2}>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent2FirstName', 'First Name')} />
+                                <TextField {...textFieldProps('parent2FirstName', t('parent.registration.firstName'))} />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent2LastName', 'Last Name')} />
+                                <TextField {...textFieldProps('parent2LastName', t('parent.registration.lastName'))} />
                             </Grid>
                             <Grid item xs={12} sm={4}>
-                                <TextField {...textFieldProps('parent2IdNumber', 'ID Number')} />
+                                <TextField {...textFieldProps('parent2IdNumber', t('parent.registration.idNumber'))} />
                             </Grid>
                         </Grid>
 
                         {/* Child */}
-                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>Child</Typography>
+                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>{t('parent.registration.child')}</Typography>
                         <Divider sx={{ mb: 0.5 }} />
                         <Grid container spacing={isMobile ? 1 : 2}>
                             <Grid item xs={12} sm={6}>
-                                <TextField {...textFieldProps('childName', "Child's Name")} />
+                                <TextField {...textFieldProps('childName', t('parent.registration.childName'))} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField {...textFieldProps('phoneNumber', 'Phone Number')} placeholder="e.g. 050-1234567" />
+                                <TextField {...textFieldProps('phoneNumber', t('parent.registration.phoneNumber'))} placeholder={t('parent.registration.phonePlaceholder')} />
                             </Grid>
                         </Grid>
 
                         {/* Banking */}
-                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>Banking Information</Typography>
+                        <Typography variant="subtitle2" color="#4A7B59" mt={2}>{t('parent.registration.bankingInfo')}</Typography>
                         <Divider sx={{ mb: 0.5 }} />
                         <Grid container spacing={isMobile ? 1 : 2}>
                             <Grid item xs={12} sm={6}>
-                                <TextField {...textFieldProps('bankName', 'Bank Name')} />
+                                <TextField {...textFieldProps('bankName', t('parent.registration.bankName'))} />
                             </Grid>
                             <Grid item xs={12} sm={6}>
-                                <TextField {...textFieldProps('bankAccountNumber', 'Account Number')} />
+                                <TextField {...textFieldProps('bankAccountNumber', t('parent.registration.accountNumber'))} />
                             </Grid>
                         </Grid>
 
@@ -403,7 +410,7 @@ const ChildRegistration = () => {
                                     error={formik.touched.ageGroup && Boolean(formik.errors.ageGroup)}
                                 >
                                     <FormLabel color="success" sx={{ fontWeight: 'bold', color: '#4A7B59', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
-                                        Age Group *
+                                        {t('parent.registration.ageGroup')} {t('parent.registration.required')}
                                         {formik.values.ageGroup && !formik.errors.ageGroup && (
                                             <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 16, ml: 0.5, verticalAlign: 'middle' }} />
                                         )}
@@ -414,8 +421,8 @@ const ChildRegistration = () => {
                                         onChange={formik.handleChange}
                                         row={isMobile}
                                     >
-                                        <FormControlLabel value="under1" control={<Radio color="success" size="small" />} label={<Typography variant="body2">Under 1</Typography>} />
-                                        <FormControlLabel value="over1" control={<Radio color="success" size="small" />} label={<Typography variant="body2">Over 1</Typography>} />
+                                        <FormControlLabel value="under1" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{AGE_LABELS.under1}</Typography>} />
+                                        <FormControlLabel value="over1" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{AGE_LABELS.over1}</Typography>} />
                                     </RadioGroup>
                                     {formik.touched.ageGroup && formik.errors.ageGroup && (
                                         <Typography variant="caption" color="error">{formik.errors.ageGroup}</Typography>
@@ -427,7 +434,7 @@ const ChildRegistration = () => {
                                     error={formik.touched.branch && Boolean(formik.errors.branch)}
                                 >
                                     <FormLabel color="success" sx={{ fontWeight: 'bold', color: '#4A7B59', fontSize: { xs: '0.85rem', sm: '1rem' } }}>
-                                        Branch *
+                                        {t('parent.registration.branch')} {t('parent.registration.required')}
                                         {formik.values.branch && !formik.errors.branch && (
                                             <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 16, ml: 0.5, verticalAlign: 'middle' }} />
                                         )}
@@ -437,8 +444,8 @@ const ChildRegistration = () => {
                                         value={formik.values.branch}
                                         onChange={formik.handleChange}
                                     >
-                                        <FormControlLabel value="cityCenter" control={<Radio color="success" size="small" />} label={<Typography variant="body2">City Center</Typography>} />
-                                        <FormControlLabel value="germanColony" control={<Radio color="success" size="small" />} label={<Typography variant="body2">German Colony</Typography>} />
+                                        <FormControlLabel value="cityCenter" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{BRANCH_LABELS.cityCenter}</Typography>} />
+                                        <FormControlLabel value="germanColony" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{BRANCH_LABELS.germanColony}</Typography>} />
                                     </RadioGroup>
                                     {formik.touched.branch && formik.errors.branch && (
                                         <Typography variant="caption" color="error">{formik.errors.branch}</Typography>
@@ -450,14 +457,14 @@ const ChildRegistration = () => {
                         {/* Form-level error summary */}
                         {formik.submitCount > 0 && hasErrors && (
                             <Alert severity="error" sx={{ mt: 2 }}>
-                                Please fix the errors above before continuing.
+                                {t('parent.registration.fixErrors')}
                             </Alert>
                         )}
 
                         {/* Buttons */}
                         <Box display="flex" justifyContent="space-between" mt={3} gap={2}>
                             <Button variant="outlined" color="secondary" onClick={() => setActiveStep(0)} sx={{ minWidth: { xs: 80, sm: 100 } }}>
-                                Back
+                                {t('common.back')}
                             </Button>
                             <Button
                                 type="submit"
@@ -466,7 +473,7 @@ const ChildRegistration = () => {
                                 disabled={formik.submitCount > 0 && hasErrors}
                                 sx={{ flex: isMobile ? 1 : 'unset' }}
                             >
-                                Next
+                                {t('common.next')}
                             </Button>
                         </Box>
                     </form>
@@ -479,13 +486,13 @@ const ChildRegistration = () => {
         <Card>
             <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
                 <Typography variant={isMobile ? 'subtitle1' : 'h6'} color="#4A7B59" fontWeight="bold" gutterBottom>
-                    Download Your Contract
+                    {t('parent.registration.contractTitle')}
                 </Typography>
 
                 <Box sx={{ textAlign: 'center', py: { xs: 2, sm: 3 } }}>
                     <DescriptionIcon sx={{ fontSize: { xs: 40, sm: 60 }, color: '#4A7B59', mb: 1 }} />
                     <Typography variant={isMobile ? 'body1' : 'h6'} fontWeight="bold" gutterBottom>
-                        Your contract is ready
+                        {t('parent.registration.contractReady')}
                     </Typography>
                     <Box display="flex" justifyContent="center" gap={1} mb={2} flexWrap="wrap">
                         <Chip label={BRANCH_LABELS[formValues.branch]} color="success" variant="outlined" size="small" />
@@ -506,17 +513,17 @@ const ChildRegistration = () => {
                             sx={{ mb: 2 }}
                             fullWidth={isMobile}
                         >
-                            Download PDF
+                            {t('parent.registration.downloadPdf')}
                         </Button>
                     ) : (
                         <Alert severity="warning" sx={{ mb: 2, textAlign: 'left' }}>
-                            No contract available for this branch and age group. Please contact the administration.
+                            {t('parent.registration.noContractWarning')}
                         </Alert>
                     )}
 
                     <Box sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, p: 2, mb: 2 }}>
                         <Typography variant="body2" color="text.secondary">
-                            Download, print, sign, and scan the contract. Upload the signed copy in the next step.
+                            {t('parent.registration.contractInstructions')}
                         </Typography>
                     </Box>
 
@@ -528,13 +535,13 @@ const ChildRegistration = () => {
                                 color="success"
                             />
                         }
-                        label={<Typography variant="body2">I have downloaded and read the contract</Typography>}
+                        label={<Typography variant="body2">{t('parent.registration.contractCheckbox')}</Typography>}
                     />
                 </Box>
 
                 <Box display="flex" justifyContent="space-between" mt={2} gap={2}>
                     <Button variant="outlined" color="secondary" onClick={() => setActiveStep(1)} sx={{ minWidth: { xs: 80, sm: 100 } }}>
-                        Back
+                        {t('common.back')}
                     </Button>
                     <Button
                         variant="contained"
@@ -543,7 +550,7 @@ const ChildRegistration = () => {
                         onClick={() => setActiveStep(3)}
                         sx={{ flex: isMobile ? 1 : 'unset' }}
                     >
-                        Next
+                        {t('common.next')}
                     </Button>
                 </Box>
             </CardContent>
@@ -554,10 +561,10 @@ const ChildRegistration = () => {
         <Card>
             <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
                 <Typography variant={isMobile ? 'subtitle1' : 'h6'} color="#4A7B59" fontWeight="bold" gutterBottom>
-                    Upload Signed Contract
+                    {t('parent.registration.uploadTitle')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                    Upload the signed contract as a PDF (max 10MB).
+                    {t('parent.registration.uploadDescription')}
                 </Typography>
 
                 <Dialog
@@ -569,19 +576,19 @@ const ChildRegistration = () => {
                     fullScreen={isMobile}
                 >
                     <DialogTitle sx={{ color: '#4A7B59', fontWeight: 'bold' }}>
-                        Signed Contract Required
+                        {t('parent.registration.modalTitle')}
                     </DialogTitle>
                     <DialogContent>
                         <Alert severity="warning" sx={{ mb: 2 }}>
                             <Typography variant="body2" fontWeight="bold">
-                                The signed contract is required.
+                                {t('parent.registration.modalWarning')}
                             </Typography>
                         </Alert>
                         <Typography variant="body1" gutterBottom>
-                            Please sign <strong>all pages</strong> of the contract before uploading it.
+                            {t('parent.registration.modalBody1')}
                         </Typography>
                         <Typography variant="body1">
-                            You cannot submit the registration without the signed contract.
+                            {t('parent.registration.modalBody2')}
                         </Typography>
                     </DialogContent>
                     <DialogActions sx={{ px: 3, pb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
@@ -594,7 +601,7 @@ const ChildRegistration = () => {
                                 setContractModalOpen(false)
                             }}
                         >
-                            I understand
+                            {t('parent.registration.modalUnderstand')}
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -621,16 +628,16 @@ const ChildRegistration = () => {
                                     {signedFile.name}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
-                                    {(signedFile.size / 1024 / 1024).toFixed(2)} MB
+                                    {t('parent.registration.fileSize', { size: (signedFile.size / 1024 / 1024).toFixed(2) })}
                                 </Typography>
-                                <Chip label="PDF" size="small" color="success" variant="outlined" sx={{ ml: 0.5 }} />
+                                <Chip label={t('parent.registration.pdf')} size="small" color="success" variant="outlined" sx={{ ml: 0.5 }} />
                                 <Box mt={1}>
                                     <Button
                                         size="small"
                                         color="error"
                                         onClick={() => { setSignedFile(null); setFileError('') }}
                                     >
-                                        Remove
+                                        {t('common.remove')}
                                     </Button>
                                 </Box>
                             </Box>
@@ -638,10 +645,10 @@ const ChildRegistration = () => {
                             <Box>
                                 <CloudUploadIcon sx={{ fontSize: { xs: 32, sm: 40 }, color: fileError ? '#f44336' : '#bdbdbd', mb: 1 }} />
                                 <Typography variant="body2" color={fileError ? 'error' : 'text.secondary'} mb={1} sx={{ px: 1 }}>
-                                    {fileError || 'Select a PDF file to upload'}
+                                    {fileError || t('parent.registration.selectPdf')}
                                 </Typography>
                                 <Button variant="outlined" component="label" color={fileError ? 'error' : 'success'} size={isMobile ? 'small' : 'medium'}>
-                                    Choose File
+                                    {t('parent.registration.chooseFile')}
                                     <input
                                         type="file"
                                         accept="application/pdf"
@@ -654,20 +661,20 @@ const ChildRegistration = () => {
                     </Box>
 
                     <Box display="flex" gap={2} justifyContent="center" mb={2}>
-                        <Typography variant="caption" color="text.secondary">PDF only</Typography>
-                        <Typography variant="caption" color="text.secondary">Max 10MB</Typography>
+                        <Typography variant="caption" color="text.secondary">{t('parent.registration.pdfOnly')}</Typography>
+                        <Typography variant="caption" color="text.secondary">{t('parent.registration.maxFileSize')}</Typography>
                     </Box>
 
                     <Alert severity="info" sx={{ textAlign: 'left' }}>
                         <Typography variant="body2">
-                            Make sure all pages of the contract are signed before uploading.
+                            {t('parent.registration.signAllPages')}
                         </Typography>
                     </Alert>
                 </Box>
 
                 <Box display="flex" justifyContent="space-between" mt={3} gap={2}>
                     <Button variant="outlined" color="secondary" onClick={() => setActiveStep(2)} sx={{ minWidth: { xs: 80, sm: 100 } }}>
-                        Back
+                        {t('common.back')}
                     </Button>
                     <Button
                         variant="contained"
@@ -677,7 +684,7 @@ const ChildRegistration = () => {
                         startIcon={(submitting || uploading) ? <CircularProgress size={18} /> : null}
                         sx={{ flex: isMobile ? 1 : 'unset' }}
                     >
-                        {submitting ? 'Submitting...' : 'Submit'}
+                        {submitting ? t('parent.registration.submitting') : t('common.submit')}
                     </Button>
                 </Box>
             </CardContent>
@@ -689,35 +696,35 @@ const ChildRegistration = () => {
             <CardContent sx={{ p: { xs: 2, sm: 4 }, textAlign: 'center' }}>
                 <CheckCircleOutlineIcon sx={{ fontSize: { xs: 56, sm: 80 }, color: '#4A7B59', mb: 1 }} />
                 <Typography variant={isMobile ? 'h6' : 'h5'} color="#4A7B59" gutterBottom>
-                    Registration Submitted!
+                    {t('parent.registration.successTitle')}
                 </Typography>
-                <Chip label="Pending Approval" color="warning" size="small" sx={{ mb: 2 }} />
+                <Chip label={t('parent.registration.pendingApproval')} color="warning" size="small" sx={{ mb: 2 }} />
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                    Your registration is pending approval. You will be notified once it is reviewed.
+                    {t('parent.registration.successText')}
                 </Typography>
 
                 <Card variant="outlined" sx={{ mb: 3, textAlign: 'left' }}>
                     <CardContent sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}>
-                        <Typography variant="subtitle2" color="#4A7B59">Summary</Typography>
+                        <Typography variant="subtitle2" color="#4A7B59">{t('common.details')}</Typography>
                         <Divider sx={{ my: 0.5 }} />
                         <Box display="flex" flexDirection="column" gap={0.3}>
-                            <Typography variant="body2"><strong>Year:</strong> {selectedSchoolYear?.name}</Typography>
-                            <Typography variant="body2"><strong>Child:</strong> {formValues.childName}</Typography>
-                            <Typography variant="body2"><strong>Parent 1:</strong> {formValues.parent1FirstName} {formValues.parent1LastName}</Typography>
-                            <Typography variant="body2"><strong>Parent 2:</strong> {formValues.parent2FirstName} {formValues.parent2LastName}</Typography>
-                            <Typography variant="body2"><strong>Branch:</strong> {BRANCH_LABELS[formValues.branch]}</Typography>
-                            <Typography variant="body2"><strong>Age:</strong> {AGE_LABELS[formValues.ageGroup]}</Typography>
-                            <Typography variant="body2"><strong>Contract:</strong> Uploaded</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryYear')}</strong> {selectedSchoolYear?.name}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryChild')}</strong> {formValues.childName}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryParent1')}</strong> {formValues.parent1FirstName} {formValues.parent1LastName}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryParent2')}</strong> {formValues.parent2FirstName} {formValues.parent2LastName}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryBranch')}</strong> {BRANCH_LABELS[formValues.branch]}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryAge')}</strong> {AGE_LABELS[formValues.ageGroup]}</Typography>
+                            <Typography variant="body2"><strong>{t('parent.registration.summaryContract')}</strong> {t('parent.registration.summaryUploaded')}</Typography>
                         </Box>
                     </CardContent>
                 </Card>
 
                 <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="center" gap={1.5}>
                     <Button variant="outlined" color="success" onClick={handleReset} fullWidth={isMobile}>
-                        Register Another
+                        {t('parent.registration.registerAnother')}
                     </Button>
                     <Button variant="contained" color="success" onClick={() => navigate('/my-registrations')} fullWidth={isMobile}>
-                        My Registrations
+                        {t('parent.registration.myRegistrations')}
                     </Button>
                 </Box>
             </CardContent>
@@ -742,7 +749,7 @@ const ChildRegistration = () => {
                         gutterBottom
                         fontWeight="bold"
                     >
-                        Child Registration
+                        {t('parent.registration.title')}
                     </Typography>
 
                     {/* Stepper — desktop: full labels, mobile: compact dots */}
@@ -763,7 +770,7 @@ const ChildRegistration = () => {
                                 nextButton={null}
                             />
                             <Typography variant="body2" color="#4A7B59" textAlign="center" fontWeight="bold">
-                                Step {activeStep + 1}: {STEPS[activeStep]}
+                                {t('parent.registration.mobileStep', { step: activeStep + 1, label: STEPS[activeStep] })}
                             </Typography>
                         </Box>
                     ) : (
@@ -788,9 +795,7 @@ const ChildRegistration = () => {
                     {/* Step Content */}
                     {stepContent[activeStep]()}
                 </Container>
-            </Box>
-            <Footer />
-            <ToastContainer />
+            </Box><ToastContainer />
         </Box>
     )
 }

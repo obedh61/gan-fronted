@@ -1,7 +1,6 @@
 import React from 'react'
 import DrawerAppBar from '../components/Bar'
 import ContactComponent from '../components/ContactComponent'
-import Footer from '../components/Footer'
 import { Box } from '@mui/material';
 
 export const Contact = () => {
@@ -16,10 +15,7 @@ export const Contact = () => {
       <Box sx={{ flexGrow: 1 }}>
         <DrawerAppBar/> 
         <ContactComponent/>
-      </Box>
-
-        <Footer/>
-    </Box>
+      </Box></Box>
 
   )
 }

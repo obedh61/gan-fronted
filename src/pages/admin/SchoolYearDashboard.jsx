@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
-import { getCookie } from '../helpers'
+import { getCookie, formatDate } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import Footer from '../../components/Footer'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import {
@@ -22,8 +22,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility'
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize'
 import { useNavigate } from 'react-router-dom'
 
-const BRANCH_LABELS = { cityCenter: 'City Center', germanColony: 'German Colony' }
-const AGE_LABELS = { under1: 'Under 1 Year', over1: 'Over 1 Year' }
 const STATUS_COLORS = { pending: 'warning', approved: 'success', rejected: 'error' }
 
 const StatCard = ({ title, count, icon, color, bgColor }) => (
@@ -50,6 +48,7 @@ const StatCard = ({ title, count, icon, color, bgColor }) => (
 )
 
 const SchoolYearDashboard = () => {
+    const { t, i18n } = useTranslation()
     const [schoolYears, setSchoolYears] = useState([])
     const [selectedYearId, setSelectedYearId] = useState('')
     const [stats, setStats] = useState(null)
@@ -68,6 +67,9 @@ const SchoolYearDashboard = () => {
     const token = getCookie('token')
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
+
+    const BRANCH_LABELS = useMemo(() => t('common.branchLabels', { returnObjects: true }), [t])
+    const AGE_LABELS = useMemo(() => t('common.ageLabels', { returnObjects: true }), [t])
 
     // ============================================
     // API FUNCTIONS
@@ -90,10 +92,10 @@ const SchoolYearDashboard = () => {
             })
             .catch(error => {
                 console.error('Error fetching school years:', error)
-                toast.error(error.response?.data?.error || 'Error fetching school years')
+                toast.error(error.response?.data?.error || t('admin.dashboard.schoolYearsError'))
                 setLoading(false)
             })
-    }, [API, headers])
+    }, [API, headers, t])
 
     const fetchDashboardData = useCallback((schoolYearId, currentPage = page) => {
         if (!schoolYearId) return
@@ -115,10 +117,10 @@ const SchoolYearDashboard = () => {
             })
             .catch(error => {
                 console.error('Error fetching dashboard data:', error)
-                toast.error(error.response?.data?.error || 'Error fetching data')
+                toast.error(error.response?.data?.error || t('admin.dashboard.fetchError'))
                 setDataLoading(false)
             })
-    }, [API, headers, limit, page])
+    }, [API, headers, limit, page, t])
 
     const fetchBreakdowns = useCallback((schoolYearId) => {
         if (!schoolYearId) return
@@ -149,10 +151,7 @@ const SchoolYearDashboard = () => {
     const branchBreakdown = () => breakdowns.branches || {}
     const ageBreakdown = () => breakdowns.ages || {}
 
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '-'
-        return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    }
+    const formatDateLocal = (dateStr) => formatDate(dateStr, i18n.language)
 
     // ============================================
     // RENDER
@@ -169,7 +168,7 @@ const SchoolYearDashboard = () => {
                     {/* Header */}
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={1}>
                         <Typography variant="h4" color="#4A7B59" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
-                            School Year Dashboard
+                            {t('admin.dashboard.title')}
                         </Typography>
                         <Button
                             variant="contained"
@@ -177,7 +176,7 @@ const SchoolYearDashboard = () => {
                             onClick={() => navigate('/admin')}
                             sx={{ minWidth: 'auto', px: { xs: 1, sm: 2 } }}
                         >
-                            {isMobile ? <DashboardCustomizeIcon /> : <>Dashboard <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
+                            {isMobile ? <DashboardCustomizeIcon /> : <>{t('common.dashboard')} <DashboardCustomizeIcon sx={{ ml: 1 }} /></>}
                         </Button>
                     </Box>
 
@@ -190,11 +189,11 @@ const SchoolYearDashboard = () => {
                         <Card>
                             <CardContent>
                                 <Typography align="center" color="text.secondary">
-                                    No school years found. Create one in School Year Management.
+                                    {t('admin.dashboard.noSchoolYears')}
                                 </Typography>
                                 <Box display="flex" justifyContent="center" mt={2}>
                                     <Button variant="outlined" color="success" onClick={() => navigate('/admin/school-years')}>
-                                        Go to School Year Management
+                                        {t('admin.dashboard.goToManagement')}
                                     </Button>
                                 </Box>
                             </CardContent>
@@ -202,10 +201,10 @@ const SchoolYearDashboard = () => {
                     ) : (
                         <>
                             <FormControl sx={{ minWidth: { xs: '100%', sm: 350 }, mb: 3 }}>
-                                <InputLabel>School Year</InputLabel>
+                                <InputLabel>{t('admin.dashboard.selectSchoolYear')}</InputLabel>
                                 <Select
                                     value={selectedYearId}
-                                    label="School Year"
+                                    label={t('admin.dashboard.selectSchoolYear')}
                                     onChange={e => {
                                         setSelectedYearId(e.target.value)
                                         setPage(1)
@@ -213,7 +212,7 @@ const SchoolYearDashboard = () => {
                                 >
                                     {schoolYears.map(sy => (
                                         <MenuItem key={sy._id} value={sy._id}>
-                                            {sy.name} {sy.isActive ? '(Active)' : ''}
+                                            {sy.name} {sy.isActive ? t('admin.dashboard.activeSuffix') : ''}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -231,7 +230,7 @@ const SchoolYearDashboard = () => {
                                     <Grid container spacing={{ xs: 1.5, sm: 3 }} mb={4}>
                                         <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
-                                                title="Total Registrations"
+                                                title={t('admin.dashboard.totalRegistrations')}
                                                 count={stats.total}
                                                 icon={<PeopleIcon sx={{ color: '#1976d2', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#1976d2"
@@ -240,7 +239,7 @@ const SchoolYearDashboard = () => {
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
-                                                title="Pending"
+                                                title={t('common.pending')}
                                                 count={stats.pending}
                                                 icon={<HourglassEmptyIcon sx={{ color: '#ed6c02', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#ed6c02"
@@ -249,7 +248,7 @@ const SchoolYearDashboard = () => {
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
-                                                title="Approved"
+                                                title={t('common.approved')}
                                                 count={stats.approved}
                                                 icon={<CheckCircleIcon sx={{ color: '#2e7d32', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#2e7d32"
@@ -258,7 +257,7 @@ const SchoolYearDashboard = () => {
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={3}>
                                             <StatCard
-                                                title="Rejected"
+                                                title={t('common.rejected')}
                                                 count={stats.rejected}
                                                 icon={<CancelIcon sx={{ color: '#d32f2f', fontSize: { xs: 24, sm: 30 } }} />}
                                                 color="#d32f2f"
@@ -277,17 +276,17 @@ const SchoolYearDashboard = () => {
                                                 <CardContent>
                                                     <Box display="flex" alignItems="center" gap={1} mb={2}>
                                                         <LocationCityIcon color="success" />
-                                                        <Typography variant="h6" color="#4A7B59">By Branch</Typography>
+                                                        <Typography variant="h6" color="#4A7B59">{t('admin.dashboard.byBranch')}</Typography>
                                                     </Box>
                                                     <TableContainer>
                                                         <Table size="small">
                                                             <TableHead>
                                                                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                                                    <TableCell><strong>Branch</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Total</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Pending</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Approved</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Rejected</strong></TableCell>
+                                                                    <TableCell><strong>{t('admin.dashboard.branch')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.total')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.pending')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.approved')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.rejected')}</strong></TableCell>
                                                                 </TableRow>
                                                             </TableHead>
                                                             <TableBody>
@@ -319,17 +318,17 @@ const SchoolYearDashboard = () => {
                                                 <CardContent>
                                                     <Box display="flex" alignItems="center" gap={1} mb={2}>
                                                         <ChildCareIcon color="success" />
-                                                        <Typography variant="h6" color="#4A7B59">By Age Group</Typography>
+                                                        <Typography variant="h6" color="#4A7B59">{t('admin.dashboard.byAgeGroup')}</Typography>
                                                     </Box>
                                                     <TableContainer>
                                                         <Table size="small">
                                                             <TableHead>
                                                                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                                                    <TableCell><strong>Age Group</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Total</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Pending</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Approved</strong></TableCell>
-                                                                    <TableCell align="center"><strong>Rejected</strong></TableCell>
+                                                                    <TableCell><strong>{t('admin.dashboard.ageGroup')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.total')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.pending')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.approved')}</strong></TableCell>
+                                                                    <TableCell align="center"><strong>{t('common.rejected')}</strong></TableCell>
                                                                 </TableRow>
                                                             </TableHead>
                                                             <TableBody>
@@ -361,7 +360,7 @@ const SchoolYearDashboard = () => {
                                     {/* ============================================ */}
                                     <Box mb={2} display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
                                         <Typography variant="h6" color="#4A7B59">
-                                            Registrations {total > 0 && <Typography component="span" variant="body2" color="text.secondary">({total} total)</Typography>}
+                                            {t('admin.dashboard.recentRegistrations', { total })}
                                         </Typography>
                                         <Button
                                             size="small"
@@ -369,7 +368,7 @@ const SchoolYearDashboard = () => {
                                             color="success"
                                             onClick={() => navigate('/admin/registrations')}
                                         >
-                                            View All
+                                            {t('admin.dashboard.viewAll')}
                                         </Button>
                                     </Box>
 
@@ -377,7 +376,7 @@ const SchoolYearDashboard = () => {
                                         <Card>
                                             <CardContent>
                                                 <Typography align="center" color="text.secondary">
-                                                    No registrations yet for this school year.
+                                                    {t('admin.dashboard.noRegistrations')}
                                                 </Typography>
                                             </CardContent>
                                         </Card>
@@ -386,13 +385,13 @@ const SchoolYearDashboard = () => {
                                             <Table>
                                                 <TableHead>
                                                     <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                                        <TableCell><strong>Child Name</strong></TableCell>
-                                                        <TableCell><strong>Parent 1</strong></TableCell>
-                                                        <TableCell><strong>Parent 2</strong></TableCell>
-                                                        <TableCell><strong>Branch</strong></TableCell>
-                                                        <TableCell align="center"><strong>Status</strong></TableCell>
-                                                        <TableCell><strong>Date</strong></TableCell>
-                                                        <TableCell align="center"><strong>Actions</strong></TableCell>
+                                                        <TableCell><strong>{t('admin.dashboard.childName')}</strong></TableCell>
+                                                        <TableCell><strong>{t('admin.dashboard.parent1')}</strong></TableCell>
+                                                        <TableCell><strong>{t('admin.dashboard.parent2')}</strong></TableCell>
+                                                        <TableCell><strong>{t('admin.dashboard.branch')}</strong></TableCell>
+                                                        <TableCell align="center"><strong>{t('common.status')}</strong></TableCell>
+                                                        <TableCell><strong>{t('admin.dashboard.date')}</strong></TableCell>
+                                                        <TableCell align="center"><strong>{t('common.actions')}</strong></TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
@@ -404,20 +403,20 @@ const SchoolYearDashboard = () => {
                                                             <TableCell>{BRANCH_LABELS[reg.branch] || reg.branch}</TableCell>
                                                             <TableCell align="center">
                                                                 <Chip
-                                                                    label={reg.status}
+                                                                    label={t(`common.${reg.status}`)}
                                                                     color={STATUS_COLORS[reg.status] || 'default'}
                                                                     size="small"
                                                                     sx={{ textTransform: 'capitalize' }}
                                                                 />
                                                             </TableCell>
-                                                            <TableCell>{formatDate(reg.createdAt)}</TableCell>
+                                                            <TableCell>{formatDateLocal(reg.createdAt)}</TableCell>
                                                             <TableCell align="center">
                                                                 <Button
                                                                     size="small"
                                                                     startIcon={<VisibilityIcon />}
                                                                     onClick={() => navigate('/admin/registrations')}
                                                                 >
-                                                                    Details
+                                                                    {t('common.details')}
                                                                 </Button>
                                                             </TableCell>
                                                         </TableRow>
@@ -447,9 +446,7 @@ const SchoolYearDashboard = () => {
                         </>
                     )}
                 </Container>
-            </Box>
-            <Footer />
-            <ToastContainer />
+            </Box><ToastContainer />
         </Box>
     )
 }

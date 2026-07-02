@@ -74,3 +74,10 @@ export const updateUser = (response, next) => {
     }
     next();
 }
+
+export const formatDate = (dateStr, lng = 'he') => {
+    if (!dateStr) return '-'
+    const d = new Date(dateStr)
+    const locale = typeof lng === 'string' && lng.startsWith('he') ? 'he-IL' : 'en-GB'
+    return d.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' })
+}

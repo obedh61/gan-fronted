@@ -1,7 +1,6 @@
 import React from 'react'
 import DrawerAppBar from '../components/Bar'
 import { Box } from '@mui/material';
-import Footer from '../components/Footer'
 import BlogAbut from '../components/BlogAbout';
 
 export const About = () => {
@@ -17,9 +16,6 @@ export const About = () => {
         <DrawerAppBar/>
         {/* <BlogPost/> */}
         <BlogAbut />
-      </Box>
-
-        <Footer/>
-    </Box>
+      </Box></Box>
   )
 }

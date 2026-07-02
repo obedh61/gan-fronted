@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, IconButton } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -6,6 +7,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import logo from '../assets/logo.svg'
 
 const ContactMain = () => {
+  const { t } = useTranslation();
+
   const handleFacebookClick = () => {
     window.open('https://www.facebook.com/sarahpicovsky?mibextid=ZbWKwL', '_blank');
   };
@@ -86,7 +89,7 @@ const ContactMain = () => {
       <Box
         component="img"
         src={logo}
-        alt="login icon"
+        alt={t('accessibility.loginIcon')}
         sx={{
             position: "absolute",
             top: "50%",

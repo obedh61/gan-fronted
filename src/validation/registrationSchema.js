@@ -2,67 +2,67 @@ import * as yup from 'yup'
 
 const phoneRegex = /^[\d\s\-+()]{7,20}$/
 
-export const registrationSchema = yup.object({
+export const createRegistrationSchema = (t) => yup.object({
     parent1FirstName: yup.string()
         .trim()
-        .min(2, 'Must be at least 2 characters')
-        .max(50, 'Must be 50 characters or less')
-        .required('Parent 1 first name is required'),
+        .min(2, t('validation.min2'))
+        .max(50, t('validation.max50'))
+        .required(t('validation.parent1FirstNameRequired')),
     parent1LastName: yup.string()
         .trim()
-        .min(2, 'Must be at least 2 characters')
-        .max(50, 'Must be 50 characters or less')
-        .required('Parent 1 last name is required'),
+        .min(2, t('validation.min2'))
+        .max(50, t('validation.max50'))
+        .required(t('validation.parent1LastNameRequired')),
     parent1IdNumber: yup.string()
         .trim()
-        .min(5, 'Must be at least 5 characters')
-        .required('Parent 1 ID number is required'),
+        .min(5, t('validation.min2'))
+        .required(t('validation.parent1IdRequired')),
     parent2FirstName: yup.string()
         .trim()
-        .min(2, 'Must be at least 2 characters')
-        .max(50, 'Must be 50 characters or less')
-        .required('Parent 2 first name is required'),
+        .min(2, t('validation.min2'))
+        .max(50, t('validation.max50'))
+        .required(t('validation.parent2FirstNameRequired')),
     parent2LastName: yup.string()
         .trim()
-        .min(2, 'Must be at least 2 characters')
-        .max(50, 'Must be 50 characters or less')
-        .required('Parent 2 last name is required'),
+        .min(2, t('validation.min2'))
+        .max(50, t('validation.max50'))
+        .required(t('validation.parent2LastNameRequired')),
     parent2IdNumber: yup.string()
         .trim()
-        .min(5, 'Must be at least 5 characters')
-        .required('Parent 2 ID number is required'),
+        .min(5, t('validation.min2'))
+        .required(t('validation.parent2IdRequired')),
     childName: yup.string()
         .trim()
-        .min(2, 'Must be at least 2 characters')
-        .required("Child's name is required"),
+        .min(2, t('validation.min2'))
+        .required(t('validation.childNameRequired')),
     phoneNumber: yup.string()
         .trim()
-        .matches(phoneRegex, 'Enter a valid phone number')
-        .required('Phone number is required'),
+        .matches(phoneRegex, t('validation.phoneInvalid'))
+        .required(t('validation.phoneRequired')),
     bankName: yup.string()
         .trim()
-        .required('Bank name is required'),
+        .required(t('validation.bankNameRequired')),
     bankAccountNumber: yup.string()
         .trim()
-        .required('Bank account number is required'),
+        .required(t('validation.bankAccountRequired')),
     ageGroup: yup.string()
-        .oneOf(['under1', 'over1'], 'Please select an age group')
-        .required('Age group is required'),
+        .oneOf(['under1', 'over1'], t('validation.ageGroupOneOf'))
+        .required(t('validation.ageGroupRequired')),
     branch: yup.string()
-        .oneOf(['cityCenter', 'germanColony'], 'Please select a branch')
-        .required('Branch is required')
+        .oneOf(['cityCenter', 'germanColony'], t('validation.branchOneOf'))
+        .required(t('validation.branchRequired'))
 })
 
 export const MAX_PDF_SIZE = 10 * 1024 * 1024 // 10MB
 export const ALLOWED_PDF_TYPE = 'application/pdf'
 
-export const validatePDFFile = (file) => {
+export const validatePDFFile = (file, t) => {
     if (!file) return { valid: true, error: null }
     if (file.type !== ALLOWED_PDF_TYPE) {
-        return { valid: false, error: 'Only PDF files are allowed' }
+        return { valid: false, error: t('validation.pdfOnly') }
     }
     if (file.size > MAX_PDF_SIZE) {
-        return { valid: false, error: `File size must be less than 10MB (current: ${(file.size / 1024 / 1024).toFixed(1)}MB)` }
+        return { valid: false, error: t('validation.maxFileSize', { size: (file.size / 1024 / 1024).toFixed(1) }) }
     }
     return { valid: true, error: null }
 }

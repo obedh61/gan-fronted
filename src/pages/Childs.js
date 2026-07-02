@@ -1,12 +1,13 @@
 import DrawerAppBar from '../components/Bar';
 import { Box, Container, Button } from '@mui/material';
-import Footer from '../components/Footer';
 import { AddNewChild } from '../components/AddNewChild';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 
 function Childs() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   return (
     <Box
       sx={{
@@ -53,15 +54,12 @@ function Childs() {
               navigate('/admin');
             }}
           >
-            {"Dasboard"}
+            {t('common.dashboard')}
           </Button>
         </Box>
 
         </Container>
-      </Box>
-      
-      <Footer/>
-    </Box>
+      </Box></Box>
     
   );
 }

@@ -8,20 +8,23 @@ import React, { useContext, useEffect, useState } from 'react';
 import { multiStepContext } from '../StepContext';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
 import cityCenter from '../assets/Carpetas Padres Kids 1-2CENTRO.pdf';
 import german from '../assets/Carpetas Padres Kids 1-2 copia-2_240108_104709_1-2g.pdf';
 import germanBaby from '../assets/THE MONTESSORI.pdf';
 import PdfViewer from './PdfViewer';
 
-const FormSchema = yup.object({
-    termsAndConditions: yup
-      .bool()
-      .oneOf([true], 'You need to accept the terms and conditions')
-      .required('You need to accept the terms and conditions'),
-});
-
 export default function ThirdStep() {
+    const { t } = useTranslation()
     const { setStep, submitData, userData, setUserData } = useContext(multiStepContext);
+
+    const FormSchema = yup.object({
+        termsAndConditions: yup
+          .bool()
+          .oneOf([true], t('legacy.thirdStep.acceptTerms'))
+          .required(t('legacy.thirdStep.acceptTerms')),
+    });
+
     const formik = useFormik({
         initialValues: {
             termsAndConditions: userData['termsAndConditions'],
@@ -56,7 +59,7 @@ export default function ThirdStep() {
                 </div>
 
                 {/* Enlace de descarga */}
-                {contractKids && <a href={contractKids} target="_blank" rel="noopener noreferrer">Download Pdf</a>}
+                {contractKids && <a href={contractKids} target="_blank" rel="noopener noreferrer">{t('legacy.thirdStep.downloadPdf')}</a>}
 
                 {/* Checkbox de términos y condiciones */}
                 <form onSubmit={formik.handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px' }}>
@@ -74,7 +77,7 @@ export default function ThirdStep() {
                                     onChange={formik.handleChange}
                                     value={formik.values.termsAndConditions || false}
                                     control={<Checkbox required />}
-                                    label="I agree"
+                                    label={t('legacy.thirdStep.iAgree')}
                                 />
                             </FormGroup>
                         </FormControl>
@@ -83,10 +86,10 @@ export default function ThirdStep() {
                     {/* Botones de navegación */}
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <Button variant="contained" onClick={() => setStep(2)} color="secondary">
-                            Back
+                            {t('legacy.thirdStep.back')}
                         </Button>
                         <Button type="submit" variant="contained" color="primary">
-                            Next
+                            {t('legacy.thirdStep.next')}
                         </Button>
                     </div>
                 </form>

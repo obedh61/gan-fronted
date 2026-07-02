@@ -3,26 +3,27 @@ import React, { useContext } from 'react'
 import { multiStepContext } from '../StepContext'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
+import { useTranslation } from 'react-i18next'
 
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import NativeSelect from '@mui/material/NativeSelect';
 
-const validationSchema = yup.object({
-    childsname: yup
-      .string('Enter your name')
-      .required('Name is required'),
-    bank: yup
-      .string('Enter your bank')
-      .required('bank is required'),
-    numBank: yup
-        .number('must be a number').required('bank number is required').positive('bank number is required').integer('bank number is required'),
-  })
-
 export default function SecondStep() {
-    
+    const { t } = useTranslation()
     const {setStep, userData, setUserData} = useContext(multiStepContext)
 
+    const validationSchema = yup.object({
+        childsname: yup
+          .string(t('legacy.secondStep.enterName'))
+          .required(t('legacy.secondStep.nameRequired')),
+        bank: yup
+          .string(t('legacy.secondStep.enterBank'))
+          .required(t('legacy.secondStep.bankRequired')),
+        numBank: yup
+            .number(t('legacy.secondStep.mustBeNumber')).required(t('legacy.secondStep.bankNumberRequired')).positive(t('legacy.secondStep.positive')).integer(t('legacy.secondStep.integer')),
+      })
+    
     const formik = useFormik({
         initialValues: {
           childsname: userData['childsname'],
@@ -44,7 +45,7 @@ export default function SecondStep() {
         <form onSubmit={formik.handleSubmit}>
             <div>
                 <TextField 
-                    label="Child's name"
+                    label={t('legacy.secondStep.childName')}
                     id='childsname'
                     name='childsname' 
                     value={formik.values.childsname || ''} 
@@ -59,7 +60,7 @@ export default function SecondStep() {
             </div>
             <div>
                 <TextField 
-                    label="Bank"
+                    label={t('legacy.secondStep.bank')}
                     id='bank'
                     name='bank' 
                     value={formik.values.bank || ''} 
@@ -74,7 +75,7 @@ export default function SecondStep() {
             </div>
             <div>
                 <TextField 
-                    label="Bank account"
+                    label={t('legacy.secondStep.bankAccount')}
                     id='numBank'
                     name='numBank' 
                     value={formik.values.numBank || ''} 
@@ -90,7 +91,7 @@ export default function SecondStep() {
             <div>
               <FormControl fullWidth required>
                 <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                  Age
+                  {t('legacy.secondStep.age')}
                 </InputLabel>
                 <NativeSelect
                   onChange={formik.handleChange}
@@ -101,8 +102,8 @@ export default function SecondStep() {
                   }}
                 >
                   <option value={formik.values.age || ''} />
-                  <option value="less than one year">less than one year</option>
-                  <option value="more than one year">more than one year</option>
+                  <option value="less than one year">{t('legacy.secondStep.lessThanOne')}</option>
+                  <option value="more than one year">{t('legacy.secondStep.moreThanOne')}</option>
                 </NativeSelect>
               </FormControl>
             </div>
@@ -110,7 +111,7 @@ export default function SecondStep() {
             <div>
               <FormControl fullWidth required>
                 <InputLabel onChange={formik.handleChange} variant="standard" htmlFor="uncontrolled-native">
-                  Branch
+                  {t('legacy.secondStep.branch')}
                 </InputLabel>
                 <NativeSelect
                   onChange={formik.handleChange}
@@ -121,15 +122,15 @@ export default function SecondStep() {
                   }}
                 >
                   <option value={formik.values.branch || ''} />
-                  <option value="German Colony">German Colony</option>
-                  <option value="City Center">City Center</option>
+                  <option value="German Colony">{t('legacy.secondStep.germanColony')}</option>
+                  <option value="City Center">{t('legacy.secondStep.cityCenter')}</option>
                 </NativeSelect>
               </FormControl>
             </div>
             <br/>
             <div style={{margin:3}}>
-                <Button variant='contained' onClick={()=>setStep(1)} color='secondary'>Back</Button><span> </span>
-                <Button type="submit" variant='contained' color='primary'>Next</Button>
+                <Button variant='contained' onClick={()=>setStep(1)} color='secondary'>{t('legacy.secondStep.back')}</Button><span> </span>
+                <Button type="submit" variant='contained' color='primary'>{t('legacy.secondStep.next')}</Button>
             </div>
         </form>
     </div>

@@ -1,63 +1,129 @@
 import React from 'react';
-import { Box, Button, Container, Grid, Typography } from '@mui/material';
+import { Box, Button, Container, Grid, Typography, IconButton, Stack, Divider } from '@mui/material';
 import { green } from '@mui/material/colors';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import EmailIcon from '@mui/icons-material/Email';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
 
 const Footer = () => {
+  const { t } = useTranslation();
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
+  const socialLinks = [
+    { icon: <EmailIcon />, label: t('footer.email'), href: 'mailto:gansecondhome@gmail.com' },
+    { icon: <WhatsAppIcon />, label: t('footer.whatsapp'), href: 'https://wa.me/9720527082519' },
+    { icon: <FacebookIcon />, label: t('footer.facebook'), href: 'https://www.facebook.com/sarahpicovsky?mibextid=ZbWKwL' },
+    { icon: <InstagramIcon />, label: t('footer.instagram'), href: 'https://www.instagram.com/gansecondhome?igsh=NmQ2cGlzNHd5Zmti' },
+  ];
+
   return (
     <Box
       component="footer"
       sx={{
-        backgroundColor: green[500], // Color "success"
+        backgroundColor: green[500],
         color: 'white',
-        position: 'relative',
-        bottom: 0,
         width: '100%',
-        padding: '20px 0',
-        mt: 'auto',
-        marginTop: {
-            xs: '20px',   // 20px en pantallas pequeñas
-            sm: '40px',   // 40px en pantallas medianas y grandes
-          },
+        py: 4,
+        mt: 6,
       }}
     >
       <Container>
-        <Grid container spacing={2} justifyContent="center">
-          {/* Sección de About */}
-          <Grid item xs={12} sm={4} textAlign="center">
-            <Typography variant="h6">About</Typography>
-            <Button component={RouterLink} to={'/about'} color="inherit" underline="hover">
-              About Us
-            </Button>
+        <Grid container spacing={4} justifyContent="center">
+          {/* Brand */}
+          <Grid item xs={12} md={4} textAlign={{ xs: 'center', md: 'left' }}>
+            <Typography
+              variant="h6"
+              gutterBottom
+              noWrap
+              sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}
+            >
+              {t('home.menuTitle')}
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, maxWidth: 320, mx: { xs: 'auto', md: 0 } }}>
+              {t('footer.description')}
+            </Typography>
           </Grid>
 
-          {/* Sección de Home */}
-          <Grid item xs={12} sm={4} textAlign="center">
-            <Typography variant="h6">Home</Typography>
-            <Button component={RouterLink} to={'/home'} color="inherit" underline="hover">
-              Home Page
-            </Button>
+          {/* Quick links */}
+          <Grid item xs={12} sm={6} md={2} textAlign="center">
+            <Typography variant="h6" gutterBottom>
+              {t('footer.linksTitle')}
+            </Typography>
+            <Stack spacing={1} alignItems="center">
+              {!isActive('/home') && (
+                <Button component={RouterLink} to="/home" color="inherit" size="small">
+                  {t('footer.homePage')}
+                </Button>
+              )}
+              {!isActive('/about') && (
+                <Button component={RouterLink} to="/about" color="inherit" size="small">
+                  {t('footer.aboutUs')}
+                </Button>
+              )}
+              {!isActive('/contact') && (
+                <Button component={RouterLink} to="/contact" color="inherit" size="small">
+                  {t('footer.contactUs')}
+                </Button>
+              )}
+            </Stack>
           </Grid>
 
-          {/* Sección de Contact */}
-          <Grid item xs={12} sm={4} textAlign="center">
-            <Typography variant="h6">Contact</Typography>
-            <Button component={RouterLink} to={'/contact'} color="inherit" underline="hover">
-              Contact Us
-            </Button>
+          {/* Contact */}
+          <Grid item xs={12} sm={6} md={3} textAlign="center">
+            <Typography variant="h6" gutterBottom>
+              {t('footer.contactTitle')}
+            </Typography>
+            <Stack direction="row" spacing={1} justifyContent="center">
+              {socialLinks.map((link) => (
+                <IconButton
+                  key={link.label}
+                  component="a"
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={link.label}
+                  sx={{ color: 'white', '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' } }}
+                >
+                  {link.icon}
+                </IconButton>
+              ))}
+            </Stack>
+            <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
+              gansecondhome@gmail.com
+            </Typography>
+          </Grid>
+
+          {/* Legal */}
+          <Grid item xs={12} md={3} textAlign={{ xs: 'center', md: 'right' }}>
+            <Typography variant="h6" gutterBottom>
+              {t('footer.legalTitle')}
+            </Typography>
+            <Stack spacing={1} alignItems={{ xs: 'center', md: 'flex-end' }}>
+              <Button component={RouterLink} to="/privacy" color="inherit" size="small">
+                {t('footer.privacyPolicy')}
+              </Button>
+              <Button component={RouterLink} to="/terms" color="inherit" size="small">
+                {t('footer.termsOfService')}
+              </Button>
+              <Button component={RouterLink} to="/accessibility" color="inherit" size="small">
+                {t('footer.accessibility')}
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
-      </Container>
 
-      <Box
-        sx={{
-          mt: 2,
-          textAlign: 'center',
-          fontSize: '0.875rem',
-        }}
-      >
-        <Typography variant="body2">&copy; 2024 Gan Second Home</Typography>
-      </Box>
+        <Divider sx={{ my: 3, borderColor: 'rgba(255,255,255,0.3)' }} />
+
+        <Box textAlign="center">
+          <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            {t('footer.copyright', { year: new Date().getFullYear() })}
+          </Typography>
+        </Box>
+      </Container>
     </Box>
   );
 };

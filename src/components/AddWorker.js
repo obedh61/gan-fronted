@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useTranslation } from 'react-i18next'
 import axios from "axios";
 import { toast } from "react-toastify";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -14,6 +15,7 @@ import {
 import { getCookie } from "../pages/helpers";
 
 export const AddWorker = () => {
+  const { t } = useTranslation()
   const [username, setUsername] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [workers, setWorkers] = useState([]);
@@ -34,10 +36,10 @@ export const AddWorker = () => {
         setLoading(false);
       })
       .catch(() => {
-        toast.error("Error fetching workers");
+        toast.error(t('admin.workers.fetchError'));
         setLoading(false);
       });
-  }, [API, headers]);
+  }, [API, headers, t]);
 
   useEffect(() => {
     fetchWorkers();
@@ -45,24 +47,24 @@ export const AddWorker = () => {
 
   const addUser = () => {
     if (!username.trim() || !idNumber.trim()) {
-      toast.error("Please provide both name and ID number");
+      toast.error(t('admin.workers.nameAndIdRequired'));
       return;
     }
     if (!/^[0-9]{9}$/.test(idNumber)) {
-      toast.error("ID number must be exactly 9 digits");
+      toast.error(t('admin.workers.idNineDigits'));
       return;
     }
 
     setAdding(true);
     axios.post(`${API}/addworker`, { username: username.trim(), idNumber: idNumber.trim() }, { headers })
       .then(() => {
-        toast.success("Worker added successfully");
+        toast.success(t('admin.workers.addSuccess'));
         setUsername("");
         setIdNumber("");
         fetchWorkers();
       })
       .catch(error => {
-        toast.error(error.response?.data?.message || "Error adding worker");
+        toast.error(error.response?.data?.message || t('admin.workers.addError'));
       })
       .finally(() => setAdding(false));
   };
@@ -72,12 +74,12 @@ export const AddWorker = () => {
     setDeleting(true);
     axios.delete(`${API}/workers/${deleteTarget.idNumber}`, { headers })
       .then(() => {
-        toast.success("Worker deleted");
+        toast.success(t('admin.workers.deleteSuccess'));
         setDeleteTarget(null);
         fetchWorkers();
       })
       .catch(() => {
-        toast.error("Error deleting worker");
+        toast.error(t('admin.workers.deleteError'));
       })
       .finally(() => setDeleting(false));
   };
@@ -92,12 +94,12 @@ export const AddWorker = () => {
       <Card variant="outlined" sx={{ mb: 3, borderLeft: '4px solid #4A7B59' }}>
         <CardContent>
           <Typography variant="h6" color="#4A7B59" gutterBottom>
-            Add New Worker
+            {t('admin.workers.addTitle')}
           </Typography>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={4}>
               <TextField
-                label="Worker Name"
+                label={t('admin.workers.workerName')}
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -109,7 +111,7 @@ export const AddWorker = () => {
             </Grid>
             <Grid item xs={12} sm={4}>
               <TextField
-                label="ID Number (9 digits)"
+                label={t('admin.workers.idNumberHint')}
                 value={idNumber}
                 onChange={e => setIdNumber(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -130,7 +132,7 @@ export const AddWorker = () => {
                 fullWidth
                 sx={{ height: 40 }}
               >
-                {adding ? 'Adding...' : 'Add Worker'}
+                {adding ? t('admin.workers.adding') : t('admin.workers.addWorker')}
               </Button>
             </Grid>
           </Grid>
@@ -142,7 +144,7 @@ export const AddWorker = () => {
         <Box display="flex" alignItems="center" gap={1}>
           <EngineeringIcon sx={{ color: '#4A7B59' }} />
           <Typography variant="h6" color="#4A7B59">
-            Workers
+            {t('admin.workers.workersListTitle')}
           </Typography>
           <Chip label={workers.length} size="small" color="success" variant="outlined" />
         </Box>
@@ -157,7 +159,7 @@ export const AddWorker = () => {
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
             <EngineeringIcon sx={{ fontSize: 60, color: '#bdbdbd', mb: 1 }} />
             <Typography color="text.secondary">
-              No workers registered yet. Add your first worker above.
+              {t('admin.workers.noWorkers')}
             </Typography>
           </CardContent>
         </Card>
@@ -166,10 +168,10 @@ export const AddWorker = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                <TableCell><strong>#</strong></TableCell>
-                <TableCell><strong>Name</strong></TableCell>
-                <TableCell><strong>ID Number</strong></TableCell>
-                <TableCell align="center"><strong>Actions</strong></TableCell>
+                <TableCell><strong>{t('admin.workers.number')}</strong></TableCell>
+                <TableCell><strong>{t('admin.workers.name')}</strong></TableCell>
+                <TableCell><strong>{t('admin.workers.idNumber')}</strong></TableCell>
+                <TableCell align="center"><strong>{t('common.actions')}</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -196,15 +198,15 @@ export const AddWorker = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} maxWidth="xs" fullWidth>
-        <DialogTitle>Delete Worker</DialogTitle>
+        <DialogTitle>{t('admin.workers.deleteTitle')}</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete <strong>{deleteTarget?.username}</strong> (ID: {deleteTarget?.idNumber})?
+            {t('admin.workers.deleteText', { username: deleteTarget?.username, idNumber: deleteTarget?.idNumber })}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDeleteTarget(null)} disabled={deleting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={confirmDelete}
@@ -213,7 +215,7 @@ export const AddWorker = () => {
             disabled={deleting}
             startIcon={deleting ? <CircularProgress size={18} color="inherit" /> : <DeleteIcon />}
           >
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? t('admin.workers.deleting') : t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

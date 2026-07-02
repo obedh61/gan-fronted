@@ -12,6 +12,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Map from './Map';
 import People from '../assets/bg4-1.svg'
 import logo from '../assets/logo.svg'
+import { apiFetch } from '../utils/apiFetch'
 
 const Timer = () => {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -23,7 +24,7 @@ const Timer = () => {
 
   const checkActiveSession = React.useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/active/${idNumber}`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/active/${idNumber}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -91,7 +92,7 @@ const Timer = () => {
       console.log(userAgent);
       
       const location = await getUserLocation()
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/start`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idNumber, startTime: now, location, userAgent }),
@@ -122,7 +123,7 @@ const Timer = () => {
     
     try {
       const location = await getUserLocation()
-      const response = await fetch(`${process.env.REACT_APP_API}/sessions/end`, {
+      const response = await apiFetch(`${process.env.REACT_APP_API}/sessions/end`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idNumber, endTime: now, location }),

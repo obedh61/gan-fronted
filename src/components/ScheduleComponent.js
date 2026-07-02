@@ -1,89 +1,209 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
-import logo from '../assets/logo.svg'
+import {
+  Box,
+  Typography,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import AcUnitIcon from '@mui/icons-material/AcUnit';
+import logo from '../assets/logo.svg';
+import { useTranslation } from 'react-i18next';
 
 const ScheduleComponent = () => {
-  const winterSchedule = "08:00 - 11:30";
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const summerSchedule = {
-    sundayToThursday: "07:30 - 16:00",
-    friday: "08:00 - 12:00",
-  };
-
-  const renderSchedule = (day, schedule) => (
-    <Box sx={{ padding: 2, border: '1px solid', borderColor: 'grey.400', borderRadius: 2, textAlign: 'center' }}>
-      <Typography variant="h6" align="center" gutterBottom>
-        {day}
-      </Typography>
-      <Box
-        sx={{
-          padding: 2,
-          border: '1px solid',
-          borderColor: 'grey.300',
-          borderRadius: 1,
-          backgroundColor: 'success.main',
-          color: 'common.white',
-        }}
-      >
-        <Typography variant="body1">{schedule}</Typography>
-      </Box>
-    </Box>
-  );
+  const schedules = [
+    {
+      season: t('home.summerSchedule'),
+      icon: <WbSunnyIcon sx={{ color: '#fff', fontSize: 32 }} />,
+      headerBg: 'linear-gradient(135deg, #f9a825 0%, #f57f17 100%)',
+      rows: [
+        { label: t('home.sundayToThursday'), time: t('home.summerSundayThursday') },
+        { label: t('home.friday'), time: t('home.summerFriday') },
+      ],
+    },
+    {
+      season: t('home.winterSchedule'),
+      icon: <AcUnitIcon sx={{ color: '#fff', fontSize: 32 }} />,
+      headerBg: 'linear-gradient(135deg, #4A7B59 0%, #2e4a35 100%)',
+      rows: [
+        { label: t('home.sundayToThursday'), time: t('home.winterSundayThursday') },
+        { label: t('home.friday'), time: t('home.winterFriday') },
+      ],
+    },
+  ];
 
   return (
-    <Box sx={{ padding: 4 }}>
-      {/* <Typography color='#4A7B59' variant="h4" align="center" gutterBottom>
-        Weekly Schedule
-      </Typography> */}
+    <Box
+      component="section"
+      sx={{
+        position: 'relative',
+        py: { xs: 4, md: 6 },
+        px: { xs: 2, md: 4 },
+        borderRadius: { xs: 0, md: 4 },
+        background: 'linear-gradient(135deg, #ffffff 0%, #f4f8f5 100%)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Decorative watermark logo */}
       <Box
-        position="relative"
-        // textAlign="center"
-        padding={1}
-        // display="flex"
-        // justifyContent="center"
-        // alignItems="center"
-      >
-        {/* Texto encima */}
-        <Typography
-          variant="h4"
-          sx={{ position: "relative", zIndex: 2 }}
-          align="center" gutterBottom
-        >
-          Weekly Schedule
-        </Typography>
+        component="img"
+        src={logo}
+        alt={t('accessibility.logoAlt')}
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: { xs: 200, md: 320 },
+          opacity: 0.06,
+          pointerEvents: 'none',
+        }}
+      />
 
-        {/* Imagen detrás */}
+      {/* Header */}
+      <Box textAlign="center" mb={{ xs: 4, md: 5 }} position="relative" zIndex={1}>
         <Box
-          component="img"
-          src={logo}
-          alt="login icon"
           sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 250,
-            opacity: 0.2, // hace que se vea como fondo
-            zIndex: 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'rgba(74,123,89,0.1)',
+            color: '#4A7B59',
+            borderRadius: '50%',
+            width: 56,
+            height: 56,
+            mb: 2,
+          }}
+        >
+          <CalendarTodayIcon fontSize="large" />
+        </Box>
+        <Typography
+          variant="h3"
+          component="h2"
+          sx={{
+            fontWeight: 700,
+            color: '#2e4a35',
+            fontSize: { xs: '1.75rem', md: '2.5rem' },
+          }}
+        >
+          {t('home.scheduleTitle')}
+        </Typography>
+        <Box
+          sx={{
+            width: 80,
+            height: 4,
+            backgroundColor: '#4A7B59',
+            borderRadius: 2,
+            mx: 'auto',
+            mt: 2,
           }}
         />
       </Box>
-      
-      <Box sx={{ marginY: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Summer Schedule
-        </Typography>
-        {renderSchedule("Sunday to Thursday", summerSchedule.sundayToThursday)}
-        <Box sx={{ marginTop: 4 }}>
-          {renderSchedule("Friday", summerSchedule.friday)}
-        </Box>
-      </Box>
-      <Box sx={{ marginY: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Winter Schedule
-        </Typography>
-        {renderSchedule("Friday", winterSchedule)}
-      </Box>
+
+      {/* Schedule cards */}
+      <Grid container spacing={4} justifyContent="center" position="relative" zIndex={1}>
+        {schedules.map((schedule) => (
+          <Grid item xs={12} md={6} key={schedule.season}>
+            <Card
+              elevation={3}
+              sx={{
+                height: '100%',
+                borderRadius: 3,
+                overflow: 'hidden',
+                transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
+                },
+              }}
+            >
+              {/* Card header */}
+              <Box
+                sx={{
+                  background: schedule.headerBg,
+                  p: 3,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                {schedule.icon}
+                <Typography variant="h5" component="h3" sx={{ color: '#fff', fontWeight: 700 }}>
+                  {schedule.season}
+                </Typography>
+              </Box>
+
+              <CardContent sx={{ p: 0 }}>
+                {schedule.rows.map((row, index) => (
+                  <Paper
+                    key={row.label + index}
+                    elevation={0}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: isMobile ? 1 : 2,
+                      p: 3,
+                      borderBottom: index < schedule.rows.length - 1 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                      borderRadius: 0,
+                      bgcolor: index % 2 === 0 ? 'rgba(74,123,89,0.03)' : '#fff',
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      component="p"
+                      sx={{
+                        fontWeight: 600,
+                        color: '#2e4a35',
+                        textAlign: isMobile ? 'center' : 'left',
+                      }}
+                    >
+                      {row.label}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        bgcolor: 'rgba(74,123,89,0.1)',
+                        color: '#2e4a35',
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                      }}
+                    >
+                      <AccessTimeIcon fontSize="small" />
+                      <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>
+                        {row.time}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Closing note */}
+      <Typography
+        variant="body2"
+        align="center"
+        sx={{ mt: 4, color: 'text.secondary', position: 'relative', zIndex: 1 }}
+      >
+        {t('home.scheduleNote')}
+      </Typography>
     </Box>
   );
 };

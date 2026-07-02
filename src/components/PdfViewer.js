@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 const PdfViewer = ({ pdfUrl }) => {
+    const { t } = useTranslation()
     const [numPages, setNumPages] = useState(null);
     const [currentPage, setCurrentPage] = useState(1); // Página actual
     const [scale, setScale] = useState(0.5); // Escala inicial
@@ -56,7 +58,7 @@ const PdfViewer = ({ pdfUrl }) => {
                         cursor: 'pointer',
                     }}
                 >
-                    Zoom Out
+                    {t('legacy.pdfViewer.zoomOut')}
                 </button>
                 <button
                     onClick={zoomIn}
@@ -66,7 +68,7 @@ const PdfViewer = ({ pdfUrl }) => {
                         cursor: 'pointer',
                     }}
                 >
-                    Zoom In
+                    {t('legacy.pdfViewer.zoomIn')}
                 </button>
             </div>
 
