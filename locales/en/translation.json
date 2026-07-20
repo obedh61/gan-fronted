@@ -45,6 +45,8 @@
     "remove": "Remove",
     "ongoing": "Ongoing",
     "na": "N/A",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode",
     "branchLabels": {
       "cityCenter": "City Center",
       "germanColony": "German Colony",
