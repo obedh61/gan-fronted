@@ -47,7 +47,8 @@
     "na": "N/A",
     "branchLabels": {
       "cityCenter": "City Center",
-      "germanColony": "German Colony"
+      "germanColony": "German Colony",
+      "rachelImenu": "Rachel Imenu"
     },
     "ageLabels": {
       "under1": "Under 1 Year",
@@ -65,7 +66,8 @@
     "openDrawer": "Open drawer",
     "branchLabels": {
       "cityCenter": "City Center",
-      "germanColony": "German Colony"
+      "germanColony": "German Colony",
+      "rachelImenu": "Rachel Imenu"
     },
     "ageLabels": {
       "under1": "Under 1 Year",
@@ -261,11 +263,13 @@
       "contractCityCenterOver1": "City Center - Over 1 Year",
       "contractGermanColonyUnder1": "German Colony - Under 1 Year",
       "contractGermanColonyOver1": "German Colony - Over 1 Year",
+      "contractRachelImenuUnder1": "Rachel Imenu - Under 1 Year",
+      "contractRachelImenuOver1": "Rachel Imenu - Over 1 Year",
       "uploaded": "Uploaded",
       "view": "View",
       "replace": "Replace",
       "upload": "Upload",
-      "contractCount": "{{count}}/4",
+      "contractCount": "{{count}}/6",
       "confirmDeleteTitle": "Confirm Delete",
       "confirmDeleteText": "Are you sure you want to delete {{name}}? This action cannot be undone.",
       "fetchError": "Error fetching school years",
@@ -423,6 +427,7 @@
       "branch": "Branch",
       "cityCenter": "City Center",
       "germanColony": "German Colony",
+      "rachelImenu": "Rachel Imenu",
       "under1": "Under 1 Year",
       "over1": "Over 1 Year",
       "required": "*",
@@ -483,6 +488,7 @@
       "ageGroup": "Age Group:",
       "cityCenter": "City Center",
       "germanColony": "German Colony",
+      "rachelImenu": "Rachel Imenu",
       "under1": "Under 1 Year",
       "over1": "Over 1 Year",
       "viewDetails": "View Details",

@@ -47,7 +47,8 @@
     "na": "לא זמין",
     "branchLabels": {
       "cityCenter": "מרכז העיר",
-      "germanColony": "מושבה גרמנית"
+      "germanColony": "מושבה גרמנית",
+      "rachelImenu": "רחל אמנו"
     },
     "ageLabels": {
       "under1": "עד גיל שנה",
@@ -65,7 +66,8 @@
     "openDrawer": "פתח תפריט",
     "branchLabels": {
       "cityCenter": "מרכז העיר",
-      "germanColony": "מושבה גרמנית"
+      "germanColony": "מושבה גרמנית",
+      "rachelImenu": "רחל אמנו"
     },
     "ageLabels": {
       "under1": "עד גיל שנה",
@@ -261,11 +263,13 @@
       "contractCityCenterOver1": "מרכז העיר — מעל גיל שנה",
       "contractGermanColonyUnder1": "מושבה גרמנית — עד גיל שנה",
       "contractGermanColonyOver1": "מושבה גרמנית — מעל גיל שנה",
+      "contractRachelImenuUnder1": "רחל אמנו — עד גיל שנה",
+      "contractRachelImenuOver1": "רחל אמנו — מעל גיל שנה",
       "uploaded": "הועלה",
       "view": "צפה",
       "replace": "החלף",
       "upload": "העלה",
-      "contractCount": "{{count}}/4",
+      "contractCount": "{{count}}/6",
       "confirmDeleteTitle": "אשר מחיקה",
       "confirmDeleteText": "האם אתה בטוח שברצונך למחוק את {{name}}? פעולה זו לא ניתנת לביטול.",
       "fetchError": "שגיאה בטעינת שנות לימוד",
@@ -423,6 +427,7 @@
       "branch": "סניף",
       "cityCenter": "מרכז העיר",
       "germanColony": "מושבה גרמנית",
+      "rachelImenu": "רחל אמנו",
       "under1": "עד גיל שנה",
       "over1": "מעל גיל שנה",
       "required": "*",
@@ -483,6 +488,7 @@
       "ageGroup": "קבוצת גיל:",
       "cityCenter": "מרכז העיר",
       "germanColony": "מושבה גרמנית",
+      "rachelImenu": "רחל אמנו",
       "under1": "עד גיל שנה",
       "over1": "מעל גיל שנה",
       "viewDetails": "צפה בפרטים",
