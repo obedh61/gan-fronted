@@ -49,7 +49,7 @@ export const createRegistrationSchema = (t) => yup.object({
         .oneOf(['under1', 'over1'], t('validation.ageGroupOneOf'))
         .required(t('validation.ageGroupRequired')),
     branch: yup.string()
-        .oneOf(['cityCenter', 'germanColony'], t('validation.branchOneOf'))
+        .oneOf(['cityCenter', 'germanColony', 'rachelImenu'], t('validation.branchOneOf'))
         .required(t('validation.branchRequired'))
 })
 

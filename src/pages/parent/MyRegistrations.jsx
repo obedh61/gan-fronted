@@ -26,7 +26,8 @@ const MyRegistrations = () => {
 
     const BRANCH_LABELS = useMemo(() => ({
         cityCenter: t('parent.myRegistrations.cityCenter'),
-        germanColony: t('parent.myRegistrations.germanColony')
+        germanColony: t('parent.myRegistrations.germanColony'),
+        rachelImenu: t('parent.myRegistrations.rachelImenu')
     }), [t])
     const AGE_LABELS = useMemo(() => ({
         under1: t('parent.myRegistrations.under1'),

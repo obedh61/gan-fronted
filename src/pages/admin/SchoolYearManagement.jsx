@@ -60,7 +60,9 @@ const SchoolYearManagement = () => {
         { key: 'cityCenterUnderOne', label: t('admin.schoolYear.contractCityCenterUnder1') },
         { key: 'cityCenterOverOne', label: t('admin.schoolYear.contractCityCenterOver1') },
         { key: 'germanColonyUnderOne', label: t('admin.schoolYear.contractGermanColonyUnder1') },
-        { key: 'germanColonyOverOne', label: t('admin.schoolYear.contractGermanColonyOver1') }
+        { key: 'germanColonyOverOne', label: t('admin.schoolYear.contractGermanColonyOver1') },
+        { key: 'rachelImenuUnderOne', label: t('admin.schoolYear.contractRachelImenuUnder1') },
+        { key: 'rachelImenuOverOne', label: t('admin.schoolYear.contractRachelImenuOver1') }
     ], [t])
 
     const MONTHS = useMemo(() => {

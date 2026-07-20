@@ -51,7 +51,8 @@ const ChildRegistration = () => {
     const STEPS = useMemo(() => t('parent.registration.steps', { returnObjects: true }), [t])
     const BRANCH_LABELS = useMemo(() => ({
         cityCenter: t('parent.registration.cityCenter'),
-        germanColony: t('parent.registration.germanColony')
+        germanColony: t('parent.registration.germanColony'),
+        rachelImenu: t('parent.registration.rachelImenu')
     }), [t])
     const AGE_LABELS = useMemo(() => ({
         under1: t('parent.registration.under1'),
@@ -446,6 +447,7 @@ const ChildRegistration = () => {
                                     >
                                         <FormControlLabel value="cityCenter" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{BRANCH_LABELS.cityCenter}</Typography>} />
                                         <FormControlLabel value="germanColony" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{BRANCH_LABELS.germanColony}</Typography>} />
+                                        <FormControlLabel value="rachelImenu" control={<Radio color="success" size="small" />} label={<Typography variant="body2">{BRANCH_LABELS.rachelImenu}</Typography>} />
                                     </RadioGroup>
                                     {formik.touched.branch && formik.errors.branch && (
                                         <Typography variant="caption" color="error">{formik.errors.branch}</Typography>
