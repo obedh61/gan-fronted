@@ -13,15 +13,23 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import WebIcon from '@mui/icons-material/Web';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '@mui/material/styles';
+import { isAuth } from '../pages/helpers';
 
 function MenuApp() {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  const auth = isAuth();
+  const registerTo = auth
+    ? (auth.role === 'admin' ? '/admin' : '/my-registrations')
+    : '/access';
 
   const items = [
     {
       icon: <AppRegistrationIcon sx={{ fontSize: { xs: 26, md: 34 } }} />,
       label: t('common.register'),
-      to: '/access',
+      to: registerTo,
       isLink: true,
       color: '#E08E79',
       shadow: 'rgba(224,142,121,0.35)',
@@ -61,7 +69,9 @@ function MenuApp() {
           position: 'relative',
           borderRadius: 5,
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #fffdf7 0%, #f0f9f4 100%)',
+          background: isDark
+            ? 'linear-gradient(135deg, #1d2a20 0%, #15211a 100%)'
+            : 'linear-gradient(135deg, #fffdf7 0%, #f0f9f4 100%)',
         }}
       >
         <Typography
@@ -71,7 +81,7 @@ function MenuApp() {
           sx={{
             textAlign: 'center',
             fontWeight: 800,
-            color: '#2e4a35',
+            color: isDark ? '#e8f0e9' : '#2e4a35',
             mb: 3,
             position: 'relative',
             zIndex: 2,
@@ -97,7 +107,7 @@ function MenuApp() {
                   textDecoration: 'none',
                   p: { xs: 1.25, md: 2.5 },
                   borderRadius: { xs: '18px', md: '24px' },
-                  bgcolor: '#fff',
+                  bgcolor: isDark ? '#223324' : '#fff',
                   border: { xs: '1px solid', md: '2px solid' },
                   borderColor: item.color,
                   boxShadow: { xs: `0 5px 0 ${item.color}, 0 8px 14px ${item.shadow}`, md: `0 8px 0 ${item.color}, 0 14px 20px ${item.shadow}` },

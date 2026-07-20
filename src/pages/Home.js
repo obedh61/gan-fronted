@@ -3,7 +3,6 @@ import ImgMediaCard from '../components/Card';
 import MenuApp from '../components/MenuApp';
 import { Box, Container, Grid, Stack, Typography } from '@mui/material';
 import useInfos from '../components/data'
-import { isAuth } from './helpers';
 import MontessoriComponent from '../components/Carucel';
 import ScheduleComponent from '../components/ScheduleComponent';
 import ContactMain from '../components/ContactMain';
@@ -19,11 +18,9 @@ function Home() {
 
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 4 } }}>
         <Stack spacing={{ xs: 6, md: 8 }}>
-          {!isAuth() && (
-            <Box>
-              <MenuApp />
-            </Box>
-          )}
+          <Box>
+            <MenuApp />
+          </Box>
 
           <Box>
             <ContactMain />
@@ -42,7 +39,7 @@ function Home() {
               variant="h4"
               component="h2"
               align="center"
-              sx={{ fontWeight: 700, color: '#2e4a35', mb: 4 }}
+              sx={{ fontWeight: 700, color: 'text.primary', mb: 4 }}
             >
               {t('home.discoverMore')}
             </Typography>

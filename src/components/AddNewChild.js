@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import AppToastContainer from './AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import { useTranslation } from 'react-i18next';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -133,7 +134,7 @@ export const AddNewChild = () => {
       >
         {t('legacy.addNewChild.addChild')}
       </Button>
-      <ToastContainer />
+      <AppToastContainer />
     </Box>
   );
 };

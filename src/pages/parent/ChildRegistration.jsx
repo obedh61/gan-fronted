@@ -4,7 +4,8 @@ import { getCookie } from '../helpers'
 import { useFormik } from 'formik'
 import { createRegistrationSchema, validatePDFFile } from '../../validation/registrationSchema'
 import DrawerAppBar from '../../components/Bar'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
+import AppToastContainer from '../../components/AppToastContainer'
 import 'react-toastify/dist/ReactToastify.css'
 import { useTranslation } from 'react-i18next'
 import {
@@ -86,6 +87,7 @@ const ChildRegistration = () => {
     const API = process.env.REACT_APP_API
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const isDark = theme.palette.mode === 'dark'
 
     // ============================================
     // FORMIK (Step 2)
@@ -284,8 +286,8 @@ const ChildRegistration = () => {
                                     variant="outlined"
                                     sx={{
                                         cursor: 'pointer',
-                                        border: selectedSchoolYearId === sy._id ? '2px solid #4A7B59' : '1px solid #e0e0e0',
-                                        backgroundColor: selectedSchoolYearId === sy._id ? '#e8f5e9' : 'transparent',
+                                        border: selectedSchoolYearId === sy._id ? '2px solid #4A7B59' : `1px solid ${isDark ? 'rgba(255,255,255,0.23)' : '#e0e0e0'}`,
+                                        backgroundColor: selectedSchoolYearId === sy._id ? (isDark ? 'rgba(102,187,106,0.15)' : '#e8f5e9') : 'transparent',
                                         '&:hover': { borderColor: '#4A7B59' }
                                     }}
                                     onClick={() => setSelectedSchoolYearId(sy._id)}
@@ -339,7 +341,7 @@ const ChildRegistration = () => {
                     </Box>
 
                     {/* Progress bar */}
-                    <Box sx={{ width: '100%', height: 4, backgroundColor: '#e0e0e0', borderRadius: 2, mb: 2 }}>
+                    <Box sx={{ width: '100%', height: 4, backgroundColor: isDark ? 'rgba(255,255,255,0.2)' : '#e0e0e0', borderRadius: 2, mb: 2 }}>
                         <Box sx={{
                             width: `${progress}%`,
                             height: '100%',
@@ -523,7 +525,7 @@ const ChildRegistration = () => {
                         </Alert>
                     )}
 
-                    <Box sx={{ backgroundColor: '#f5f5f5', borderRadius: 2, p: 2, mb: 2 }}>
+                    <Box sx={{ backgroundColor: 'action.hover', borderRadius: 2, p: 2, mb: 2 }}>
                         <Typography variant="body2" color="text.secondary">
                             {t('parent.registration.contractInstructions')}
                         </Typography>
@@ -615,7 +617,11 @@ const ChildRegistration = () => {
                             borderRadius: 2,
                             p: { xs: 2, sm: 4 },
                             mb: 2,
-                            backgroundColor: fileError ? '#fff5f5' : signedFile ? '#e8f5e9' : '#fafafa',
+                            backgroundColor: fileError
+                                ? (isDark ? 'rgba(244,67,54,0.12)' : '#fff5f5')
+                                : signedFile
+                                    ? (isDark ? 'rgba(102,187,106,0.15)' : '#e8f5e9')
+                                    : (isDark ? 'rgba(255,255,255,0.04)' : '#fafafa'),
                             transition: 'all 0.2s ease'
                         }}
                     >
@@ -797,7 +803,7 @@ const ChildRegistration = () => {
                     {/* Step Content */}
                     {stepContent[activeStep]()}
                 </Container>
-            </Box><ToastContainer />
+            </Box><AppToastContainer />
         </Box>
     )
 }

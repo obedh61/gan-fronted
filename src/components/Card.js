@@ -16,19 +16,23 @@ export default function ImgMediaCard({ title, image, description, link }) {
   return (
     <Grid item md={4} sm={6} xs={12}>
       <Card
-        sx={{
+        sx={(theme) => ({
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           borderRadius: 3,
           overflow: 'hidden',
-          boxShadow: '0 6px 24px rgba(0,0,0,0.08)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 6px 24px rgba(0,0,0,0.5)'
+            : '0 6px 24px rgba(0,0,0,0.08)',
           transition: 'transform 0.25s ease, box-shadow 0.25s ease',
           '&:hover': {
             transform: 'translateY(-6px)',
-            boxShadow: '0 14px 40px rgba(74,123,89,0.18)',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 14px 40px rgba(102,187,106,0.25)'
+              : '0 14px 40px rgba(74,123,89,0.18)',
           },
-        }}
+        })}
       >
         <CardMedia
           component="img"
@@ -46,7 +50,7 @@ export default function ImgMediaCard({ title, image, description, link }) {
             gutterBottom
             variant="h5"
             component="h3"
-            sx={{ fontWeight: 600, color: '#2e4a35' }}
+            sx={{ fontWeight: 600, color: 'text.primary' }}
           >
             {title}
           </Typography>

@@ -10,7 +10,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { Box, Button, Typography} from '@mui/material'
 import PasswordField from '../components/PasswordField'
 import DrawerAppBar from '../components/Bar'
-import { ToastContainer} from 'react-toastify';
+import AppToastContainer from '../components/AppToastContainer';
 
 function Reset() {
     const { t } = useTranslation()
@@ -62,7 +62,7 @@ function Reset() {
   return (
     <div style={{margin:10}}>
       <DrawerAppBar />
-      <ToastContainer />
+      <AppToastContainer />
       
         <Box 
           display="flex"
@@ -74,12 +74,17 @@ function Reset() {
           marginTop={13}
           padding={3}
           borderRadius={5}
-          boxShadow={"5px 5px 10px #ccc"}
-          sx={{
+          sx={(theme) => ({
+            backgroundColor: 'background.paper',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '5px 5px 14px rgba(0,0,0,0.6)'
+              : '5px 5px 10px #ccc',
             ":hover": {
-              boxShadow: "10px 10px 20px #ccc"
+              boxShadow: theme.palette.mode === 'dark'
+                ? '10px 10px 24px rgba(0,0,0,0.7)'
+                : '10px 10px 20px #ccc'
             }
-          }}
+          })}
         >
             <form>
                 <Box 

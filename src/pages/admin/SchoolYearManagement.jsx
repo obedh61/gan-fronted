@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { getCookie } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
+import AppToastContainer from '../../components/AppToastContainer'
 import 'react-toastify/dist/ReactToastify.css'
 import {
     Box, Container, Typography, Button, IconButton,
@@ -268,7 +269,7 @@ const SchoolYearManagement = () => {
                         <TableContainer component={Paper}>
                             <Table>
                                 <TableHead>
-                                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow sx={{ backgroundColor: 'action.hover' }}>
                                         <TableCell><strong>{t('admin.schoolYear.name')}</strong></TableCell>
                                         <TableCell><strong>{t('admin.schoolYear.start')}</strong></TableCell>
                                         <TableCell><strong>{t('admin.schoolYear.end')}</strong></TableCell>
@@ -494,7 +495,7 @@ const SchoolYearManagement = () => {
                         </DialogActions>
                     </Dialog>
                 </Container>
-            </Box><ToastContainer />
+            </Box><AppToastContainer />
         </Box>
     )
 }

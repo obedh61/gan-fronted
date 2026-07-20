@@ -4,7 +4,7 @@ import { AddWorker } from '../components/AddWorker';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { ToastContainer } from 'react-toastify';
+import AppToastContainer from '../components/AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Workers() {
@@ -31,7 +31,7 @@ function Workers() {
           </Box>
           <AddWorker />
         </Container>
-      </Box><ToastContainer />
+      </Box><AppToastContainer />
     </Box>
   );
 }

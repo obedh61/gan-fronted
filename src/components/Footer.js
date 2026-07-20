@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Button, Container, Grid, Typography, IconButton, Stack, Divider } from '@mui/material';
 import { green } from '@mui/material/colors';
+import { useTheme } from '@mui/material/styles';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import EmailIcon from '@mui/icons-material/Email';
@@ -12,6 +13,8 @@ const Footer = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
 
   const socialLinks = [
     { icon: <EmailIcon />, label: t('footer.email'), href: 'mailto:gansecondhome@gmail.com' },
@@ -24,7 +27,7 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        backgroundColor: green[500],
+        backgroundColor: isDark ? '#1b3a26' : green[500],
         color: 'white',
         width: '100%',
         py: 4,

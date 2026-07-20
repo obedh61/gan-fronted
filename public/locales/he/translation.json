@@ -45,6 +45,8 @@
     "remove": "הסר",
     "ongoing": "מתבצע",
     "na": "לא זמין",
+    "darkMode": "מצב כהה",
+    "lightMode": "מצב בהיר",
     "branchLabels": {
       "cityCenter": "מרכז העיר",
       "germanColony": "מושבה גרמנית",

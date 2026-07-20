@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { getCookie, formatDate } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
+import AppToastContainer from '../../components/AppToastContainer'
 import 'react-toastify/dist/ReactToastify.css'
 import {
     Box, Container, Typography, Button, Grid,
@@ -281,7 +282,7 @@ const SchoolYearDashboard = () => {
                                                     <TableContainer>
                                                         <Table size="small">
                                                             <TableHead>
-                                                                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                                                <TableRow sx={{ backgroundColor: 'action.hover' }}>
                                                                     <TableCell><strong>{t('admin.dashboard.branch')}</strong></TableCell>
                                                                     <TableCell align="center"><strong>{t('common.total')}</strong></TableCell>
                                                                     <TableCell align="center"><strong>{t('common.pending')}</strong></TableCell>
@@ -323,7 +324,7 @@ const SchoolYearDashboard = () => {
                                                     <TableContainer>
                                                         <Table size="small">
                                                             <TableHead>
-                                                                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                                                <TableRow sx={{ backgroundColor: 'action.hover' }}>
                                                                     <TableCell><strong>{t('admin.dashboard.ageGroup')}</strong></TableCell>
                                                                     <TableCell align="center"><strong>{t('common.total')}</strong></TableCell>
                                                                     <TableCell align="center"><strong>{t('common.pending')}</strong></TableCell>
@@ -384,7 +385,7 @@ const SchoolYearDashboard = () => {
                                         <TableContainer component={Paper}>
                                             <Table>
                                                 <TableHead>
-                                                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                                    <TableRow sx={{ backgroundColor: 'action.hover' }}>
                                                         <TableCell><strong>{t('admin.dashboard.childName')}</strong></TableCell>
                                                         <TableCell><strong>{t('admin.dashboard.parent1')}</strong></TableCell>
                                                         <TableCell><strong>{t('admin.dashboard.parent2')}</strong></TableCell>
@@ -446,7 +447,7 @@ const SchoolYearDashboard = () => {
                         </>
                     )}
                 </Container>
-            </Box><ToastContainer />
+            </Box><AppToastContainer />
         </Box>
     )
 }

@@ -9,8 +9,7 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'en',
-    lng: 'he', // Default to Hebrew for this Israeli app
+    fallbackLng: 'he', // Hebrew default when nothing is stored/detected
     supportedLngs: ['he', 'en'],
     debug: process.env.NODE_ENV === 'development',
     interpolation: {

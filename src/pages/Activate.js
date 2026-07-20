@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { decodeToken } from "react-jwt";
 import { Box, Button,  Typography } from '@mui/material'
 import LoginIcon from '@mui/icons-material/Login';
-import { ToastContainer} from 'react-toastify';
+import AppToastContainer from '../components/AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import DrawerAppBar from '../components/Bar'
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ function Activate() {
   return (
     <div style={{margin:10}}>
     <DrawerAppBar />
-    <ToastContainer />
+    <AppToastContainer />
     
       <Box 
         display="flex"
@@ -70,12 +70,17 @@ function Activate() {
         marginTop={13}
         padding={3}
         borderRadius={5}
-        boxShadow={"5px 5px 10px #ccc"}
-        sx={{
+        sx={(theme) => ({
+          backgroundColor: 'background.paper',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '5px 5px 14px rgba(0,0,0,0.6)'
+            : '5px 5px 10px #ccc',
           ":hover": {
-            boxShadow: "10px 10px 20px #ccc"
+            boxShadow: theme.palette.mode === 'dark'
+              ? '10px 10px 24px rgba(0,0,0,0.7)'
+              : '10px 10px 20px #ccc'
           }
-        }}
+        })}
       >
         <Typography variant='p' component="h1" padding={3} textAlign={"center"}>
             {t('auth.activateTitle', { name })}

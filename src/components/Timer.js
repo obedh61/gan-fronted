@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DrawerAppBar from './Bar';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import AppToastContainer from './AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import LoginIcon from '@mui/icons-material/Login';
@@ -16,7 +17,7 @@ import { apiFetch } from '../utils/apiFetch'
 
 const Timer = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [idNumber, setIdNumber] = useState('');
+  const [idNumber, setIdNumber] = useState(() => localStorage.getItem('timerIdNumber') || '');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [location, setLocation] = useState(null);
@@ -58,6 +59,7 @@ const Timer = () => {
       return;
     }
 
+    localStorage.setItem('timerIdNumber', idNumber.trim());
     setLoggedIn(true);
     toast.success('Login successful');
   };
@@ -182,12 +184,17 @@ const Timer = () => {
         marginTop={13}
         padding={3}
         borderRadius={5}
-        boxShadow={"5px 5px 10px #ccc"}
-        sx={{
+        sx={(theme) => ({
+          backgroundColor: 'background.paper',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '5px 5px 14px rgba(0,0,0,0.6)'
+            : '5px 5px 10px #ccc',
           ":hover": {
-            boxShadow: "10px 10px 20px #ccc"
+            boxShadow: theme.palette.mode === 'dark'
+              ? '10px 10px 24px rgba(0,0,0,0.7)'
+              : '10px 10px 20px #ccc'
           }
-        }}
+        })}
       >
         {!loggedIn ? (
           <Box display="flex" flexDirection={"column"}>
@@ -328,7 +335,7 @@ const Timer = () => {
             style={{ width: '100%', height: 'auto', opacity: 0.5 }}
           />
         </Box>
-      <ToastContainer />
+      <AppToastContainer />
     </div>
   );
 };

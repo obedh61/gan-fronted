@@ -20,6 +20,7 @@ const ScheduleComponent = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isDark = theme.palette.mode === 'dark';
 
   const schedules = [
     {
@@ -50,7 +51,9 @@ const ScheduleComponent = () => {
         py: { xs: 4, md: 6 },
         px: { xs: 2, md: 4 },
         borderRadius: { xs: 0, md: 4 },
-        background: 'linear-gradient(135deg, #ffffff 0%, #f4f8f5 100%)',
+        background: isDark
+          ? 'linear-gradient(135deg, #1d2a20 0%, #15211a 100%)'
+          : 'linear-gradient(135deg, #ffffff 0%, #f4f8f5 100%)',
         overflow: 'hidden',
       }}
     >
@@ -77,8 +80,8 @@ const ScheduleComponent = () => {
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: 'rgba(74,123,89,0.1)',
-            color: '#4A7B59',
+            bgcolor: isDark ? 'rgba(102,187,106,0.15)' : 'rgba(74,123,89,0.1)',
+            color: isDark ? '#66bb6a' : '#4A7B59',
             borderRadius: '50%',
             width: 56,
             height: 56,
@@ -92,7 +95,7 @@ const ScheduleComponent = () => {
           component="h2"
           sx={{
             fontWeight: 700,
-            color: '#2e4a35',
+            color: isDark ? '#e8f0e9' : '#2e4a35',
             fontSize: { xs: '1.75rem', md: '2.5rem' },
           }}
         >
@@ -123,7 +126,7 @@ const ScheduleComponent = () => {
                 transition: 'transform 0.25s ease, box-shadow 0.25s ease',
                 '&:hover': {
                   transform: 'translateY(-4px)',
-                  boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
+                  boxShadow: isDark ? '0 16px 40px rgba(0,0,0,0.55)' : '0 16px 40px rgba(0,0,0,0.12)',
                 },
               }}
             >
@@ -155,9 +158,13 @@ const ScheduleComponent = () => {
                       justifyContent: 'space-between',
                       gap: isMobile ? 1 : 2,
                       p: 3,
-                      borderBottom: index < schedule.rows.length - 1 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                      borderBottom: index < schedule.rows.length - 1
+                        ? (isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid rgba(0,0,0,0.08)')
+                        : 'none',
                       borderRadius: 0,
-                      bgcolor: index % 2 === 0 ? 'rgba(74,123,89,0.03)' : '#fff',
+                      bgcolor: index % 2 === 0
+                        ? (isDark ? 'rgba(102,187,106,0.08)' : 'rgba(74,123,89,0.03)')
+                        : (isDark ? '#223324' : '#fff'),
                     }}
                   >
                     <Typography
@@ -165,7 +172,7 @@ const ScheduleComponent = () => {
                       component="p"
                       sx={{
                         fontWeight: 600,
-                        color: '#2e4a35',
+                        color: isDark ? '#e8f0e9' : '#2e4a35',
                         textAlign: isMobile ? 'center' : 'left',
                       }}
                     >
@@ -176,8 +183,8 @@ const ScheduleComponent = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
-                        bgcolor: 'rgba(74,123,89,0.1)',
-                        color: '#2e4a35',
+                        bgcolor: isDark ? 'rgba(102,187,106,0.15)' : 'rgba(74,123,89,0.1)',
+                        color: isDark ? '#e8f0e9' : '#2e4a35',
                         px: 2,
                         py: 1,
                         borderRadius: 2,

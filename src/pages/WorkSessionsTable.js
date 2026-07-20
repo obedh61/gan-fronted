@@ -4,7 +4,8 @@ import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableC
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import apiFetch from '../utils/apiFetch';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import AppToastContainer from '../components/AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import DrawerAppBar from '../components/Bar';
 
@@ -283,7 +284,7 @@ const WorkSessionsTable = () => {
           </TableContainer>
 
           {/* Toast notifications */}
-          <ToastContainer />
+          <AppToastContainer />
         </Box>
       </Box></Box>
   );

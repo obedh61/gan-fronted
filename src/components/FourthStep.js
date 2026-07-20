@@ -4,7 +4,7 @@ import { multiStepContext } from '../StepContext'
 import SignatureCanvas from 'react-signature-canvas'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer} from 'react-toastify';
+import AppToastContainer from './AppToastContainer';
 import { useTranslation } from 'react-i18next'
 
 export default function FourthStep() {
@@ -30,7 +30,7 @@ export default function FourthStep() {
     console.log(sigRef);
   return (
     <div style={{margin:"3px", padding:"5px"}}>
-        <ToastContainer />
+        <AppToastContainer />
         <div style={{margin:"5px", border:"1px solid gray", width:"200px", height:"200px"}}>
             <SignatureCanvas 
                 ref={sigRef} 

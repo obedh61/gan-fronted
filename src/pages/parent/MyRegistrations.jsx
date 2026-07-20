@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie, formatDate } from '../helpers'
 import DrawerAppBar from '../../components/Bar'
-import { ToastContainer, toast } from 'react-toastify'
+import { toast } from 'react-toastify'
+import AppToastContainer from '../../components/AppToastContainer'
 import 'react-toastify/dist/ReactToastify.css'
 import { useTranslation } from 'react-i18next'
 import {
@@ -484,7 +485,7 @@ const MyRegistrations = () => {
                         </DialogActions>
                     </Dialog>
                 </Container>
-            </Box><ToastContainer />
+            </Box><AppToastContainer />
         </Box>
     )
 }

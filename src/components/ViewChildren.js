@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import AppToastContainer from './AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import { useTranslation } from 'react-i18next';
 
@@ -82,7 +83,7 @@ export const ViewChildren = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <ToastContainer />
+      <AppToastContainer />
     </Box>
   );
 };

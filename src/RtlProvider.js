@@ -7,7 +7,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { createAppTheme } from './theme';
 
-function RtlProvider({ direction, children }) {
+function RtlProvider({ direction, mode, children }) {
   const isRtl = direction === 'rtl';
 
   const cache = React.useMemo(
@@ -19,7 +19,7 @@ function RtlProvider({ direction, children }) {
     [isRtl]
   );
 
-  const theme = React.useMemo(() => createAppTheme(direction), [direction]);
+  const theme = React.useMemo(() => createAppTheme(direction, mode), [direction, mode]);
 
   return (
     <CacheProvider value={cache}>

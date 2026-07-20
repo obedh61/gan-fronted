@@ -83,7 +83,7 @@ function AccessibilityWidget() {
     color: active ? '#fff' : 'text.primary',
     backgroundColor: active ? '#4A7B59' : 'transparent',
     border: '1px solid',
-    borderColor: active ? '#4A7B59' : 'rgba(0,0,0,0.12)',
+    borderColor: active ? '#4A7B59' : 'divider',
     '&:hover': {
       backgroundColor: active ? '#3d664a' : 'rgba(74,123,89,0.08)',
     },

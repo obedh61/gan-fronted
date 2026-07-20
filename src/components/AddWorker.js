@@ -167,7 +167,7 @@ export const AddWorker = () => {
         <TableContainer component={Paper} variant="outlined">
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+              <TableRow sx={{ backgroundColor: 'action.hover' }}>
                 <TableCell><strong>{t('admin.workers.number')}</strong></TableCell>
                 <TableCell><strong>{t('admin.workers.name')}</strong></TableCell>
                 <TableCell><strong>{t('admin.workers.idNumber')}</strong></TableCell>

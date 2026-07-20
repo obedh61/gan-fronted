@@ -4,7 +4,8 @@ import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableC
 import EditIcon from '@mui/icons-material/Edit';
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+import AppToastContainer from '../components/AppToastContainer';
 import 'react-toastify/dist/ReactToastify.css';
 import DrawerAppBar from '../components/Bar';
 import Map from '../components/Map'; // Importar el componente Map para mostrar ubicaciones
@@ -438,7 +439,7 @@ const PrivateSession = () => {
           <Button onClick={handleEditClose}>{t('common.cancel')}</Button>
           <Button onClick={handleEditSubmit} variant="contained" color="success">{t('common.save')}</Button>
         </DialogActions>
-      </Dialog><ToastContainer />
+      </Dialog><AppToastContainer />
     </Box>
   );
 };

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer} from 'react-toastify';
+import AppToastContainer from './AppToastContainer';
 
 
 function Signup() {
@@ -66,7 +66,7 @@ function Signup() {
               {isSubmitting ? t('auth.submitting') : t('common.signUp')}
             </Button>
         </Box>
-        <ToastContainer/>
+        <AppToastContainer />
     </form>
   )
 }

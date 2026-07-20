@@ -23,11 +23,15 @@ import PeopleIcon from '@mui/icons-material/People';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import Tooltip from '@mui/material/Tooltip';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { isAuth, signout, getCookie } from '../pages/helpers';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useColorMode } from '../ColorModeContext';
 
 const drawerWidth = 240;
 const navItems = [
@@ -52,6 +56,18 @@ function DrawerAppBar(props) {
   const token = getCookie('token');
   const API = process.env.REACT_APP_API;
   const { t } = useTranslation();
+  const { mode, toggleColorMode } = useColorMode();
+  const colorModeToggle = (
+    <Tooltip title={mode === 'dark' ? t('common.lightMode') : t('common.darkMode')}>
+      <IconButton
+        color="inherit"
+        aria-label={mode === 'dark' ? t('common.lightMode') : t('common.darkMode')}
+        onClick={toggleColorMode}
+      >
+        {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+      </IconButton>
+    </Tooltip>
+  );
 
   React.useEffect(() => {
     if (!token || !API) return;
@@ -215,8 +231,22 @@ function DrawerAppBar(props) {
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ display: { xs: 'flex', sm: 'none' }, marginInlineStart: 'auto' }}>
+          <Box sx={{ display: { xs: 'flex', sm: 'none' }, marginInlineStart: 'auto', alignItems: 'center' }}>
             <LanguageSwitcher />
+            {colorModeToggle}
+            {auth && (
+              <IconButton
+                color="inherit"
+                aria-label={t('common.signOut')}
+                onClick={() => {
+                  signout(() => {
+                    navigate('/home');
+                  });
+                }}
+              >
+                <ExitToAppIcon />
+              </IconButton>
+            )}
           </Box>
           <Typography
             variant="h6"
@@ -315,6 +345,7 @@ function DrawerAppBar(props) {
             )}
 
             <LanguageSwitcher />
+            {colorModeToggle}
             {auth && (
               <Button
                 key="sign out"

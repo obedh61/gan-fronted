@@ -21,6 +21,7 @@ const MontessoriComponent = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isDark = theme.palette.mode === 'dark';
 
   const images = [
     { src: Env, caption: t('home.carouselCaption1') },
@@ -36,7 +37,7 @@ const MontessoriComponent = () => {
         height: { xs: 280, sm: 360, md: 420 },
         borderRadius: 4,
         overflow: 'hidden',
-        boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
+        boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.55)' : '0 12px 40px rgba(0,0,0,0.15)',
       }}
     >
       <CardMedia
@@ -80,7 +81,9 @@ const MontessoriComponent = () => {
         py: { xs: 6, md: 8 },
         px: { xs: 2, md: 4 },
         borderRadius: { xs: 0, md: 4 },
-        background: 'linear-gradient(135deg, #f8faf8 0%, #eef4ee 100%)',
+        background: isDark
+          ? 'linear-gradient(135deg, #1d2a20 0%, #15211a 100%)'
+          : 'linear-gradient(135deg, #f8faf8 0%, #eef4ee 100%)',
         overflow: 'hidden',
       }}
     >
@@ -106,7 +109,7 @@ const MontessoriComponent = () => {
           variant="overline"
           display="block"
           noWrap
-          sx={{ color: '#4A7B59', letterSpacing: 2, fontWeight: 600, mb: 1, fontSize: { xs: '0.65rem', md: '0.75rem' } }}
+          sx={{ color: isDark ? '#66bb6a' : '#4A7B59', letterSpacing: 2, fontWeight: 600, mb: 1, fontSize: { xs: '0.65rem', md: '0.75rem' } }}
         >
           {t('home.menuTitle')}
         </Typography>
@@ -115,7 +118,7 @@ const MontessoriComponent = () => {
           component="h2"
           sx={{
             fontWeight: 700,
-            color: '#2e4a35',
+            color: isDark ? '#e8f0e9' : '#2e4a35',
             fontSize: { xs: '1.75rem', md: '2.5rem' },
           }}
         >
@@ -142,31 +145,31 @@ const MontessoriComponent = () => {
               height: '100%',
               position: 'relative',
               borderRadius: 4,
-              backgroundColor: 'rgba(255,255,255,0.85)',
+              backgroundColor: isDark ? 'rgba(29,42,32,0.85)' : 'rgba(255,255,255,0.85)',
               backdropFilter: 'blur(4px)',
               p: { xs: 2, md: 3 },
-              boxShadow: '0 8px 32px rgba(74,123,89,0.10)',
-              border: '1px solid rgba(74,123,89,0.12)',
+              boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(74,123,89,0.10)',
+              border: isDark ? '1px solid rgba(102,187,106,0.25)' : '1px solid rgba(74,123,89,0.12)',
             }}
           >
             <CardContent sx={{ position: 'relative', zIndex: 2 }}>
               <Typography
                 variant="body1"
                 paragraph
-                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: '#3a4a3e' }}
+                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: isDark ? '#c9d8cc' : '#3a4a3e' }}
               >
                 {t('home.montessoriBody1')}
               </Typography>
               <Typography
                 variant="body1"
                 paragraph
-                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: '#3a4a3e' }}
+                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: isDark ? '#c9d8cc' : '#3a4a3e' }}
               >
                 {t('home.montessoriBody2')}
               </Typography>
               <Typography
                 variant="body1"
-                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: '#3a4a3e' }}
+                sx={{ fontSize: '1.05rem', lineHeight: 1.8, color: isDark ? '#c9d8cc' : '#3a4a3e' }}
               >
                 {t('home.montessoriBody3')}
               </Typography>
@@ -208,17 +211,17 @@ const MontessoriComponent = () => {
             }}
             indicatorIconButtonProps={{
               style: {
-                color: 'rgba(74,123,89,0.4)',
+                color: isDark ? 'rgba(102,187,106,0.4)' : 'rgba(74,123,89,0.4)',
                 padding: '4px',
               },
             }}
             activeIndicatorIconButtonProps={{
-              style: { color: '#4A7B59' },
+              style: { color: isDark ? '#66bb6a' : '#4A7B59' },
             }}
             navButtonsProps={{
               style: {
-                backgroundColor: 'rgba(255,255,255,0.85)',
-                color: '#4A7B59',
+                backgroundColor: isDark ? 'rgba(29,42,32,0.85)' : 'rgba(255,255,255,0.85)',
+                color: isDark ? '#66bb6a' : '#4A7B59',
                 borderRadius: '50%',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
               },
