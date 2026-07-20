@@ -4,6 +4,7 @@ import MenuApp from '../components/MenuApp';
 import { Box, Container, Grid, Stack, Typography } from '@mui/material';
 import useInfos from '../components/data'
 import MontessoriComponent from '../components/Carucel';
+import WelcomeSection from '../components/WelcomeSection';
 import ScheduleComponent from '../components/ScheduleComponent';
 import ContactMain from '../components/ContactMain';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,10 @@ function Home() {
 
           <Box>
             <MontessoriComponent />
+          </Box>
+
+          <Box>
+            <WelcomeSection />
           </Box>
 
           <Box>
