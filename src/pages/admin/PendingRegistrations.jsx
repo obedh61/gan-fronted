@@ -157,6 +157,24 @@ const PendingRegistrations = () => {
         window.open(url, '_blank')
     }
 
+    // Re-resolve the assigned contract in the current UI language;
+    // fall back to the stored snapshot if it can't be resolved
+    const viewAssignedContract = (reg) => {
+        const schoolYearId = reg.schoolYear?._id || reg.schoolYear
+        if (!schoolYearId || !reg.branch || !reg.ageGroup) {
+            viewPDF(reg.assignedContractUrl)
+            return
+        }
+        axios.get(`${API}/schoolyear/${schoolYearId}/contract`, {
+            headers,
+            params: { branch: reg.branch, ageGroup: reg.ageGroup }
+        })
+            .then(response => {
+                viewPDF(response.data.data?.contractUrl || reg.assignedContractUrl)
+            })
+            .catch(() => viewPDF(reg.assignedContractUrl))
+    }
+
     useEffect(() => {
         fetchRegistrations()
     }, [fetchRegistrations])
@@ -465,7 +483,7 @@ const PendingRegistrations = () => {
                                             size="small"
                                             variant="outlined"
                                             startIcon={<VisibilityIcon />}
-                                            onClick={() => viewPDF(selected.assignedContractUrl)}
+                                            onClick={() => viewAssignedContract(selected)}
                                             fullWidth={isMobile}
                                         >
                                             {t('admin.registrations.viewAssignedContract')}

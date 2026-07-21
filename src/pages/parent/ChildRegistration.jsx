@@ -47,18 +47,30 @@ const fieldEndAdornment = (touched, error, value) => {
 }
 
 const ChildRegistration = () => {
-    const { t } = useTranslation()
+    const { t, i18n, ready } = useTranslation()
 
-    const STEPS = useMemo(() => t('parent.registration.steps', { returnObjects: true }), [t])
-    const BRANCH_LABELS = useMemo(() => ({
-        cityCenter: t('parent.registration.cityCenter'),
-        germanColony: t('parent.registration.germanColony'),
-        rachelImenu: t('parent.registration.rachelImenu')
-    }), [t])
-    const AGE_LABELS = useMemo(() => ({
-        under1: t('parent.registration.under1'),
-        over1: t('parent.registration.over1')
-    }), [t])
+    // Translations load async (useSuspense: false); on hard reload t() may
+    // return the raw key string until resources arrive — guard against that
+    const STEPS = useMemo(() => {
+        if (!ready) return []
+        const steps = t('parent.registration.steps', { returnObjects: true })
+        return Array.isArray(steps) ? steps : []
+    }, [t, ready])
+    const BRANCH_LABELS = useMemo(() => {
+        if (!ready) return {}
+        return {
+            cityCenter: t('parent.registration.cityCenter'),
+            germanColony: t('parent.registration.germanColony'),
+            rachelImenu: t('parent.registration.rachelImenu')
+        }
+    }, [t, ready])
+    const AGE_LABELS = useMemo(() => {
+        if (!ready) return {}
+        return {
+            under1: t('parent.registration.under1'),
+            over1: t('parent.registration.over1')
+        }
+    }, [t, ready])
 
     const [activeStep, setActiveStep] = useState(0)
     const [schoolYears, setSchoolYears] = useState([])
@@ -125,9 +137,12 @@ const ChildRegistration = () => {
     }, [API, headers, t])
 
     const fetchContractUrl = useCallback((schoolYearId, branch, ageGroup) => {
+        // Clear any stale URL so the download button never points to
+        // a contract in the wrong language while refetching
+        setContractUrl('')
         axios.get(`${API}/schoolyear/${schoolYearId}/contract`, {
             headers,
-            params: { branch, ageGroup }
+            params: { branch, ageGroup, lang: i18n.language }
         })
             .then(response => {
                 setContractUrl(response.data.data?.contractUrl || '')
@@ -136,7 +151,7 @@ const ChildRegistration = () => {
                 console.error('Error fetching contract:', error)
                 setContractUrl('')
             })
-    }, [API, headers])
+    }, [API, headers, i18n.language])
 
     const submitRegistration = () => {
         if (!signedFile) {

@@ -66,6 +66,11 @@ const SchoolYearManagement = () => {
         { key: 'rachelImenuOverOne', label: t('admin.schoolYear.contractRachelImenuOver1') }
     ], [t])
 
+    const CONTRACT_LANGS = useMemo(() => [
+        { key: 'en', field: 'contracts', label: t('admin.schoolYear.langEnglish') },
+        { key: 'he', field: 'contractsHe', label: t('admin.schoolYear.langHebrew') }
+    ], [t])
+
     const MONTHS = useMemo(() => {
         const labels = t('schoolYearMonths', { returnObjects: true })
         if (Array.isArray(labels) && labels.length === MONTH_VALUES.length) {
@@ -153,12 +158,14 @@ const SchoolYearManagement = () => {
             })
     }
 
-    const uploadContract = (schoolYearId, contractType, file) => {
+    const uploadContract = (schoolYearId, contractType, lang, file) => {
+        const uploadKey = `${lang}.${contractType}`
         const formData = new FormData()
         formData.append('contract', file)
         formData.append('contractType', contractType)
+        formData.append('lang', lang)
 
-        setUploading(prev => ({ ...prev, [contractType]: true }))
+        setUploading(prev => ({ ...prev, [uploadKey]: true }))
 
         axios.post(
             `${process.env.REACT_APP_API}/schoolyear/${schoolYearId}/upload-contract`,
@@ -172,12 +179,12 @@ const SchoolYearManagement = () => {
                 setSchoolYears(prev => prev.map(sy =>
                     sy._id === updated._id ? updated : sy
                 ))
-                setUploading(prev => ({ ...prev, [contractType]: false }))
+                setUploading(prev => ({ ...prev, [uploadKey]: false }))
             })
             .catch(error => {
                 console.error('Error uploading contract:', error)
                 toast.error(error.response?.data?.error || t('admin.schoolYear.uploadError'))
-                setUploading(prev => ({ ...prev, [contractType]: false }))
+                setUploading(prev => ({ ...prev, [uploadKey]: false }))
             })
     }
 
@@ -193,7 +200,7 @@ const SchoolYearManagement = () => {
     // HANDLERS
     // ============================================
 
-    const handleFileChange = (contractType, e) => {
+    const handleFileChange = (contractType, lang, e) => {
         const file = e.target.files[0]
         if (!file) return
         if (file.type !== 'application/pdf') {
@@ -204,7 +211,7 @@ const SchoolYearManagement = () => {
             toast.error(t('admin.schoolYear.maxFileSize'))
             return
         }
-        uploadContract(selectedYear._id, contractType, file)
+        uploadContract(selectedYear._id, contractType, lang, file)
         e.target.value = ''
     }
 
@@ -280,9 +287,12 @@ const SchoolYearManagement = () => {
                                 </TableHead>
                                 <TableBody>
                                     {schoolYears.map(sy => {
-                                        const contractCount = CONTRACT_TYPES.filter(
-                                            ct => sy.contracts && sy.contracts[ct.key]
-                                        ).length
+                                        const contractCount = CONTRACT_TYPES.reduce(
+                                            (sum, ct) => sum + CONTRACT_LANGS.filter(
+                                                lang => sy[lang.field] && sy[lang.field][ct.key]
+                                            ).length,
+                                            0
+                                        )
                                         return (
                                             <TableRow key={sy._id} hover>
                                                 <TableCell>{sy.name}</TableCell>
@@ -416,59 +426,69 @@ const SchoolYearManagement = () => {
                             {t('admin.schoolYear.contractsTitle', { name: selectedYear?.name })}
                         </DialogTitle>
                         <DialogContent sx={{ px: { xs: 1.5, sm: 3 } }}>
-                            {CONTRACT_TYPES.map(ct => {
-                                const url = selectedYear?.contracts?.[ct.key]
-                                const isUploading = uploading[ct.key]
-                                return (
-                                    <Card key={ct.key} variant="outlined" sx={{ mb: 2, mt: 1 }}>
-                                        <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, px: { xs: 1.5, sm: 2 } }}>
-                                            <Box display="flex" alignItems="center" gap={1} mb={{ xs: 1, sm: 0 }} flexWrap="wrap"
-                                                sx={{ justifyContent: { sm: 'space-between' } }}
-                                            >
-                                                <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-                                                    {url ? (
-                                                        <CheckCircleIcon color="success" fontSize="small" />
-                                                    ) : (
-                                                        <CancelIcon color="error" fontSize="small" />
-                                                    )}
-                                                    <Typography variant="body2">
-                                                        {ct.label}
-                                                    </Typography>
-                                                    {url && (
-                                                        <Chip label={t('admin.schoolYear.uploaded')} size="small" color="success" variant="outlined" />
-                                                    )}
-                                                </Box>
-                                                <Box display="flex" gap={1}>
-                                                    {url && (
+                            {CONTRACT_TYPES.map(ct => (
+                                <Card key={ct.key} variant="outlined" sx={{ mb: 2, mt: 1 }}>
+                                    <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 }, px: { xs: 1.5, sm: 2 } }}>
+                                        <Typography variant="body2" fontWeight="bold" mb={1}>
+                                            {ct.label}
+                                        </Typography>
+                                        {CONTRACT_LANGS.map(lang => {
+                                            const url = selectedYear?.[lang.field]?.[ct.key]
+                                            const isUploading = uploading[`${lang.key}.${ct.key}`]
+                                            return (
+                                                <Box
+                                                    key={lang.key}
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    gap={1}
+                                                    flexWrap="wrap"
+                                                    sx={{ justifyContent: { sm: 'space-between' }, mb: 1, '&:last-child': { mb: 0 } }}
+                                                >
+                                                    <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
+                                                        {url ? (
+                                                            <CheckCircleIcon color="success" fontSize="small" />
+                                                        ) : (
+                                                            <CancelIcon color="error" fontSize="small" />
+                                                        )}
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {lang.label}
+                                                        </Typography>
+                                                        {url && (
+                                                            <Chip label={t('admin.schoolYear.uploaded')} size="small" color="success" variant="outlined" />
+                                                        )}
+                                                    </Box>
+                                                    <Box display="flex" gap={1}>
+                                                        {url && (
+                                                            <Button
+                                                                size="small"
+                                                                startIcon={<VisibilityIcon />}
+                                                                onClick={() => viewContract(url)}
+                                                            >
+                                                                {t('admin.schoolYear.view')}
+                                                            </Button>
+                                                        )}
                                                         <Button
                                                             size="small"
-                                                            startIcon={<VisibilityIcon />}
-                                                            onClick={() => viewContract(url)}
+                                                            variant="outlined"
+                                                            component="label"
+                                                            startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
+                                                            disabled={isUploading}
                                                         >
-                                                            {t('admin.schoolYear.view')}
+                                                            {url ? t('admin.schoolYear.replace') : t('admin.schoolYear.upload')}
+                                                            <input
+                                                                type="file"
+                                                                accept="application/pdf"
+                                                                hidden
+                                                                onChange={(e) => handleFileChange(ct.key, lang.key, e)}
+                                                            />
                                                         </Button>
-                                                    )}
-                                                    <Button
-                                                        size="small"
-                                                        variant="outlined"
-                                                        component="label"
-                                                        startIcon={isUploading ? <CircularProgress size={16} /> : <CloudUploadIcon />}
-                                                        disabled={isUploading}
-                                                    >
-                                                        {url ? t('admin.schoolYear.replace') : t('admin.schoolYear.upload')}
-                                                        <input
-                                                            type="file"
-                                                            accept="application/pdf"
-                                                            hidden
-                                                            onChange={(e) => handleFileChange(ct.key, e)}
-                                                        />
-                                                    </Button>
+                                                    </Box>
                                                 </Box>
-                                            </Box>
-                                        </CardContent>
-                                    </Card>
-                                )
-                            })}
+                                            )
+                                        })}
+                                    </CardContent>
+                                </Card>
+                            ))}
                         </DialogContent>
                         <DialogActions>
                             <Button onClick={() => setContractOpen(false)} variant="contained">

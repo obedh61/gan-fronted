@@ -117,6 +117,24 @@ const MyRegistrations = () => {
         window.open(url, '_blank')
     }
 
+    // Re-resolve the assigned contract in the current UI language;
+    // fall back to the stored snapshot if it can't be resolved
+    const viewAssignedContract = (reg) => {
+        const schoolYearId = reg.schoolYear?._id || reg.schoolYear
+        if (!schoolYearId || !reg.branch || !reg.ageGroup) {
+            viewPDF(reg.assignedContractUrl)
+            return
+        }
+        axios.get(`${API}/schoolyear/${schoolYearId}/contract`, {
+            headers,
+            params: { branch: reg.branch, ageGroup: reg.ageGroup }
+        })
+            .then(response => {
+                viewPDF(response.data.data?.contractUrl || reg.assignedContractUrl)
+            })
+            .catch(() => viewPDF(reg.assignedContractUrl))
+    }
+
     const handlePageChange = (event, value) => {
         setPage(value)
         fetchMyRegistrations(value)
@@ -448,7 +466,7 @@ const MyRegistrations = () => {
                                             size="small"
                                             variant="outlined"
                                             startIcon={<DescriptionIcon />}
-                                            onClick={() => viewPDF(selected.assignedContractUrl)}
+                                            onClick={() => viewAssignedContract(selected)}
                                         >
                                             {t('parent.myRegistrations.viewAssignedContract')}
                                         </Button>
