@@ -587,10 +587,19 @@
       "elapsedTime": "זמן שחלף",
       "statusNotStarted": "טרם התחיל",
       "statusActive": "פעיל",
-      "statusCompleted": "הושלם"
+      "statusCompleted": "הושלם",
+      "hiName": "היי, {{name}}",
+      "idNotFound": "מספר ת.ז. לא נמצא. אנא בדוק את המספר",
+      "pressStart": "לחץ על 'התחל משמרת' כדי להתחיל",
+      "shiftProgress": "{{percent}}% מתוך משמרת של {{hours}} שעות",
+      "thisWeek": "השבוע",
+      "thisMonth": "החודש",
+      "greatJob": "כל הכבוד! המשמרת הושלמה",
+      "sessionSaved": "זמן העבודה שלך נשמר בהצלחה."
     },
     "sessions": {
       "title": "דוח משמרות עבודה",
+      "goToTimer": "מעבר לשעון",
       "idNumber": "מספר ת.ז.",
       "year": "שנה",
       "month": "חודש",

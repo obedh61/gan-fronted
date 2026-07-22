@@ -587,10 +587,19 @@
       "elapsedTime": "Elapsed time",
       "statusNotStarted": "Not started",
       "statusActive": "Active",
-      "statusCompleted": "Completed"
+      "statusCompleted": "Completed",
+      "hiName": "Hi, {{name}}",
+      "idNotFound": "ID not found. Please check your ID number",
+      "pressStart": "Press Start Work to begin",
+      "shiftProgress": "{{percent}}% of a {{hours}}h shift",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "greatJob": "Great job! Session completed",
+      "sessionSaved": "Your work time has been saved successfully."
     },
     "sessions": {
       "title": "Work Sessions Report",
+      "goToTimer": "Go to Timer",
       "idNumber": "ID Number",
       "year": "Year",
       "month": "Month",

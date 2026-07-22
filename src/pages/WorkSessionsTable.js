@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'
 import { Box, Button, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import apiFetch from '../utils/apiFetch';
 import { toast } from 'react-toastify';
 import AppToastContainer from '../components/AppToastContainer';
@@ -179,6 +181,37 @@ const WorkSessionsTable = () => {
           <Typography variant="h4" align="center" gutterBottom color="#4A7B59">
             {t('worker.sessions.title')}
           </Typography>
+
+          <Box display="flex" justifyContent="center">
+            <Button
+              component={Link}
+              to={'/timer'}
+              variant="contained"
+              startIcon={<AccessTimeIcon />}
+              sx={(theme) => ({
+                marginBottom: 2,
+                borderRadius: 3,
+                paddingY: 1.2,
+                fontWeight: 'bold',
+                letterSpacing: 0.5,
+                textTransform: 'uppercase',
+                background: 'linear-gradient(90deg, #2e7d32 0%, #66bb6a 100%)',
+                boxShadow: theme.palette.mode === 'dark'
+                  ? '0 4px 14px rgba(102,187,106,0.35)'
+                  : '0 4px 14px rgba(46,125,50,0.35)',
+                transition: 'all 0.2s ease-in-out',
+                ':hover': {
+                  background: 'linear-gradient(90deg, #1b5e20 0%, #43a047 100%)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 20px rgba(102,187,106,0.5)'
+                    : '0 6px 20px rgba(46,125,50,0.5)',
+                  transform: 'translateY(-2px)',
+                },
+              })}
+            >
+              {t('worker.sessions.goToTimer')}
+            </Button>
+          </Box>
 
           {/* Input Fields for ID, Year, and Month */}
           <Box display="flex" flexDirection="column" alignItems="center">
