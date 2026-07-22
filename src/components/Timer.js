@@ -496,14 +496,39 @@ const Timer = () => {
             ) : !endTime ? (
               <Button
                 onClick={handleEnd}
-                endIcon={!loading && <PanToolIcon />}
-                sx={{ marginTop: 1, borderRadius: 3 }}
+                endIcon={!loading && <PanToolIcon sx={{ fontSize: 32 }} />}
+                fullWidth
+                sx={(theme) => ({
+                  marginTop: 1,
+                  borderRadius: 4,
+                  paddingY: 2.5,
+                  fontSize: '1.4rem',
+                  fontWeight: 'bold',
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                  background: 'linear-gradient(90deg, #c62828 0%, #ef5350 100%)',
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 6px 18px rgba(239,83,80,0.4)'
+                    : '0 6px 18px rgba(198,40,40,0.4)',
+                  transition: 'all 0.2s ease-in-out',
+                  ':hover': {
+                    background: 'linear-gradient(90deg, #8e0000 0%, #d32f2f 100%)',
+                    boxShadow: theme.palette.mode === 'dark'
+                      ? '0 8px 24px rgba(239,83,80,0.55)'
+                      : '0 8px 24px rgba(198,40,40,0.55)',
+                    transform: 'translateY(-2px)',
+                  },
+                  // MUI caps button icon sizes; override so the icon matches the large button
+                  '& .MuiButton-endIcon > *:nth-of-type(1)': {
+                    fontSize: 32,
+                  },
+                })}
                 variant="contained"
                 color="error"
                 disabled={loading}
               >
                 {loading ? (
-                  <CircularProgress size={24} color="inherit" />
+                  <CircularProgress size={32} color="inherit" />
                 ) : (
                   t('worker.timer.endWork')
                 )}
