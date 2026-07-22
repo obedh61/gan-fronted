@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.38553926.css",
-    "main.js": "/static/js/main.c6b6cddf.js",
+    "main.js": "/static/js/main.f84cdddb.js",
     "static/js/453.258b012d.chunk.js": "/static/js/453.258b012d.chunk.js",
     "static/media/montessori.jpg": "/static/media/montessori.a34327c4e6a9d7d9c9e0.jpg",
     "static/media/juguetes-montessori-2.jpg": "/static/media/juguetes-montessori-2.6d2730311f5d4458fd17.jpg",
@@ -19,11 +19,11 @@
     "index.html": "/index.html",
     "static/media/getFetch.cjs": "/static/media/getFetch.c4cca45e22bc1b2c7d0d.cjs",
     "main.38553926.css.map": "/static/css/main.38553926.css.map",
-    "main.c6b6cddf.js.map": "/static/js/main.c6b6cddf.js.map",
+    "main.f84cdddb.js.map": "/static/js/main.f84cdddb.js.map",
     "453.258b012d.chunk.js.map": "/static/js/453.258b012d.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.38553926.css",
-    "static/js/main.c6b6cddf.js"
+    "static/js/main.f84cdddb.js"
   ]
 }
