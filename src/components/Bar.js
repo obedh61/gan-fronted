@@ -20,6 +20,7 @@ import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -32,6 +33,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useColorMode } from '../ColorModeContext';
+import useIsBlocked from '../hooks/useIsBlocked';
 
 const drawerWidth = 240;
 const navItems = [
@@ -51,6 +53,7 @@ function DrawerAppBar(props) {
   const isActive = (path) => location.pathname === path;
   const auth = isAuth();
   const isAdmin = auth && auth.role === 'admin';
+  const isBlocked = useIsBlocked();
   const isLoggedIn = !!auth;
   const isOnAdminPage = isActive('/admin');
   const token = getCookie('token');
@@ -157,6 +160,14 @@ function DrawerAppBar(props) {
                 </ListItemButton>
               </ListItem>
             )}
+            {!isActive('/admin/users') && (
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin/users">
+                  <ListItemIcon sx={{ minWidth: 36 }}><ManageAccountsIcon fontSize="small" /></ListItemIcon>
+                  <ListItemText primary={t('nav.users')} />
+                </ListItemButton>
+              </ListItem>
+            )}
           </>
         )}
 
@@ -164,7 +175,7 @@ function DrawerAppBar(props) {
         {auth && !isAdmin && (
           <>
             <Divider sx={{ my: 1 }} />
-            {!isActive('/register-child') && (
+            {!isActive('/register-child') && !isBlocked && (
               <ListItem disablePadding>
                 <ListItemButton component={Link} to="/register-child">
                   <ListItemIcon sx={{ minWidth: 36 }}><PersonAddIcon fontSize="small" /></ListItemIcon>
@@ -311,13 +322,23 @@ function DrawerAppBar(props) {
                     {t('nav.registrations')}
                   </Button>
                 )}
+                {!isActive('/admin/users') && (
+                  <Button
+                    sx={{ color: '#fff' }}
+                    component={Link}
+                    to="/admin/users"
+                    startIcon={<ManageAccountsIcon />}
+                  >
+                    {t('nav.users')}
+                  </Button>
+                )}
               </>
             )}
 
             {/* Regular user desktop items */}
             {auth && !isAdmin && (
               <>
-                {!isActive('/register-child') && (
+                {!isActive('/register-child') && !isBlocked && (
                   <Button
                     sx={{ color: '#fff' }}
                     component={Link}

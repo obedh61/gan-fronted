@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie } from '../helpers'
+import useIsBlocked from '../../hooks/useIsBlocked'
 import { useFormik } from 'formik'
 import { createRegistrationSchema, validatePDFFile } from '../../validation/registrationSchema'
 import DrawerAppBar from '../../components/Bar'
@@ -73,6 +74,7 @@ const ChildRegistration = () => {
     }, [t, ready])
 
     const [activeStep, setActiveStep] = useState(0)
+    const isBlocked = useIsBlocked()
     const [schoolYears, setSchoolYears] = useState([])
     const [selectedSchoolYearId, setSelectedSchoolYearId] = useState('')
     const [contractUrl, setContractUrl] = useState('')
@@ -759,6 +761,22 @@ const ChildRegistration = () => {
     // ============================================
     // RENDER
     // ============================================
+
+    // Blocked users cannot register new children
+    if (isBlocked) {
+        return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                <Box sx={{ flexGrow: 1 }}>
+                    <DrawerAppBar />
+                    <Container maxWidth="md" sx={{ py: 4 }}>
+                        <Alert severity="warning">
+                            {t('parent.registration.blocked')}
+                        </Alert>
+                    </Container>
+                </Box><AppToastContainer />
+            </Box>
+        )
+    }
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>

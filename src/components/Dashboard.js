@@ -8,6 +8,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
 import EngineeringIcon from '@mui/icons-material/Engineering'
 import AssessmentIcon from '@mui/icons-material/Assessment'
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { useNavigate } from 'react-router-dom'
 
 function DashboardAdmin() {
@@ -35,6 +36,13 @@ function DashboardAdmin() {
             icon: CalendarTodayIcon,
             path: '/admin/school-years',
             color: '#2196f3'
+        },
+        {
+            title: t('admin.usersCardTitle'),
+            description: t('admin.usersCardDesc'),
+            icon: ManageAccountsIcon,
+            path: '/admin/users',
+            color: '#e91e63'
         },
         {
             title: t('admin.workersCardTitle'),

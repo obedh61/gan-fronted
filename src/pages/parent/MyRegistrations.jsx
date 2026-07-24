@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
 import { getCookie, formatDate } from '../helpers'
+import useIsBlocked from '../../hooks/useIsBlocked'
 import DrawerAppBar from '../../components/Bar'
 import { toast } from 'react-toastify'
 import AppToastContainer from '../../components/AppToastContainer'
@@ -50,6 +51,7 @@ const MyRegistrations = () => {
     const token = getCookie('token')
     const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token])
     const API = process.env.REACT_APP_API
+    const isBlocked = useIsBlocked()
 
     // ============================================
     // API FUNCTIONS
@@ -156,14 +158,16 @@ const MyRegistrations = () => {
                         <Typography variant="h4" color="#4A7B59">
                             {t('parent.myRegistrations.title')}
                         </Typography>
-                        <Button
-                            variant="contained"
-                            color="success"
-                            startIcon={<AddIcon />}
-                            onClick={() => navigate('/register-child')}
-                        >
-                            {t('parent.myRegistrations.registerNew')}
-                        </Button>
+                        {!isBlocked && (
+                            <Button
+                                variant="contained"
+                                color="success"
+                                startIcon={<AddIcon />}
+                                onClick={() => navigate('/register-child')}
+                            >
+                                {t('parent.myRegistrations.registerNew')}
+                            </Button>
+                        )}
                     </Box>
 
                     {/* Filters */}
@@ -219,15 +223,17 @@ const MyRegistrations = () => {
                                 <Typography variant="body1" color="text.secondary" mb={3}>
                                     {t('parent.myRegistrations.emptyText')}
                                 </Typography>
-                                <Button
-                                    variant="contained"
-                                    color="success"
-                                    size="large"
-                                    startIcon={<AddIcon />}
-                                    onClick={() => navigate('/register-child')}
-                                >
-                                    {t('parent.myRegistrations.registerFirst')}
-                                </Button>
+                                {!isBlocked && (
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        size="large"
+                                        startIcon={<AddIcon />}
+                                        onClick={() => navigate('/register-child')}
+                                    >
+                                        {t('parent.myRegistrations.registerFirst')}
+                                    </Button>
+                                )}
                             </CardContent>
                         </Card>
                     ) : filtered.length === 0 ? (
@@ -299,7 +305,7 @@ const MyRegistrations = () => {
                                             >
                                                 {t('parent.myRegistrations.viewDetails')}
                                             </Button>
-                                            {reg.status === 'rejected' && (
+                                            {reg.status === 'rejected' && !isBlocked && (
                                                 <Button
                                                     size="small"
                                                     startIcon={<ReplayIcon />}
@@ -490,7 +496,7 @@ const MyRegistrations = () => {
                             </DialogContent>
                         )}
                         <DialogActions>
-                            {selected?.status === 'rejected' && (
+                            {selected?.status === 'rejected' && !isBlocked && (
                                 <Button
                                     onClick={registerAgain}
                                     color="primary"

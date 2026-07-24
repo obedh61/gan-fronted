@@ -84,6 +84,7 @@
     "schoolYears": "School Years",
     "dashboard": "Dashboard",
     "registrations": "Registrations",
+    "users": "Users",
     "registerChild": "Register Child",
     "myRegistrations": "My Registrations",
     "workers": "Workers",
@@ -274,6 +275,42 @@
     "workersCardDesc": "Add and manage worker accounts",
     "workSessionsCardTitle": "Work Sessions",
     "workSessionsCardDesc": "View worker time tracking and sessions",
+    "usersCardTitle": "User Management",
+    "usersCardDesc": "Manage users, roles and registration blocks",
+
+    "users": {
+      "title": "User Management",
+      "empty": "No users found.",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "registrationStatus": "Child Registration",
+      "registeredAt": "Registered",
+      "you": "You",
+      "blocked": "Blocked",
+      "active": "Active",
+      "roles": {
+        "subscriber": "Subscriber",
+        "admin": "Admin"
+      },
+      "makeAdmin": "Make admin",
+      "makeSubscriber": "Make subscriber",
+      "block": "Block registration",
+      "unblock": "Unblock",
+      "cannotModifySelf": "You cannot modify your own account",
+      "deleteTitle": "Delete user",
+      "deleteText": "Are you sure you want to delete {{name}} ({{email}})?",
+      "deleteWarning": "This action cannot be undone.",
+      "deleting": "Deleting...",
+      "fetchError": "Error loading users",
+      "roleUpdateSuccess": "Role updated successfully",
+      "roleUpdateError": "Error updating role",
+      "blockSuccess": "User blocked from registering children",
+      "unblockSuccess": "User unblocked",
+      "blockUpdateError": "Error updating block status",
+      "deleteSuccess": "User deleted successfully",
+      "deleteError": "Error deleting user"
+    },
 
     "schoolYear": {
       "title": "School Year Management",
@@ -441,6 +478,7 @@
   "parent": {
     "registration": {
       "title": "Child Registration",
+      "blocked": "Your account has been blocked from registering new children. Please contact the administration.",
       "steps": ["School Year", "Information", "Contract", "Upload", "Done"],
       "mobileStep": "Step {{step}}: {{label}}",
       "selectYearTitle": "Select School Year",

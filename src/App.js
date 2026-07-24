@@ -26,6 +26,7 @@ import PrivateSession from './pages/PrivateSession';
 import SchoolYearManagement from './pages/admin/SchoolYearManagement';
 import PendingRegistrations from './pages/admin/PendingRegistrations';
 import SchoolYearDashboard from './pages/admin/SchoolYearDashboard';
+import UserManagement from './pages/admin/UserManagement';
 import ChildRegistration from './pages/parent/ChildRegistration';
 import MyRegistrations from './pages/parent/MyRegistrations';
 import LegalPage from './pages/LegalPage';
@@ -67,6 +68,7 @@ function App() {
             <Route path='/admin' element={<Admin />} />
             <Route path='/admin/school-years' element={<SchoolYearManagement />} />
             <Route path='/admin/registrations' element={<PendingRegistrations />} />
+            <Route path='/admin/users' element={<UserManagement />} />
             <Route path='/admin/dashboard' element={<SchoolYearDashboard />} />
           </Route>
           <Route element={<NewWorker />}>
