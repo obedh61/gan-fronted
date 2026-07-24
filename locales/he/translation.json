@@ -84,6 +84,7 @@
     "schoolYears": "שנות לימוד",
     "dashboard": "לוח בקרה",
     "registrations": "רישומים",
+    "users": "משתמשים",
     "registerChild": "רישום ילד",
     "myRegistrations": "הרישומים שלי",
     "workers": "עובדים",
@@ -274,6 +275,42 @@
     "workersCardDesc": "הוסף ונהל חשבונות עובדים",
     "workSessionsCardTitle": "משמרות עבודה",
     "workSessionsCardDesc": "צפה במעקב זמני עבודה ומשמרות",
+    "usersCardTitle": "ניהול משתמשים",
+    "usersCardDesc": "נהל משתמשים, תפקידים וחסימות רישום",
+
+    "users": {
+      "title": "ניהול משתמשים",
+      "empty": "לא נמצאו משתמשים.",
+      "name": "שם",
+      "email": "אימייל",
+      "role": "תפקיד",
+      "registrationStatus": "רישום ילדים",
+      "registeredAt": "תאריך הרשמה",
+      "you": "אתה",
+      "blocked": "חסום",
+      "active": "פעיל",
+      "roles": {
+        "subscriber": "מנוי",
+        "admin": "מנהל"
+      },
+      "makeAdmin": "הפוך למנהל",
+      "makeSubscriber": "הפוך למנוי",
+      "block": "חסום רישום",
+      "unblock": "בטל חסימה",
+      "cannotModifySelf": "לא ניתן לשנות את החשבון שלך",
+      "deleteTitle": "מחיקת משתמש",
+      "deleteText": "האם אתה בטוח שברצונך למחוק את {{name}} ({{email}})?",
+      "deleteWarning": "פעולה זו לא ניתנת לביטול.",
+      "deleting": "מוחק...",
+      "fetchError": "שגיאה בטעינת משתמשים",
+      "roleUpdateSuccess": "התפקיד עודכן בהצלחה",
+      "roleUpdateError": "שגיאה בעדכון התפקיד",
+      "blockSuccess": "המשתמש נחסם מרישום ילדים",
+      "unblockSuccess": "חסימת המשתמש בוטלה",
+      "blockUpdateError": "שגיאה בעדכון החסימה",
+      "deleteSuccess": "המשתמש נמחק בהצלחה",
+      "deleteError": "שגיאה במחיקת המשתמש"
+    },
 
     "schoolYear": {
       "title": "ניהול שנות לימוד",
@@ -441,6 +478,7 @@
   "parent": {
     "registration": {
       "title": "רישום ילד",
+      "blocked": "החשבון שלך נחסם לרישום ילדים נוספים. אנא צור קשר עם ההנהלה.",
       "steps": ["שנת לימודים", "פרטים", "חוזה", "העלאה", "סיום"],
       "mobileStep": "שלב {{step}}: {{label}}",
       "selectYearTitle": "בחר שנת לימודים",
