@@ -11,21 +11,23 @@ import AppToastContainer from '../components/AppToastContainer';
 
 function Forgot() {
     const { t } = useTranslation()
-    const [values, setValues] = useState({
-        email: '',
-        buttonText: t('auth.requestReset')
-    }) 
-    
-    const { email, buttonText } = values
-    
-    const handleChange = (name) => (event) => {
+    const [email, setEmail] = useState('')
+    const [status, setStatus] = useState('idle')
+
+    const buttonText = status === 'submitting'
+        ? t('auth.submitting')
+        : status === 'submitted'
+            ? t('auth.submitted')
+            : t('auth.requestReset')
+
+    const handleChange = (event) => {
         console.log(event.target.value);
-        setValues({ ...values, [name]: event.target.value})
+        setEmail(event.target.value)
     }
 
     const clickSubmit = event => {
         event.preventDefault()
-        setValues({...values, buttonText: t('auth.submitting')})
+        setStatus('submitting')
         axios({
             method: 'PUT',
             url: `${process.env.REACT_APP_API}/forgot-password`,
@@ -34,15 +36,13 @@ function Forgot() {
         .then(response => {
             console.log('FORGOT PASSWORD SUCCESS', response)
             toast.success(response.data.message)
-            setValues({...values, email: '', buttonText: t('auth.submitted')})
+            setEmail('')
+            setStatus('submitted')
         })
         .catch(error => {
             console.log('FORGOT PASSWORD ERROR', error.response.data);
-            setValues({
-                ...values,
-                email: '',
-                buttonText: t('auth.requestReset')
-            })
+            setEmail('')
+            setStatus('idle')
             toast.error(error.response.data.error)
         })
     }  
@@ -82,7 +82,7 @@ function Forgot() {
                         {t('auth.forgotTitle')}
                     </Typography>
                     
-                    <TextField onChange={handleChange('email')} value={email} margin='normal' type='email' variant='outlined' placeholder={t('auth.emailPlaceholder')}/>
+                    <TextField onChange={handleChange} value={email} margin='normal' type='email' variant='outlined' placeholder={t('auth.emailPlaceholder')}/>
                     <Button 
                         onClick={clickSubmit} 
                         endIcon={<SendIcon />} 

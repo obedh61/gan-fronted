@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { decodeToken } from "react-jwt";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import SendIcon from '@mui/icons-material/Send';
 
 import { Box, Button, Typography} from '@mui/material'
@@ -14,11 +14,10 @@ import AppToastContainer from '../components/AppToastContainer';
 
 function Reset() {
     const { t } = useTranslation()
-    const [values, setValues] = useState({
-        token: '',
-        newPassword: '',
-        buttonText: t('auth.resetPassword')
-    })
+    const navigate = useNavigate()
+    const [token, setToken] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [status, setStatus] = useState('idle')
 
     let {tokend} = useParams()
 
@@ -26,20 +25,24 @@ function Reset() {
         if (!tokend) return
         const decoded = decodeToken(tokend)
         if (decoded && tokend) {
-            setValues(v => ({ ...v, token: tokend }))
+            setToken(tokend)
         }
     }, [tokend])
 
-    const { buttonText, token, newPassword } = values
+    const buttonText = status === 'submitting'
+        ? t('auth.submitting')
+        : status === 'submitted'
+            ? t('auth.submitted')
+            : t('auth.resetPassword')
 
     const handleChange = (event) => {
         console.log(event.target.value);
-        setValues({ ...values, newPassword: event.target.value})
+        setNewPassword(event.target.value)
     }
 
     const clickSubmit = event => {
         event.preventDefault()
-        setValues({...values, buttonText: t('auth.submitting')})
+        setStatus('submitting')
         axios({
             method: 'PUT',
             url: `${process.env.REACT_APP_API}/reset-password`,
@@ -48,17 +51,15 @@ function Reset() {
         .then(response => {
             console.log('RESET PASSWORD SUCCESS', response)
             toast.success(response.data.message)
-            setValues({...values, buttonText: t('auth.submitted')})
+            setStatus('submitted')
+            setTimeout(() => navigate('/access'), 2000)
         })
         .catch(error => {
             console.log('RESET PASSWORD ERROR', error.response.data);
-            setValues({
-                ...values,
-                buttonText: t('auth.resetPassword')
-            })
+            setStatus('idle')
             toast.error(error.response.data.error)
         })
-    }  
+    }
   return (
     <div style={{margin:10}}>
       <DrawerAppBar />
